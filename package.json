@@ -1,15 +1,14 @@
 {
   "name": "change-of-bid-back",
   "version": "1.0.50",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "node --watch --experimental-strip-types src/index.ts"
   },
   "dependencies": {
+    "@elysiajs/node": "^1.4.5",
     "elysia": "latest"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
   },
   "module": "src/index.js"
 }
