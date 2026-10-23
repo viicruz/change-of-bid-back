@@ -4,11 +4,16 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch --experimental-strip-types src/index.ts"
+    "dev": "node --watch --experimental-strip-types src/index.ts",
+    "fallow": "npx fallow"
   },
   "dependencies": {
     "@elysiajs/node": "^1.4.5",
-    "elysia": "latest"
+    "elysia": "latest",
+    "zod": "^4.6.7"
   },
-  "module": "src/index.js"
+  "module": "src/index.js",
+  "devDependencies": {
+    "vitest": "^5.0.5"
+  }
 }
