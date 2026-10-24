@@ -1,0 +1,9 @@
+node_modules
+.git
+.env
+.env.*
+coverage
+src/**/*.test.ts
+src/test
+*.md
+docker-compose.yml
