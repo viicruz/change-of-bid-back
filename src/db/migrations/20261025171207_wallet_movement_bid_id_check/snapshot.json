@@ -1,0 +1,43 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "a152964b-5a5d-4187-8d56-15f5e681c34b",
+  "prevIds": [
+    "5a3140c7-a28d-4111-915e-2c3b265e64dd"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet_movement"
+      ],
+      "writes": [
+        "s|ck|public.wallet_movement.wallet_movement_bid_id_check",
+        "n|ck|public.wallet_movement.wallet_movement_bid_id_check",
+        "e|ck|public.wallet_movement.wallet_movement_bid_id_check",
+        "n|con|public.wallet_movement.wallet_movement_bid_id_check"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|col|public.wallet_movement.type",
+        "n|col|public.wallet_movement.bid_id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_bid_id_check",
+        "value": "\"type\" NOT IN ('HOLD', 'RELEASE') OR \"bid_id\" IS NOT NULL",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

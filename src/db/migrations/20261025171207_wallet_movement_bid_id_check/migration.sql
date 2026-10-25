@@ -1,0 +1,1 @@
+ALTER TABLE "wallet_movement" ADD CONSTRAINT "wallet_movement_bid_id_check" CHECK ("type" NOT IN ('HOLD', 'RELEASE') OR "bid_id" IS NOT NULL);
