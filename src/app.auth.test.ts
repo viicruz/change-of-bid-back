@@ -3,9 +3,9 @@ import { eq } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 //* Local imports
-import { app } from "./app.ts";
-import { db } from "./db/index.ts";
-import { user } from "./db/schema.ts";
+import { app } from "./app";
+import { db } from "./db/index";
+import { user } from "./db/schema";
 
 const password = "Correct-horse-battery-1";
 const createdEmails: string[] = [];
@@ -31,7 +31,7 @@ type RegisteredUser = {
 
 function request(
   path: string,
-  headers?: HeadersInit,
+  headers?: RequestInit["headers"],
   method = "GET",
   body?: string,
 ) {

@@ -1,0 +1,3570 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "5a3140c7-a28d-4111-915e-2c3b265e64dd",
+  "prevIds": [
+    "d025b8ed-da81-4e84-9b06-cce93c6b3522"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "lot_status"
+      ],
+      "writes": [
+        "s|enum|public.lot_status",
+        "n|enum|public.lot_status",
+        "e|enum|public.lot_status",
+        "n|type|public.lot_status"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "user_role"
+      ],
+      "writes": [
+        "s|enum|public.user_role",
+        "n|enum|public.user_role",
+        "e|enum|public.user_role",
+        "n|type|public.user_role"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "wallet_movement_type"
+      ],
+      "writes": [
+        "s|enum|public.wallet_movement_type",
+        "n|enum|public.wallet_movement_type",
+        "e|enum|public.wallet_movement_type",
+        "n|type|public.wallet_movement_type"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "bid"
+      ],
+      "writes": [
+        "s|tbl|public.bid",
+        "n|tbl|public.bid",
+        "e|tbl|public.bid",
+        "n|rel|public.bid",
+        "n|type|public.bid",
+        "n|rel|public.bid_pkey",
+        "n|rel|public.bid_lot_id_sequence_unique"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "card"
+      ],
+      "writes": [
+        "s|tbl|public.card",
+        "n|tbl|public.card",
+        "e|tbl|public.card",
+        "n|rel|public.card",
+        "n|type|public.card",
+        "n|rel|public.card_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot"
+      ],
+      "writes": [
+        "s|tbl|public.lot",
+        "n|tbl|public.lot",
+        "e|tbl|public.lot",
+        "n|rel|public.lot",
+        "n|type|public.lot",
+        "n|rel|public.lot_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|enum|public.lot_status"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot_item"
+      ],
+      "writes": [
+        "s|tbl|public.lot_item",
+        "n|tbl|public.lot_item",
+        "e|tbl|public.lot_item",
+        "n|rel|public.lot_item",
+        "n|type|public.lot_item",
+        "n|rel|public.lot_item_pkey",
+        "n|rel|public.lot_item_lot_id_position_unique"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot_participant"
+      ],
+      "writes": [
+        "s|tbl|public.lot_participant",
+        "n|tbl|public.lot_participant",
+        "e|tbl|public.lot_participant",
+        "n|rel|public.lot_participant",
+        "n|type|public.lot_participant",
+        "n|rel|public.lot_participant_pkey",
+        "n|rel|public.lot_participant_lot_id_user_id_unique",
+        "n|rel|public.lot_participant_lot_id_participant_no_unique"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "receipt"
+      ],
+      "writes": [
+        "s|tbl|public.receipt",
+        "n|tbl|public.receipt",
+        "e|tbl|public.receipt",
+        "n|rel|public.receipt",
+        "n|type|public.receipt",
+        "n|rel|public.receipt_pkey",
+        "n|rel|public.receipt_lot_id_key",
+        "n|rel|public.receipt_winning_bid_id_key",
+        "n|rel|public.receipt_share_token_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet"
+      ],
+      "writes": [
+        "s|tbl|public.wallet",
+        "n|tbl|public.wallet",
+        "e|tbl|public.wallet",
+        "n|rel|public.wallet",
+        "n|type|public.wallet",
+        "n|rel|public.wallet_pkey",
+        "n|rel|public.wallet_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet_movement"
+      ],
+      "writes": [
+        "s|tbl|public.wallet_movement",
+        "n|tbl|public.wallet_movement",
+        "e|tbl|public.wallet_movement",
+        "n|rel|public.wallet_movement",
+        "n|type|public.wallet_movement",
+        "n|rel|public.wallet_movement_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|enum|public.wallet_movement_type"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "user",
+        "role"
+      ],
+      "writes": [
+        "s|col|public.user.role",
+        "n|col|public.user.role",
+        "e|col|public.user.role"
+      ],
+      "reads": [
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|enum|public.user_role"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "account",
+        "access_token_expires_at"
+      ],
+      "writes": [
+        "s|colprop|public.account.access_token_expires_at.type",
+        "s|colprop|public.account.access_token_expires_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.account",
+        "n|sch|public",
+        "n|col|public.account.access_token_expires_at"
+      ],
+      "sqlHash": "cb5930b20cbf9b4b"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "account",
+        "refresh_token_expires_at"
+      ],
+      "writes": [
+        "s|colprop|public.account.refresh_token_expires_at.type",
+        "s|colprop|public.account.refresh_token_expires_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.account",
+        "n|sch|public",
+        "n|col|public.account.refresh_token_expires_at"
+      ],
+      "sqlHash": "466467bc09fce37e"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "account",
+        "created_at"
+      ],
+      "writes": [
+        "s|colprop|public.account.created_at.type",
+        "s|colprop|public.account.created_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.account",
+        "n|sch|public",
+        "n|col|public.account.created_at"
+      ],
+      "sqlHash": "57b377f23f7b3550"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "account",
+        "updated_at"
+      ],
+      "writes": [
+        "s|colprop|public.account.updated_at.default",
+        "s|colprop|public.account.updated_at.type"
+      ],
+      "reads": [
+        "n|tbl|public.account",
+        "n|sch|public",
+        "n|col|public.account.updated_at"
+      ],
+      "sqlHash": "615890f34db11d36"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "session",
+        "expires_at"
+      ],
+      "writes": [
+        "s|colprop|public.session.expires_at.type",
+        "s|colprop|public.session.expires_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.session",
+        "n|sch|public",
+        "n|col|public.session.expires_at"
+      ],
+      "sqlHash": "3f8dbd12bf81c50e"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "session",
+        "created_at"
+      ],
+      "writes": [
+        "s|colprop|public.session.created_at.type",
+        "s|colprop|public.session.created_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.session",
+        "n|sch|public",
+        "n|col|public.session.created_at"
+      ],
+      "sqlHash": "80c6fbd457434b36"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "session",
+        "updated_at"
+      ],
+      "writes": [
+        "s|colprop|public.session.updated_at.default",
+        "s|colprop|public.session.updated_at.type"
+      ],
+      "reads": [
+        "n|tbl|public.session",
+        "n|sch|public",
+        "n|col|public.session.updated_at"
+      ],
+      "sqlHash": "674b8077f043d668"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "user",
+        "created_at"
+      ],
+      "writes": [
+        "s|colprop|public.user.created_at.type",
+        "s|colprop|public.user.created_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.user.created_at"
+      ],
+      "sqlHash": "905cf6b963a23a2f"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "user",
+        "updated_at"
+      ],
+      "writes": [
+        "s|colprop|public.user.updated_at.type",
+        "s|colprop|public.user.updated_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.user.updated_at"
+      ],
+      "sqlHash": "e8f6e92f6e1a94ec"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "verification",
+        "expires_at"
+      ],
+      "writes": [
+        "s|colprop|public.verification.expires_at.type",
+        "s|colprop|public.verification.expires_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.verification",
+        "n|sch|public",
+        "n|col|public.verification.expires_at"
+      ],
+      "sqlHash": "776542783dd35142"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "verification",
+        "created_at"
+      ],
+      "writes": [
+        "s|colprop|public.verification.created_at.type",
+        "s|colprop|public.verification.created_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.verification",
+        "n|sch|public",
+        "n|col|public.verification.created_at"
+      ],
+      "sqlHash": "0581b8e10bdda68c"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "verification",
+        "updated_at"
+      ],
+      "writes": [
+        "s|colprop|public.verification.updated_at.type",
+        "s|colprop|public.verification.updated_at.default"
+      ],
+      "reads": [
+        "n|tbl|public.verification",
+        "n|sch|public",
+        "n|col|public.verification.updated_at"
+      ],
+      "sqlHash": "1b3b269dcaca5e60"
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "bid",
+        "bid_bidder_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.bid_bidder_id_idx",
+        "n|idx|public.bid_bidder_id_idx",
+        "e|idx|public.bid_bidder_id_idx",
+        "n|rel|public.bid_bidder_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|col|public.bid.bidder_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot",
+        "lot_status_ends_at_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_status_ends_at_idx",
+        "n|idx|public.lot_status_ends_at_idx",
+        "e|idx|public.lot_status_ends_at_idx",
+        "n|rel|public.lot_status_ends_at_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot.status",
+        "n|col|public.lot.ends_at"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot",
+        "lot_status_starts_at_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_status_starts_at_idx",
+        "n|idx|public.lot_status_starts_at_idx",
+        "e|idx|public.lot_status_starts_at_idx",
+        "n|rel|public.lot_status_starts_at_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot.status",
+        "n|col|public.lot.starts_at"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot",
+        "lot_auctioneer_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_auctioneer_id_idx",
+        "n|idx|public.lot_auctioneer_id_idx",
+        "e|idx|public.lot_auctioneer_id_idx",
+        "n|rel|public.lot_auctioneer_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot.auctioneer_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot",
+        "lot_title_trgm_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_title_trgm_idx",
+        "n|idx|public.lot_title_trgm_idx",
+        "e|idx|public.lot_title_trgm_idx",
+        "n|rel|public.lot_title_trgm_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot.title"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot_item",
+        "lot_item_lot_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_item_lot_id_idx",
+        "n|idx|public.lot_item_lot_id_idx",
+        "e|idx|public.lot_item_lot_id_idx",
+        "n|rel|public.lot_item_lot_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot_item",
+        "n|sch|public",
+        "n|col|public.lot_item.lot_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot_item",
+        "lot_item_card_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_item_card_id_idx",
+        "n|idx|public.lot_item_card_id_idx",
+        "e|idx|public.lot_item_card_id_idx",
+        "n|rel|public.lot_item_card_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot_item",
+        "n|sch|public",
+        "n|col|public.lot_item.card_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot_item",
+        "lot_item_card_name_trgm_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_item_card_name_trgm_idx",
+        "n|idx|public.lot_item_card_name_trgm_idx",
+        "e|idx|public.lot_item_card_name_trgm_idx",
+        "n|rel|public.lot_item_card_name_trgm_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot_item",
+        "n|sch|public",
+        "n|col|public.lot_item.card_name"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "lot_participant",
+        "lot_participant_user_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.lot_participant_user_id_idx",
+        "n|idx|public.lot_participant_user_id_idx",
+        "e|idx|public.lot_participant_user_id_idx",
+        "n|rel|public.lot_participant_user_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.lot_participant",
+        "n|sch|public",
+        "n|col|public.lot_participant.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "wallet_movement",
+        "wallet_movement_bid_id_type_hold_release_key"
+      ],
+      "writes": [
+        "s|idx|public.wallet_movement_bid_id_type_hold_release_key",
+        "n|idx|public.wallet_movement_bid_id_type_hold_release_key",
+        "e|idx|public.wallet_movement_bid_id_type_hold_release_key",
+        "n|rel|public.wallet_movement_bid_id_type_hold_release_key"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|col|public.wallet_movement.bid_id",
+        "n|col|public.wallet_movement.type"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "wallet_movement",
+        "wallet_movement_lot_id_type_settlement_key"
+      ],
+      "writes": [
+        "s|idx|public.wallet_movement_lot_id_type_settlement_key",
+        "n|idx|public.wallet_movement_lot_id_type_settlement_key",
+        "e|idx|public.wallet_movement_lot_id_type_settlement_key",
+        "n|rel|public.wallet_movement_lot_id_type_settlement_key"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|col|public.wallet_movement.lot_id",
+        "n|col|public.wallet_movement.type"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "wallet_movement",
+        "wallet_movement_wallet_id_created_at_idx"
+      ],
+      "writes": [
+        "s|idx|public.wallet_movement_wallet_id_created_at_idx",
+        "n|idx|public.wallet_movement_wallet_id_created_at_idx",
+        "e|idx|public.wallet_movement_wallet_id_created_at_idx",
+        "n|rel|public.wallet_movement_wallet_id_created_at_idx"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|col|public.wallet_movement.wallet_id",
+        "n|col|public.wallet_movement.created_at"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "bid"
+      ],
+      "writes": [
+        "s|fk|public.bid.bid_lot_id_lot_id_fkey",
+        "n|fk|public.bid.bid_lot_id_lot_id_fkey",
+        "e|fk|public.bid.bid_lot_id_lot_id_fkey",
+        "n|con|public.bid.bid_lot_id_lot_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.bid.lot_id",
+        "n|col|public.lot.id",
+        "e|uniqueness|public.lot.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "bid"
+      ],
+      "writes": [
+        "s|fk|public.bid.bid_participant_id_lot_participant_id_fkey",
+        "n|fk|public.bid.bid_participant_id_lot_participant_id_fkey",
+        "e|fk|public.bid.bid_participant_id_lot_participant_id_fkey",
+        "n|con|public.bid.bid_participant_id_lot_participant_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|tbl|public.lot_participant",
+        "n|sch|public",
+        "n|col|public.bid.participant_id",
+        "n|col|public.lot_participant.id",
+        "e|uniqueness|public.lot_participant.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "bid"
+      ],
+      "writes": [
+        "s|fk|public.bid.bid_bidder_id_user_id_fkey",
+        "n|fk|public.bid.bid_bidder_id_user_id_fkey",
+        "e|fk|public.bid.bid_bidder_id_user_id_fkey",
+        "n|con|public.bid.bid_bidder_id_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.bid.bidder_id",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot"
+      ],
+      "writes": [
+        "s|fk|public.lot.lot_auctioneer_id_user_id_fkey",
+        "n|fk|public.lot.lot_auctioneer_id_user_id_fkey",
+        "e|fk|public.lot.lot_auctioneer_id_user_id_fkey",
+        "n|con|public.lot.lot_auctioneer_id_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.lot.auctioneer_id",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot"
+      ],
+      "writes": [
+        "s|fk|public.lot.lot_current_bid_id_bid_id_fkey",
+        "n|fk|public.lot.lot_current_bid_id_bid_id_fkey",
+        "e|fk|public.lot.lot_current_bid_id_bid_id_fkey",
+        "n|con|public.lot.lot_current_bid_id_bid_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|col|public.lot.current_bid_id",
+        "n|col|public.bid.id",
+        "e|uniqueness|public.bid.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot"
+      ],
+      "writes": [
+        "s|fk|public.lot.lot_winner_id_user_id_fkey",
+        "n|fk|public.lot.lot_winner_id_user_id_fkey",
+        "e|fk|public.lot.lot_winner_id_user_id_fkey",
+        "n|con|public.lot.lot_winner_id_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.lot.winner_id",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot_item"
+      ],
+      "writes": [
+        "s|fk|public.lot_item.lot_item_lot_id_lot_id_fkey",
+        "n|fk|public.lot_item.lot_item_lot_id_lot_id_fkey",
+        "e|fk|public.lot_item.lot_item_lot_id_lot_id_fkey",
+        "n|con|public.lot_item.lot_item_lot_id_lot_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot_item",
+        "n|sch|public",
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot_item.lot_id",
+        "n|col|public.lot.id",
+        "e|uniqueness|public.lot.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot_item"
+      ],
+      "writes": [
+        "s|fk|public.lot_item.lot_item_card_id_card_id_fkey",
+        "n|fk|public.lot_item.lot_item_card_id_card_id_fkey",
+        "e|fk|public.lot_item.lot_item_card_id_card_id_fkey",
+        "n|con|public.lot_item.lot_item_card_id_card_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot_item",
+        "n|sch|public",
+        "n|tbl|public.card",
+        "n|sch|public",
+        "n|col|public.lot_item.card_id",
+        "n|col|public.card.id",
+        "e|uniqueness|public.card.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot_participant"
+      ],
+      "writes": [
+        "s|fk|public.lot_participant.lot_participant_lot_id_lot_id_fkey",
+        "n|fk|public.lot_participant.lot_participant_lot_id_lot_id_fkey",
+        "e|fk|public.lot_participant.lot_participant_lot_id_lot_id_fkey",
+        "n|con|public.lot_participant.lot_participant_lot_id_lot_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot_participant",
+        "n|sch|public",
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot_participant.lot_id",
+        "n|col|public.lot.id",
+        "e|uniqueness|public.lot.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot_participant"
+      ],
+      "writes": [
+        "s|fk|public.lot_participant.lot_participant_user_id_user_id_fkey",
+        "n|fk|public.lot_participant.lot_participant_user_id_user_id_fkey",
+        "e|fk|public.lot_participant.lot_participant_user_id_user_id_fkey",
+        "n|con|public.lot_participant.lot_participant_user_id_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.lot_participant",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.lot_participant.user_id",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "receipt"
+      ],
+      "writes": [
+        "s|fk|public.receipt.receipt_lot_id_lot_id_fkey",
+        "n|fk|public.receipt.receipt_lot_id_lot_id_fkey",
+        "e|fk|public.receipt.receipt_lot_id_lot_id_fkey",
+        "n|con|public.receipt.receipt_lot_id_lot_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.receipt",
+        "n|sch|public",
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.receipt.lot_id",
+        "n|col|public.lot.id",
+        "e|uniqueness|public.lot.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "receipt"
+      ],
+      "writes": [
+        "s|fk|public.receipt.receipt_winning_bid_id_bid_id_fkey",
+        "n|fk|public.receipt.receipt_winning_bid_id_bid_id_fkey",
+        "e|fk|public.receipt.receipt_winning_bid_id_bid_id_fkey",
+        "n|con|public.receipt.receipt_winning_bid_id_bid_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.receipt",
+        "n|sch|public",
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|col|public.receipt.winning_bid_id",
+        "n|col|public.bid.id",
+        "e|uniqueness|public.bid.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "receipt"
+      ],
+      "writes": [
+        "s|fk|public.receipt.receipt_winner_id_user_id_fkey",
+        "n|fk|public.receipt.receipt_winner_id_user_id_fkey",
+        "e|fk|public.receipt.receipt_winner_id_user_id_fkey",
+        "n|con|public.receipt.receipt_winner_id_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.receipt",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.receipt.winner_id",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet"
+      ],
+      "writes": [
+        "s|fk|public.wallet.wallet_user_id_user_id_fkey",
+        "n|fk|public.wallet.wallet_user_id_user_id_fkey",
+        "e|fk|public.wallet.wallet_user_id_user_id_fkey",
+        "n|con|public.wallet.wallet_user_id_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.wallet",
+        "n|sch|public",
+        "n|tbl|public.user",
+        "n|sch|public",
+        "n|col|public.wallet.user_id",
+        "n|col|public.user.id",
+        "e|uniqueness|public.user.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet_movement"
+      ],
+      "writes": [
+        "s|fk|public.wallet_movement.wallet_movement_wallet_id_wallet_id_fkey",
+        "n|fk|public.wallet_movement.wallet_movement_wallet_id_wallet_id_fkey",
+        "e|fk|public.wallet_movement.wallet_movement_wallet_id_wallet_id_fkey",
+        "n|con|public.wallet_movement.wallet_movement_wallet_id_wallet_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|tbl|public.wallet",
+        "n|sch|public",
+        "n|col|public.wallet_movement.wallet_id",
+        "n|col|public.wallet.id",
+        "e|uniqueness|public.wallet.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet_movement"
+      ],
+      "writes": [
+        "s|fk|public.wallet_movement.wallet_movement_lot_id_lot_id_fkey",
+        "n|fk|public.wallet_movement.wallet_movement_lot_id_lot_id_fkey",
+        "e|fk|public.wallet_movement.wallet_movement_lot_id_lot_id_fkey",
+        "n|con|public.wallet_movement.wallet_movement_lot_id_lot_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.wallet_movement.lot_id",
+        "n|col|public.lot.id",
+        "e|uniqueness|public.lot.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet_movement"
+      ],
+      "writes": [
+        "s|fk|public.wallet_movement.wallet_movement_bid_id_bid_id_fkey",
+        "n|fk|public.wallet_movement.wallet_movement_bid_id_bid_id_fkey",
+        "e|fk|public.wallet_movement.wallet_movement_bid_id_bid_id_fkey",
+        "n|con|public.wallet_movement.wallet_movement_bid_id_bid_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|col|public.wallet_movement.bid_id",
+        "n|col|public.bid.id",
+        "e|uniqueness|public.bid.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "bid",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "card",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "lot",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "lot_item",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "lot_participant",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "receipt",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "wallet",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "wallet_movement",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "lot_status",
+        "values": [
+          "ACTIVE",
+          "ENDED",
+          "CANCELED"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "user_role",
+        "values": [
+          "BIDDER",
+          "AUCTIONEER"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "wallet_movement_type",
+        "values": [
+          "DEPOSIT",
+          "HOLD",
+          "RELEASE",
+          "SETTLEMENT_DEBIT",
+          "SETTLEMENT_CREDIT"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "lot_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "participant_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bidder_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "sequence",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "amount",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "clock_timestamp()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "previous_hash",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "hash",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "id",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "name",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "type",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "frame_type",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "description",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "race",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "attribute",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "atk",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "def",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "level",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "raw",
+        "type": "jsonb",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "image_path",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "fetched_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "auctioneer_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "title",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "description",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "opening_bid",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "min_increment",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "starts_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "original_ends_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "ends_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "extension_count",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "0",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "status",
+        "type": "lot_status",
+        "typeSchema": "public",
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'ACTIVE'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "current_bid_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "winner_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "bid_count",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "0",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "head_hash",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "ended_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "settled_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "canceled_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "position",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "card_id",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "quantity",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "1",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "card_name",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "card_snapshot",
+        "type": "jsonb",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "image_path",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "participant_no",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "lot_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "winning_bid_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "winner_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "winner_participant_no",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "final_amount",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "ended_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "share_token",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user",
+        "name": "role",
+        "type": "user_role",
+        "typeSchema": "public",
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'BIDDER'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "total_balance",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'0'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "committed_balance",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'0'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "gen_random_uuid()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "type",
+        "type": "wallet_movement_type",
+        "typeSchema": "public",
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "amount",
+        "type": "numeric(18,2)",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "lot_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "bid_id",
+        "type": "uuid",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_bidder_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "bidder_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_status_ends_at_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "status",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "ends_at",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_status_starts_at_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "status",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "starts_at",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_auctioneer_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "auctioneer_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_title_trgm_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "title",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": {
+              "name": "gin_trgm_ops",
+              "default": false
+            }
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "gin",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_lot_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "lot_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_card_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "card_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_card_name_trgm_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "card_name",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": {
+              "name": "gin_trgm_ops",
+              "default": false
+            }
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "gin",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_participant_user_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "user_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_bid_id_type_hold_release_key",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "bid_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "type",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": true,
+        "where": "\"type\" IN ('HOLD', 'RELEASE')",
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_lot_id_type_settlement_key",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "lot_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "type",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": true,
+        "where": "\"type\" IN ('SETTLEMENT_DEBIT', 'SETTLEMENT_CREDIT')",
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_wallet_id_created_at_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "wallet_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "created_at",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_lot_id_lot_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "lot_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "lot",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_participant_id_lot_participant_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "participant_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "lot_participant",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_bidder_id_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "bidder_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_auctioneer_id_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "auctioneer_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_current_bid_id_bid_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "current_bid_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "bid",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_winner_id_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "winner_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_lot_id_lot_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "lot_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "lot",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_card_id_card_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "card_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "card",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_participant_lot_id_lot_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "lot_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "lot",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_participant_user_id_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_lot_id_lot_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "lot_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "lot",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_winning_bid_id_bid_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "winning_bid_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "bid",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_winner_id_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "winner_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "wallet_user_id_user_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_wallet_id_wallet_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "wallet_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "wallet",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_lot_id_lot_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "lot_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "lot",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_bid_id_bid_id_fkey",
+        "nameExplicit": false,
+        "columns": [
+          "bid_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "bid",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "card",
+        "name": "card_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_participant_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "wallet_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_lot_id_sequence_unique",
+        "nameExplicit": true,
+        "columns": [
+          "lot_id",
+          "sequence"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_lot_id_position_unique",
+        "nameExplicit": true,
+        "columns": [
+          "lot_id",
+          "position"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_participant_lot_id_user_id_unique",
+        "nameExplicit": true,
+        "columns": [
+          "lot_id",
+          "user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_participant",
+        "name": "lot_participant_lot_id_participant_no_unique",
+        "nameExplicit": true,
+        "columns": [
+          "lot_id",
+          "participant_no"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_lot_id_key",
+        "nameExplicit": false,
+        "columns": [
+          "lot_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_winning_bid_id_key",
+        "nameExplicit": false,
+        "columns": [
+          "winning_bid_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_share_token_key",
+        "nameExplicit": false,
+        "columns": [
+          "share_token"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "wallet_user_id_key",
+        "nameExplicit": false,
+        "columns": [
+          "user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_amount_positive_check",
+        "value": "\"amount\" > 0",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_opening_bid_positive_check",
+        "value": "\"opening_bid\" > 0",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_min_increment_positive_check",
+        "value": "\"min_increment\" > 0",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_schedule_check",
+        "value": "\"starts_at\" < \"original_ends_at\" AND \"ends_at\" >= \"original_ends_at\"",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_canceled_check",
+        "value": "\"status\" <> 'CANCELED' OR (\"canceled_at\" IS NOT NULL AND \"winner_id\" IS NULL)",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_ended_check",
+        "value": "\"status\" <> 'ENDED' OR \"ended_at\" IS NOT NULL",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_winner_check",
+        "value": "\"winner_id\" IS NULL OR \"status\" = 'ENDED'",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot_item",
+        "name": "lot_item_quantity_positive_check",
+        "value": "\"quantity\" > 0",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet",
+        "name": "wallet_committed_balance_check",
+        "value": "\"committed_balance\" >= 0 AND \"committed_balance\" <= \"total_balance\"",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_amount_positive_check",
+        "value": "\"amount\" > 0",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_lot_id_check",
+        "value": "(\"type\" = 'DEPOSIT' AND \"lot_id\" IS NULL) OR (\"type\" <> 'DEPOSIT' AND \"lot_id\" IS NOT NULL)",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"account\",\"access_token_expires_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"account\",\"refresh_token_expires_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"account\",\"created_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"account\",\"updated_at\"]",
+      "set": {
+        "type": "timestamp with time zone",
+        "default": "now()"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"session\",\"expires_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"session\",\"created_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"session\",\"updated_at\"]",
+      "set": {
+        "type": "timestamp with time zone",
+        "default": "now()"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"user\",\"created_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"user\",\"updated_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"verification\",\"expires_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"verification\",\"created_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"verification\",\"updated_at\"]",
+      "set": {
+        "type": "timestamp with time zone"
+      }
+    }
+  ]
+}

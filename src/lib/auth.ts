@@ -4,8 +4,8 @@ import { betterAuth } from "better-auth";
 import { bearer } from "better-auth/plugins";
 
 //* Local imports
-import { db } from "../db/index.ts";
-import * as schema from "../db/schema.ts";
+import { db } from "../db/index";
+import * as schema from "../db/schema";
 
 const pageOrigin = process.env.PAGE_ORIGIN;
 

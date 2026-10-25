@@ -2,4 +2,4 @@
 set -eu
 
 npx drizzle-kit migrate
-exec node --experimental-strip-types src/index.ts
+exec node dist/index.js

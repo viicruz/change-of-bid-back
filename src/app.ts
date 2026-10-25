@@ -5,7 +5,7 @@ import { node } from "@elysiajs/node";
 import { Elysia } from "elysia";
 
 //* Local imports
-import { auth } from "./lib/auth.ts";
+import { auth } from "./lib/auth";
 
 const pageOrigin = process.env.PAGE_ORIGIN;
 
