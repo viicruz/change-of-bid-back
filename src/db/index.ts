@@ -3,7 +3,7 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 //* Local imports
-import { authRelations } from "./schema.ts";
+import { relations } from "./schema";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -12,5 +12,5 @@ if (!connectionString) {
 }
 
 export const db = drizzle(connectionString, {
-  relations: authRelations,
+  relations,
 });
