@@ -12,7 +12,7 @@ export const cardSetSchema = z.object({
 })
 
 export const cardImageSchema = z.object({
-  id: z.number().int(),
+  id: z.coerce.number().int(),
   image_url: z.string(),
   image_url_small: z.string(),
   image_url_cropped: z.string().optional(),
@@ -34,27 +34,27 @@ export const banlistInfoSchema = z.object({
 
 export const miscInfoSchema = z.object({
   beta_name: z.string().optional(),
-  beta_id: z.number().optional(),
+  beta_id: z.coerce.number().optional(),
   staple: z.string().optional(),
-  views: z.number(),
-  viewsweek: z.number(),
-  upvotes: z.number(),
-  downvotes: z.number(),
+  views: z.coerce.number(),
+  viewsweek: z.coerce.number(),
+  upvotes: z.coerce.number(),
+  downvotes: z.coerce.number(),
   formats: z.array(z.string()),
   treated_as: z.string().optional(),
   tcg_date: z.string().optional(),
   ocg_date: z.string().optional(),
-  konami_id: z.number().optional(),
+  konami_id: z.coerce.number().optional(),
   md_rarity: z.string().optional(),
   has_effect: binaryFlagSchema,
   question_atk: binaryFlagSchema.optional(),
   question_def: binaryFlagSchema.optional(),
-  genesys_points: z.number().optional(),
-  genesys_ocg_points: z.number().optional(),
+  genesys_points: z.coerce.number().optional(),
+  genesys_ocg_points: z.coerce.number().optional(),
 })
 
 export const cardSchema = z.object({
-  id: z.number().int(),
+  id: z.coerce.number().int(),
   name: z.string(),
   type: z.string(),
   humanReadableCardType: z.string(),
@@ -65,11 +65,11 @@ export const cardSchema = z.object({
   race: z.string().optional(),
   archetype: z.string().optional(),
   attribute: z.string().optional(),
-  atk: z.number().optional(),
-  def: z.number().nullable().optional(),
-  level: z.number().nullable().optional(),
-  scale: z.number().optional(),
-  linkval: z.number().optional(),
+  atk: z.coerce.number().optional(),
+  def: z.coerce.number().nullable().optional(),
+  level: z.coerce.number().nullable().optional(),
+  scale: z.coerce.number().optional(),
+  linkval: z.coerce.number().optional(),
   linkmarkers: z.array(z.string()).optional(),
   typeline: z.array(z.string()).optional(),
   ygoprodeck_url: z.string(),
@@ -82,13 +82,13 @@ export const cardSchema = z.object({
 
 export const cardInfoMetaSchema = z.object({
   generated: z.string().optional(),
-  current_rows: z.number(),
-  total_rows: z.number(),
-  rows_remaining: z.number(),
-  total_pages: z.number().optional(),
-  pages_remaining: z.number().optional(),
+  current_rows: z.coerce.number(),
+  total_rows: z.coerce.number(),
+  rows_remaining: z.coerce.number(),
+  total_pages: z.coerce.number().optional(),
+  pages_remaining: z.coerce.number().optional(),
   next_page: z.string().optional(),
-  next_page_offset: z.number().optional(),
+  next_page_offset: z.coerce.number().optional(),
 })
 
 export const cardInfoSuccessSchema = z.object({
@@ -112,17 +112,17 @@ const stringOrListSchema = z.union([
 ])
 
 const numberOrListSchema = z.union([
-  z.number(),
-  z.array(z.number()).readonly(),
+  z.coerce.number(),
+  z.array(z.coerce.number()).readonly(),
 ])
 
 export const comparisonOperatorSchema = z.enum(["lt", "lte", "gt", "gte"])
 
 export const numericFilterSchema = z.union([
-  z.number(),
+  z.coerce.number(),
   z.object({
     operator: comparisonOperatorSchema,
-    value: z.number(),
+    value: z.coerce.number(),
   }),
 ])
 
@@ -136,9 +136,9 @@ export const cardSearchQuerySchema = z.object({
   level: numericFilterSchema.optional(),
   race: stringOrListSchema.optional(),
   attribute: stringOrListSchema.optional(),
-  link: z.number().optional(),
+  link: z.coerce.number().optional(),
   linkmarker: stringOrListSchema.optional(),
-  scale: z.number().optional(),
+  scale: z.coerce.number().optional(),
   cardset: z.string().optional(),
   archetype: z.string().optional(),
   banlist: z.enum(["tcg", "ocg", "goat"]).optional(),
@@ -161,8 +161,8 @@ export const cardSearchQuerySchema = z.object({
   enddate: z.string().optional(),
   dateregion: z.enum(["tcg", "ocg"]).optional(),
   language: z.enum(["fr", "de", "it", "pt"]).optional(),
-  num: z.number().optional(),
-  offset: z.number().optional(),
+  num: z.coerce.number().optional(),
+  offset: z.coerce.number().optional(),
 }).refine(
   (query) => query.name === undefined || query.id === undefined,
   "name and id cannot be used together",
