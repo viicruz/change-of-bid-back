@@ -1,6 +1,9 @@
 //* Libraries imports
 import { z } from "zod";
 
+const DEFAULT_CARD_SEARCH_NUM = 32
+const DEFAULT_CARD_SEARCH_OFFSET = 0
+
 const binaryFlagSchema = z.union([z.literal(0), z.literal(1)])
 
 export const cardSetSchema = z.object({
@@ -161,8 +164,8 @@ export const cardSearchQuerySchema = z.object({
   enddate: z.string().optional(),
   dateregion: z.enum(["tcg", "ocg"]).optional(),
   language: z.enum(["fr", "de", "it", "pt"]).optional(),
-  num: z.coerce.number().optional(),
-  offset: z.coerce.number().optional(),
+  num: z.coerce.number().default(DEFAULT_CARD_SEARCH_NUM),
+  offset: z.coerce.number().default(DEFAULT_CARD_SEARCH_OFFSET),
 }).refine(
   (query) => query.name === undefined || query.id === undefined,
   "name and id cannot be used together",
@@ -182,3 +185,4 @@ export type CardInfoResponse = z.infer<typeof cardInfoResponseSchema>
 export type ComparisonOperator = z.infer<typeof comparisonOperatorSchema>
 export type NumericFilter = z.infer<typeof numericFilterSchema>
 export type CardSearchQuery = z.infer<typeof cardSearchQuerySchema>
+export type CardSearchQueryInput = z.input<typeof cardSearchQuerySchema>
