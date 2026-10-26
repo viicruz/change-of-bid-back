@@ -1,10 +1,12 @@
-//* Lirbaries imports
+//* Libraries imports
 import { Elysia } from "elysia";
-import z from "zod";
 
-//* Local imports
-import { YGOProDeckApiClient } from "../../services/yugioh-api/yugioh-api";
+//* Schemas imports
 import { cardSearchQuerySchema } from "../../schemas/ygo-pro-deck";
+
+//* Services imports
+import { saveUnregisteredCards } from "../../services/yugioh-api/save-unregistered-cards";
+import { YGOProDeckApiClient } from "../../services/yugioh-api/yugioh-api";
 
 const yugiohCardsRoutes = new Elysia({ prefix: "/yugioh/cards" })
     .get(
@@ -12,6 +14,7 @@ const yugiohCardsRoutes = new Elysia({ prefix: "/yugioh/cards" })
         async (request) => {
             const yugiohApiClient = new YGOProDeckApiClient();
             const cards = await yugiohApiClient.searchCards(request.query);
+            await saveUnregisteredCards(cards.data);
             return cards;
         },
         {
