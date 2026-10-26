@@ -11,6 +11,7 @@ import { env } from "./env";
 
 //* Routes imports
 import { privateRoutes } from "./routes/private";
+import { publicRoutes } from "./routes/public";
 
 // const betterAuth = new Elysia({ name: "better-auth" })
 //   .mount(auth.handler)
@@ -48,8 +49,8 @@ export const app = new Elysia({ adapter: node() })
   )
   // .use(betterAuth)
   .mount(auth.handler)
-  .use(privateRoutes)
-  .get("/", () => "Hello Elysia")
+  .use(publicRoutes)
+  .use(privateRoutes);
 // .get("/user", ({ user }) => user, {
 //   auth: true,
 // });
