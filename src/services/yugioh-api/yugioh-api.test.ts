@@ -42,6 +42,39 @@ const tornadoDragon = {
   ],
 } satisfies Card;
 
+const condemnedDarklord = {
+  id: 35306215,
+  name: "Condemned Darklord",
+  type: "Link Monster",
+  humanReadableCardType: "Link Monster",
+  frameType: "link",
+  desc: "2 Effect Monsters",
+  atk: 1600,
+  def: null,
+  level: null,
+  linkval: 2,
+  linkmarkers: ["Bottom-Left", "Bottom-Right"],
+  race: "Fiend",
+  attribute: "DARK",
+  ygoprodeck_url: "https://ygoprodeck.com/card/condemned-darklord-35306215",
+  card_images: [
+    {
+      id: 35306215,
+      image_url: "https://images.ygoprodeck.com/images/cards/35306215.jpg",
+      image_url_small: "https://images.ygoprodeck.com/images/cards_small/35306215.jpg",
+    },
+  ],
+  card_prices: [
+    {
+      cardmarket_price: "0.18",
+      tcgplayer_price: "0.22",
+      ebay_price: "1.49",
+      amazon_price: "0.50",
+      coolstuffinc_price: "0.49",
+    },
+  ],
+} satisfies Card;
+
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -132,6 +165,25 @@ describe("YGOProDeckApiClient", () => {
 
       expect(url.searchParams.get("id")).toBe("6983839,46986414");
       expect(url.searchParams.get("name")).toBeNull();
+    });
+
+    it("returns a link monster when its level is null", async () => {
+      const fetchMock = vi.fn(async () => jsonResponse({
+        data: [condemnedDarklord],
+        meta: {
+          current_rows: 1,
+          total_rows: 1,
+          rows_remaining: 0,
+        },
+      }));
+      const client = createClient(fetchMock);
+
+      const result = await client.searchCards({ fname: "dark" });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]?.name).toBe("Condemned Darklord");
+      expect(result.data[0]?.level).toBeNull();
+      expect(result.data[0]?.def).toBeNull();
     });
 
     it("returns the parsed cards when the response matches the schema", async () => {

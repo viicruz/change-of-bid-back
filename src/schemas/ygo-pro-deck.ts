@@ -67,7 +67,7 @@ export const cardSchema = z.object({
   attribute: z.string().optional(),
   atk: z.number().optional(),
   def: z.number().nullable().optional(),
-  level: z.number().optional(),
+  level: z.number().nullable().optional(),
   scale: z.number().optional(),
   linkval: z.number().optional(),
   linkmarkers: z.array(z.string()).optional(),
