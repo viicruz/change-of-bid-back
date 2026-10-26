@@ -7,7 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "./index";
 import { account, user } from "./schema";
 
-const testPassword = "123123";
+const testPassword = "123123123";
 
 const seedUsers = [
   {
