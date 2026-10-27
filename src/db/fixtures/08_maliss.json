@@ -1,0 +1,230 @@
+{
+  "name": "Maliss — Ars Magna",
+  "description": "Cyberse combo and control deck that uses Maliss bodies with the Ars Magna and @Ignister package to extend into Links while carrying hand traps and Infinite Impermanence.",
+  "main": [
+    {
+      "name": "Maliss <P> Dormouse",
+      "passcode": "32061192",
+      "quantity": 1
+    },
+    {
+      "name": "Maliss <P> White Rabbit",
+      "passcode": "69272449",
+      "quantity": 1
+    },
+    {
+      "name": "Maliss <P> March Hare",
+      "passcode": "20938824",
+      "quantity": 3
+    },
+    {
+      "name": "Maliss <P> Chessy Cat",
+      "passcode": "96676583",
+      "quantity": 3
+    },
+    {
+      "name": "Wizard @Ignister",
+      "passcode": "03723262",
+      "quantity": 1
+    },
+    {
+      "name": "Backup @Ignister",
+      "passcode": "30118811",
+      "quantity": 3
+    },
+    {
+      "name": "Ars Magna the Finite and the Infinite",
+      "passcode": "36270527",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna the Division and the Union",
+      "passcode": "99753860",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna the Corruption and the Purification",
+      "passcode": "62368221",
+      "quantity": 2
+    },
+    {
+      "name": "Bystial Magnamhut",
+      "passcode": "33854624",
+      "quantity": 1
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 3
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 3
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "Maliss in Underground",
+      "passcode": "68337209",
+      "quantity": 2
+    },
+    {
+      "name": "Maliss in the Mirror",
+      "passcode": "93453053",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna \"Citrinitas\"",
+      "passcode": "37279096",
+      "quantity": 1
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    },
+    {
+      "name": "Gold Sarcophagus",
+      "passcode": "75500286",
+      "quantity": 1
+    },
+    {
+      "name": "Infinite Impermanence",
+      "passcode": "10045474",
+      "quantity": 3
+    },
+    {
+      "name": "Maliss <C> MTP-07",
+      "passcode": "94722358",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Maliss <Q> Hearts Crypter",
+      "passcode": "21848500",
+      "quantity": 1
+    },
+    {
+      "name": "Maliss <Q> Red Ransom",
+      "passcode": "68059897",
+      "quantity": 1
+    },
+    {
+      "name": "Cyberse Wicckid",
+      "passcode": "52698008",
+      "quantity": 1
+    },
+    {
+      "name": "Mediclius the Extraordinary Power Patron",
+      "passcode": "04063756",
+      "quantity": 1
+    },
+    {
+      "name": "Purification Power Patron",
+      "passcode": "31822037",
+      "quantity": 1
+    },
+    {
+      "name": "Link Spider",
+      "passcode": "98978921",
+      "quantity": 1
+    },
+    {
+      "name": "Salamangreat Almiraj",
+      "passcode": "60303245",
+      "quantity": 1
+    },
+    {
+      "name": "Linguriboh",
+      "passcode": "24842059",
+      "quantity": 2
+    },
+    {
+      "name": "Allied Code Talker @Ignister",
+      "passcode": "39138610",
+      "quantity": 1
+    },
+    {
+      "name": "Accesscode Talker",
+      "passcode": "86066372",
+      "quantity": 1
+    },
+    {
+      "name": "I:P Masquerena",
+      "passcode": "65741786",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    },
+    {
+      "name": "Haggard Lizardose",
+      "passcode": "09763474",
+      "quantity": 1
+    },
+    {
+      "name": "Number 90: Galaxy-Eyes Photon Lord",
+      "passcode": "08165596",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Ars Magna the Corruption and the Purification",
+      "passcode": "62368221",
+      "quantity": 1
+    },
+    {
+      "name": "Skull Meister",
+      "passcode": "67750322",
+      "quantity": 2
+    },
+    {
+      "name": "Mulcharmy Purulia",
+      "passcode": "84192580",
+      "quantity": 3
+    },
+    {
+      "name": "Bystial Druiswurm",
+      "passcode": "06637331",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Ruler No More",
+      "passcode": "54693926",
+      "quantity": 3
+    },
+    {
+      "name": "Dominus Impulse",
+      "passcode": "40366667",
+      "quantity": 3
+    },
+    {
+      "name": "Ars Magna \"Philosophorum\"",
+      "passcode": "90728287",
+      "quantity": 1
+    },
+    {
+      "name": "Maliss <C> GWC-06",
+      "passcode": "20726052",
+      "quantity": 1
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "name": "Power Patron",
+  "description": "Midrange Pendulum deck that sets scales with the Power Patron monsters, extends through Vidolia, Terminus, and Medius-Artmage, and turns those bodies into Extra Deck bosses.",
+  "main": [
+    {
+      "name": "Vidolium the Unstable Power Patron of Unity",
+      "passcode": "70488851",
+      "quantity": 3
+    },
+    {
+      "name": "Nervedo the Shadebeast Power Patron",
+      "passcode": "17473466",
+      "quantity": 3
+    },
+    {
+      "name": "Jupredo the Shademachine Power Patron",
+      "passcode": "43871165",
+      "quantity": 3
+    },
+    {
+      "name": "Junoldo the Shadespirit Power Patron",
+      "passcode": "10266279",
+      "quantity": 2
+    },
+    {
+      "name": "Shade the Obscure",
+      "passcode": "77157846",
+      "quantity": 3
+    },
+    {
+      "name": "Medius the Pure",
+      "passcode": "97556336",
+      "quantity": 3
+    },
+    {
+      "name": "Artmage Finmel",
+      "passcode": "34541940",
+      "quantity": 1
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "Plundered Power Patron Plane - Vidolia",
+      "passcode": "51669847",
+      "quantity": 3
+    },
+    {
+      "name": "Prohibited Power Patron Portal - Terminus",
+      "passcode": "25661743",
+      "quantity": 1
+    },
+    {
+      "name": "Theorealize Past Lull",
+      "passcode": "36709484",
+      "quantity": 1
+    },
+    {
+      "name": "Pendulum Treasure",
+      "passcode": "26237713",
+      "quantity": 3
+    },
+    {
+      "name": "Infinite Impermanence",
+      "passcode": "10045474",
+      "quantity": 3
+    },
+    {
+      "name": "Dominus Impulse",
+      "passcode": "40366667",
+      "quantity": 3
+    },
+    {
+      "name": "Dominus Spark",
+      "passcode": "06325660",
+      "quantity": 3
+    },
+    {
+      "name": "Artmage Impasto -Recapture-",
+      "passcode": "44654994",
+      "quantity": 1
+    },
+    {
+      "name": "Power Patron Shade of the Final Hour",
+      "passcode": "22404570",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Junora the Power Patron of Tuning",
+      "passcode": "05914858",
+      "quantity": 1
+    },
+    {
+      "name": "Jupiter the Power Patron of Destruction",
+      "passcode": "68231287",
+      "quantity": 1
+    },
+    {
+      "name": "Number 90: Galaxy-Eyes Photon Lord",
+      "passcode": "08165596",
+      "quantity": 1
+    },
+    {
+      "name": "Artmage Non-Finito",
+      "passcode": "74631897",
+      "quantity": 1
+    },
+    {
+      "name": "Artmage Diactorus",
+      "passcode": "27184601",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Vortex Dragon",
+      "passcode": "53262004",
+      "quantity": 1
+    },
+    {
+      "name": "Predaplant Dragostapelia",
+      "passcode": "69946549",
+      "quantity": 1
+    },
+    {
+      "name": "Nerva the Power Patron of Creation",
+      "passcode": "53589300",
+      "quantity": 1
+    },
+    {
+      "name": "Purification Power Patron",
+      "passcode": "31822037",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Override Dragon",
+      "passcode": "58083496",
+      "quantity": 1
+    },
+    {
+      "name": "Exceed the Pendulum",
+      "passcode": "92812851",
+      "quantity": 1
+    },
+    {
+      "name": "Beyond the Pendulum",
+      "passcode": "22125101",
+      "quantity": 1
+    },
+    {
+      "name": "Accesscode Talker",
+      "passcode": "86066372",
+      "quantity": 1
+    },
+    {
+      "name": "Dharc the Dark Charmer, Gloomy",
+      "passcode": "08264361",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Mulcharmy Purulia",
+      "passcode": "84192580",
+      "quantity": 3
+    },
+    {
+      "name": "Forbidden Crown",
+      "passcode": "98829635",
+      "quantity": 3
+    },
+    {
+      "name": "Pot of Sloth",
+      "passcode": "98476659",
+      "quantity": 3
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 2
+    },
+    {
+      "name": "Evenly Matched",
+      "passcode": "15693423",
+      "quantity": 3
+    },
+    {
+      "name": "Solemn Judgment",
+      "passcode": "41420027",
+      "quantity": 1
+    }
+  ]
+}

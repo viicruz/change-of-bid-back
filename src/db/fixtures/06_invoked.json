@@ -1,0 +1,185 @@
+{
+  "name": "Invoked",
+  "description": "Fusion deck that uses Aleister the Invoker and the Magistus package to reach Invoked fusions quickly, backed by hand traps, Super Polymerization, and Infinite Impermanence.",
+  "main": [
+    {
+      "name": "Aleister the Invoker",
+      "passcode": "86120752",
+      "quantity": 3
+    },
+    {
+      "name": "Aleister the Reminiscent",
+      "passcode": "57294268",
+      "quantity": 3
+    },
+    {
+      "name": "Aiwass, Divine Spirit of the Law",
+      "passcode": "84288367",
+      "quantity": 3
+    },
+    {
+      "name": "Virakam, the Divine Spirit of Artifice",
+      "passcode": "10673071",
+      "quantity": 1
+    },
+    {
+      "name": "Crowley, the Gifted Magistus",
+      "passcode": "00875572",
+      "quantity": 1
+    },
+    {
+      "name": "Sorcerer of the Swamp",
+      "passcode": "45223540",
+      "quantity": 2
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 3
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "Invocation",
+      "passcode": "74063034",
+      "quantity": 2
+    },
+    {
+      "name": "Invocation - \"Sword\"",
+      "passcode": "37432075",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Meltdown",
+      "passcode": "47679935",
+      "quantity": 3
+    },
+    {
+      "name": "Sacred Spirit Sword Aiwass",
+      "passcode": "63926180",
+      "quantity": 3
+    },
+    {
+      "name": "Super Polymerization",
+      "passcode": "48130397",
+      "quantity": 3
+    },
+    {
+      "name": "Infinite Impermanence",
+      "passcode": "10045474",
+      "quantity": 3
+    }
+  ],
+  "extra": [
+    {
+      "name": "Hyperinvoked Aeon",
+      "passcode": "33166263",
+      "quantity": 3
+    },
+    {
+      "name": "Invoked De Anima",
+      "passcode": "80635735",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Sorath",
+      "passcode": "43989315",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Baybarron",
+      "passcode": "70383419",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Oceanus",
+      "passcode": "06772168",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Augoeides",
+      "passcode": "97300502",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Mechaba",
+      "passcode": "75286621",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Caliga",
+      "passcode": "13529466",
+      "quantity": 1
+    },
+    {
+      "name": "Invoked Raidjin",
+      "passcode": "49513164",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    },
+    {
+      "name": "Artemis, the Magistus Moon Maiden",
+      "passcode": "34755994",
+      "quantity": 1
+    },
+    {
+      "name": "Endymion, the Crescent Magistus",
+      "passcode": "20714553",
+      "quantity": 1
+    },
+    {
+      "name": "Aleister the Invoker of Madness",
+      "passcode": "97973962",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Skull Meister",
+      "passcode": "67750322",
+      "quantity": 3
+    },
+    {
+      "name": "Mulcharmy Purulia",
+      "passcode": "84192580",
+      "quantity": 3
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 2
+    },
+    {
+      "name": "Hey, Space Trunade!",
+      "passcode": "02729965",
+      "quantity": 3
+    },
+    {
+      "name": "Typhoon",
+      "passcode": "14883228",
+      "quantity": 3
+    },
+    {
+      "name": "Gamma Summon",
+      "passcode": "86319972",
+      "quantity": 1
+    }
+  ]
+}
