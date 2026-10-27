@@ -5,11 +5,12 @@ import { describe, expect, it } from "vitest";
 import { listBidderParticipationsResponseSchema } from "./list-bidder-participations";
 
 describe("listBidderParticipationsResponseSchema", () => {
-  it("drops email, name, winnerId, and hash", () => {
+  it("drops email, name, winnerId, and hash while keeping shareToken", () => {
     const startsAt = new Date("2026-10-26T15:00:00.000Z");
     const endsAt = new Date("2026-10-26T17:00:00.000Z");
     const lotId = crypto.randomUUID();
     const itemId = crypto.randomUUID();
+    const shareToken = "a".repeat(43);
     const parsed = listBidderParticipationsResponseSchema.parse({
       email: "hidden@example.com",
       name: "Hidden Name",
@@ -35,7 +36,8 @@ describe("listBidderParticipationsResponseSchema", () => {
           userId: "user-1",
           hash: "abc",
           headHash: "abc",
-          shareToken: "secret-token",
+          token: "secret-token",
+          shareToken,
           items: [
             {
               id: itemId,
@@ -67,6 +69,7 @@ describe("listBidderParticipationsResponseSchema", () => {
           bidCount: 1,
           participantNo: 2,
           won: true,
+          shareToken,
           items: [
             {
               id: itemId,

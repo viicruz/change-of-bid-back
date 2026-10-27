@@ -397,6 +397,7 @@ describe("GET /private/participations", () => {
         bidCount: 1,
         participantNo: 2,
         won: false,
+        shareToken: null,
         items: [
           expect.objectContaining({
             cardName: "Route Dragon",
@@ -441,6 +442,7 @@ describe("GET /private/participations", () => {
 
     expect(response.status).toBe(200);
     expect(created.headHash).toEqual(expect.any(String));
+    expect(listed?.shareToken).toBeNull();
     expect(Object.keys(listed ?? {}).sort()).toEqual([
       "bidCount",
       "currentBid",
@@ -451,6 +453,7 @@ describe("GET /private/participations", () => {
       "minIncrement",
       "openingBid",
       "participantNo",
+      "shareToken",
       "startsAt",
       "status",
       "title",
