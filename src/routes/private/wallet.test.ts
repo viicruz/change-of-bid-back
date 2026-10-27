@@ -3,6 +3,7 @@ import { eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 //* Schemas imports
+import { moneyValidationMessage } from "../../schemas/money";
 import {
   MAX_MOVEMENT_PAGE,
   type WalletMovementRecord,
@@ -271,6 +272,51 @@ function getMovements(token: string | undefined, query = "") {
       token === undefined ? undefined : { authorization: `Bearer ${token}` },
     ),
   );
+}
+
+function postDeposit(token: string | undefined, body: unknown) {
+  return app.handle(
+    new Request(`${baseUrl}/private/wallet/deposits`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...(token === undefined ? {} : { authorization: `Bearer ${token}` }),
+      },
+      body: JSON.stringify(body),
+    }),
+  );
+}
+
+async function readStoredWallet(userId: string) {
+  const rows = await db
+    .select({
+      id: wallet.id,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    })
+    .from(wallet)
+    .where(eq(wallet.userId, userId));
+  const stored = rows[0];
+
+  if (!stored) {
+    return null;
+  }
+
+  const movements = await db
+    .select({
+      type: walletMovement.type,
+      amount: walletMovement.amount,
+      lotId: walletMovement.lotId,
+      bidId: walletMovement.bidId,
+    })
+    .from(walletMovement)
+    .where(eq(walletMovement.walletId, stored.id));
+
+  return {
+    totalBalance: stored.totalBalance,
+    committedBalance: stored.committedBalance,
+    movements,
+  };
 }
 
 async function deleteUserByEmail(email: string) {
@@ -920,6 +966,417 @@ describe("GET /private/wallet/movements", () => {
 
       expect(response.status).toBe(404);
       expect(body.code).toBe("WALLET_NOT_FOUND");
+    });
+  });
+});
+
+describe("POST /private/wallet/deposits", () => {
+  afterEach(async () => {
+    const emails = createdEmails.splice(0, createdEmails.length);
+
+    await Promise.all(emails.map((email) => deleteUserByEmail(email)));
+  });
+
+  describe("authentication", () => {
+    it("rejects a request with no session", async () => {
+      const response = await postDeposit(undefined, { amount: "1.00" });
+
+      expect(response.status).toBe(401);
+    });
+
+    it("rejects a malformed bearer token", async () => {
+      const response = await postDeposit("not-a-session", { amount: "1.00" });
+
+      expect(response.status).toBe(401);
+    });
+  });
+
+  describe("crediting the caller", () => {
+    it("increases total and available by the deposit and keeps the committed balance", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "10.00", "4.00");
+
+      const response = await postDeposit(account.token, { amount: "2.5" });
+      const body = (await response.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(201);
+      expect(body).toEqual({
+        totalBalance: "12.50",
+        committedBalance: "4.00",
+        availableBalance: "8.50",
+      });
+      expect(stored?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: "2.50",
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+    });
+
+    it("adds a second deposit on top of the first", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "8.00", "3.00");
+
+      const first = await postDeposit(account.token, { amount: "1.50" });
+      const second = await postDeposit(account.token, { amount: "0.50" });
+      const firstBody = (await first.json()) as WalletBody;
+      const secondBody = (await second.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(first.status).toBe(201);
+      expect(second.status).toBe(201);
+      expect(firstBody).toEqual({
+        totalBalance: "9.50",
+        committedBalance: "3.00",
+        availableBalance: "6.50",
+      });
+      expect(secondBody).toEqual({
+        totalBalance: "10.00",
+        committedBalance: "3.00",
+        availableBalance: "7.00",
+      });
+      expect(stored?.movements).toHaveLength(2);
+    });
+
+    it("applies two concurrent deposits without losing either credit", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "0.00", "0.00");
+
+      const responses = await Promise.all([
+        postDeposit(account.token, { amount: "10.00" }),
+        postDeposit(account.token, { amount: "10.00" }),
+      ]);
+      const bodies = await Promise.all(
+        responses.map(async (response) => (await response.json()) as WalletBody),
+      );
+      const stored = await readStoredWallet(account.userId);
+      const totals = bodies.map((body) => body.totalBalance).sort();
+
+      expect(responses.map((response) => response.status)).toEqual([201, 201]);
+      expect(totals).toEqual(["10.00", "20.00"]);
+      expect(stored).toMatchObject({
+        totalBalance: "20.00",
+        committedBalance: "0.00",
+      });
+      expect(stored?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: "10.00",
+          lotId: null,
+          bidId: null,
+        },
+        {
+          type: "DEPOSIT",
+          amount: "10.00",
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+    });
+
+    it("credits the authenticated user when the body names another user", async () => {
+      const caller = await registerUser();
+      const other = await registerUser();
+
+      await setBalances(caller.userId, "1.00", "0.00");
+      await setBalances(other.userId, "5.00", "2.00");
+
+      const response = await postDeposit(caller.token, {
+        amount: "4.00",
+        userId: other.userId,
+      });
+      const body = (await response.json()) as WalletBody;
+      const callerWallet = await readStoredWallet(caller.userId);
+      const otherWallet = await readStoredWallet(other.userId);
+
+      expect(response.status).toBe(201);
+      expect(body).toEqual({
+        totalBalance: "5.00",
+        committedBalance: "0.00",
+        availableBalance: "5.00",
+      });
+      expect(callerWallet?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: "4.00",
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+      expect(otherWallet).toMatchObject({
+        totalBalance: "5.00",
+        committedBalance: "2.00",
+        movements: [],
+      });
+    });
+
+    it("credits one cent", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "0.00", "0.00");
+
+      const response = await postDeposit(account.token, { amount: "0.01" });
+      const body = (await response.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(201);
+      expect(body).toEqual({
+        totalBalance: "0.01",
+        committedBalance: "0.00",
+        availableBalance: "0.01",
+      });
+      expect(stored).toMatchObject({
+        totalBalance: "0.01",
+        committedBalance: "0.00",
+      });
+      expect(stored?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: "0.01",
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+    });
+
+    it("increases total and available when the committed balance equals the total", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "8.00", "8.00");
+
+      const response = await postDeposit(account.token, { amount: "1.25" });
+      const body = (await response.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(201);
+      expect(body).toEqual({
+        totalBalance: "9.25",
+        committedBalance: "8.00",
+        availableBalance: "1.25",
+      });
+      expect(stored).toMatchObject({
+        totalBalance: "9.25",
+        committedBalance: "8.00",
+      });
+      expect(stored?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: "1.25",
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+    });
+
+    it("trims surrounding spaces and stores two decimal places", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "10.00", "4.00");
+
+      const response = await postDeposit(account.token, { amount: " 2.5 " });
+      const body = (await response.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(201);
+      expect(body).toEqual({
+        totalBalance: "12.50",
+        committedBalance: "4.00",
+        availableBalance: "8.50",
+      });
+      expect(stored).toMatchObject({
+        totalBalance: "12.50",
+        committedBalance: "4.00",
+      });
+      expect(stored?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: "2.50",
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+    });
+
+    it("credits the largest amount the balance column can store", async () => {
+      const account = await registerUser();
+      const maximum = "9999999999999999.99";
+
+      await setBalances(account.userId, "0.00", "0.00");
+
+      const response = await postDeposit(account.token, { amount: maximum });
+      const body = (await response.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(201);
+      expect(body).toEqual({
+        totalBalance: maximum,
+        committedBalance: "0.00",
+        availableBalance: maximum,
+      });
+      expect(stored).toMatchObject({
+        totalBalance: maximum,
+        committedBalance: "0.00",
+      });
+      expect(stored?.movements).toEqual([
+        {
+          type: "DEPOSIT",
+          amount: maximum,
+          lotId: null,
+          bidId: null,
+        },
+      ]);
+    });
+  });
+
+  describe("authorization", () => {
+    it("rejects an auctioneer without changing the wallet", async () => {
+      const account = await registerAuctioneer();
+
+      await setBalances(account.userId, "25.00", "0.00");
+
+      const before = await readStoredWallet(account.userId);
+      const response = await postDeposit(account.token, { amount: "10.00" });
+      const body = (await response.json()) as WalletBody;
+      const after = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(403);
+      expect(body.code).toBe("NOT_BIDDER");
+      expect(body.message).toBe("Only a bidder can deposit into a wallet.");
+      expect(after).toEqual(before);
+    });
+
+    it("rejects an auctioneer who claims the bidder role and another user", async () => {
+      const auctioneer = await registerAuctioneer();
+      const bidder = await registerUser();
+
+      await setBalances(auctioneer.userId, "25.00", "0.00");
+      await setBalances(bidder.userId, "5.00", "1.00");
+
+      const auctioneerBefore = await readStoredWallet(auctioneer.userId);
+      const bidderBefore = await readStoredWallet(bidder.userId);
+      const response = await postDeposit(auctioneer.token, {
+        amount: "10.00",
+        role: "BIDDER",
+        userId: bidder.userId,
+      });
+      const body = (await response.json()) as WalletBody;
+      const auctioneerAfter = await readStoredWallet(auctioneer.userId);
+      const bidderAfter = await readStoredWallet(bidder.userId);
+
+      expect(response.status).toBe(403);
+      expect(body.code).toBe("NOT_BIDDER");
+      expect(body.message).toBe("Only a bidder can deposit into a wallet.");
+      expect(auctioneerAfter).toEqual(auctioneerBefore);
+      expect(bidderAfter).toEqual(bidderBefore);
+    });
+  });
+
+  describe("missing wallet", () => {
+    it("returns not found when the wallet row is gone", async () => {
+      const account = await registerUser();
+
+      await db.delete(wallet).where(eq(wallet.userId, account.userId));
+
+      const response = await postDeposit(account.token, { amount: "1.00" });
+      const body = (await response.json()) as WalletBody;
+      const stored = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(404);
+      expect(body.code).toBe("WALLET_NOT_FOUND");
+      expect(body.message).toBe("Wallet was not found.");
+      expect(stored).toBeNull();
+    });
+  });
+
+  describe("amount validation", () => {
+    async function expectUnchangedBalance(body: unknown) {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "12.00", "3.00");
+
+      const before = await readStoredWallet(account.userId);
+      const response = await postDeposit(account.token, body);
+      const responseBody = (await response.json()) as WalletBody;
+      const after = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(422);
+      expect(responseBody.code).toBe("INVALID_MONEY");
+      expect(responseBody.message).toBe(moneyValidationMessage);
+      expect(after).toEqual(before);
+    }
+
+    it("rejects zero", async () => {
+      await expectUnchangedBalance({ amount: "0" });
+    });
+
+    it("rejects zero with decimals", async () => {
+      await expectUnchangedBalance({ amount: "0.00" });
+    });
+
+    it("rejects a negative amount", async () => {
+      await expectUnchangedBalance({ amount: "-1.00" });
+    });
+
+    it("rejects more than two decimal places", async () => {
+      await expectUnchangedBalance({ amount: "1.234" });
+    });
+
+    it("rejects a non-numeric amount", async () => {
+      await expectUnchangedBalance({ amount: "abc" });
+    });
+
+    it("rejects a numeric JSON amount", async () => {
+      await expectUnchangedBalance({ amount: 10.5 });
+    });
+
+    it("rejects a body without an amount", async () => {
+      await expectUnchangedBalance({});
+    });
+
+    it("rejects an empty amount", async () => {
+      await expectUnchangedBalance({ amount: "" });
+    });
+
+    it("rejects a null amount", async () => {
+      await expectUnchangedBalance({ amount: null });
+    });
+
+    it("rejects a leading zero", async () => {
+      await expectUnchangedBalance({ amount: "01.50" });
+    });
+
+    it("rejects a leading plus sign", async () => {
+      await expectUnchangedBalance({ amount: "+1.00" });
+    });
+
+    it("rejects an amount above the balance column precision", async () => {
+      await expectUnchangedBalance({ amount: "10000000000000000.00" });
+    });
+  });
+
+  describe("balance limit", () => {
+    it("rejects a deposit that would overflow the balance limit", async () => {
+      const account = await registerUser();
+
+      await setBalances(account.userId, "9999999999999999.99", "0.00");
+
+      const before = await readStoredWallet(account.userId);
+      const response = await postDeposit(account.token, { amount: "0.01" });
+      const body = (await response.json()) as WalletBody;
+      const after = await readStoredWallet(account.userId);
+
+      expect(response.status).toBe(422);
+      expect(body.code).toBe("AMOUNT_OUT_OF_RANGE");
+      expect(body.message).toBe(
+        "The deposit exceeds the wallet balance limit.",
+      );
+      expect(after).toEqual(before);
     });
   });
 });

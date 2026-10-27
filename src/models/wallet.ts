@@ -194,6 +194,57 @@ export async function insertReleaseMovement(
   return row;
 }
 
+export async function insertDepositMovement(
+  executor: DatabaseExecutor,
+  values: {
+    walletId: string;
+    amount: string;
+  },
+) {
+  const rows = await executor
+    .insert(walletMovement)
+    .values({
+      walletId: values.walletId,
+      type: "DEPOSIT",
+      amount: values.amount,
+      lotId: null,
+      bidId: null,
+    })
+    .returning({ id: walletMovement.id });
+  const row = rows[0];
+
+  if (!row) {
+    throw new Error("Insert wallet movement did not return a row");
+  }
+
+  return row;
+}
+
+export async function increaseTotalBalance(
+  executor: DatabaseExecutor,
+  walletId: string,
+  amount: string,
+) {
+  const rows = await executor
+    .update(wallet)
+    .set({
+      totalBalance: sql`${wallet.totalBalance} + ${amount}::numeric(18,2)`,
+    })
+    .where(eq(wallet.id, walletId))
+    .returning({
+      id: wallet.id,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    });
+  const row = rows[0];
+
+  if (!row) {
+    throw new Error("Wallet balance update did not return a row");
+  }
+
+  return row;
+}
+
 export async function decreaseCommittedBalance(
   executor: DatabaseExecutor,
   walletId: string,
