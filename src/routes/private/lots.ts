@@ -10,6 +10,15 @@ import {
   cancelLotParamsSchema,
   cancelLotResponseSchema,
 } from "../../schemas/cancel-lot";
+import {
+  placeBidBodySchema,
+  placeBidConflictSchema,
+  placeBidForbiddenSchema,
+  placeBidNotFoundSchema,
+  placeBidParamsSchema,
+  placeBidResponseSchema,
+  placeBidUnprocessableSchema,
+} from "../../schemas/place-bid";
 import { createLotBodySchema } from "../../schemas/create-lot";
 import {
   listAuctioneerLotsQuerySchema,
@@ -25,6 +34,11 @@ import {
   CancelLotError,
   type CancelLotErrorCode,
 } from "../../services/lots/cancel-lot";
+import {
+  placeBid,
+  PlaceBidError,
+  type PlaceBidErrorCode,
+} from "../../services/lots/place-bid";
 import {
   createLot,
   CreateLotError,
@@ -59,6 +73,18 @@ const cancelLotErrorStatus = {
   LOT_NOT_FOUND: 404,
   LOT_NOT_CANCELABLE: 409,
 } as const satisfies Record<CancelLotErrorCode, 403 | 404 | 409>;
+
+const placeBidErrorStatus = {
+  NOT_BIDDER: 403,
+  LOT_NOT_FOUND: 404,
+  INVALID_MONEY: 422,
+  BID_BELOW_MINIMUM: 409,
+  INSUFFICIENT_BALANCE: 409,
+  ALREADY_LEADER: 409,
+  LOT_NOT_STARTED: 409,
+  LOT_ENDED: 409,
+  LOT_CANCELED: 409,
+} as const satisfies Record<PlaceBidErrorCode, 403 | 404 | 409 | 422>;
 
 
 const lotRoutes = new Elysia({ prefix: "/lots" })
@@ -168,6 +194,42 @@ const lotRoutes = new Elysia({ prefix: "/lots" })
         403: cancelLotForbiddenSchema,
         404: cancelLotNotFoundSchema,
         409: cancelLotConflictSchema,
+      },
+    },
+  )
+  .post(
+    "/:id/bids",
+    async ({ params, body, user, status }) => {
+      try {
+        const accepted = await placeBid({
+          lotId: params.id,
+          userId: user.id,
+          role: user.role,
+          amount: body.amount,
+        });
+
+        return status(201, accepted);
+      } catch (error) {
+        if (!(error instanceof PlaceBidError)) {
+          throw error;
+        }
+
+        return status(placeBidErrorStatus[error.code], {
+          code: error.code,
+          message: error.message,
+        });
+      }
+    },
+    {
+      auth: true,
+      params: placeBidParamsSchema,
+      body: placeBidBodySchema,
+      response: {
+        201: placeBidResponseSchema,
+        403: placeBidForbiddenSchema,
+        404: placeBidNotFoundSchema,
+        409: placeBidConflictSchema,
+        422: placeBidUnprocessableSchema,
       },
     },
   );
