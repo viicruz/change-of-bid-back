@@ -787,15 +787,18 @@ describe("listBidderParticipations", () => {
         ],
       });
 
+      // Participation rows are inserted against the expected order. The
+      // listing starts from lot_participant, so a missing ORDER BY would
+      // follow this sequence instead of live, scheduled, ended, canceled.
       for (const created of [
-        liveSoon,
-        liveLater,
-        scheduledSoon,
-        scheduledLater,
-        endedRecent,
-        endedOlder,
-        canceledRecent,
         canceledOlder,
+        canceledRecent,
+        endedOlder,
+        endedRecent,
+        scheduledLater,
+        scheduledSoon,
+        liveLater,
+        liveSoon,
       ]) {
         await insertAcceptedBid({
           lotId: created.id,
