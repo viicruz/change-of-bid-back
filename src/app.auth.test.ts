@@ -3,9 +3,9 @@ import { eq } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 //* Local imports
-import { app } from "./app.ts";
-import { db } from "./db/index.ts";
-import { user } from "./db/schema.ts";
+import { app } from "./app";
+import { db } from "./db/index";
+import { user, wallet } from "./db/schema";
 
 const password = "Correct-horse-battery-1";
 const createdEmails: string[] = [];
@@ -31,7 +31,7 @@ type RegisteredUser = {
 
 function request(
   path: string,
-  headers?: HeadersInit,
+  headers?: RequestInit["headers"],
   method = "GET",
   body?: string,
 ) {
@@ -148,6 +148,16 @@ async function registerUser(): Promise<RegisteredUser> {
 }
 
 async function deleteUserByEmail(email: string) {
+  const rows = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.email, email));
+  const userId = rows[0]?.id;
+
+  if (userId) {
+    await db.delete(wallet).where(eq(wallet.userId, userId));
+  }
+
   await db.delete(user).where(eq(user.email, email));
 }
 
@@ -162,11 +172,11 @@ describe("API authentication", () => {
     await db.$client.end();
   });
 
-  describe("GET /user", () => {
+  describe("GET /private/user", () => {
     describe("requests without a valid session", () => {
       it("rejects a request with no credentials", async () => {
         const account = await registerUser();
-        const response = await app.handle(request("/user"));
+        const response = await app.handle(request("/private/user"));
 
         await expectUnauthorized(response, account.email);
       });
@@ -174,7 +184,7 @@ describe("API authentication", () => {
       it("rejects an empty bearer token", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", { authorization: "Bearer " }),
+          request("/private/user", { authorization: "Bearer " }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -183,7 +193,7 @@ describe("API authentication", () => {
       it("rejects a bearer token of null", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", { authorization: "Bearer null" }),
+          request("/private/user", { authorization: "Bearer null" }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -192,7 +202,7 @@ describe("API authentication", () => {
       it("rejects a bearer token of undefined", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", { authorization: "Bearer undefined" }),
+          request("/private/user", { authorization: "Bearer undefined" }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -201,7 +211,7 @@ describe("API authentication", () => {
       it("rejects a random bearer token", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", {
+          request("/private/user", {
             authorization: `Bearer ${crypto.randomUUID()}`,
           }),
         );
@@ -214,7 +224,7 @@ describe("API authentication", () => {
         const token =
           "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhdHRhY2tlciJ9.";
         const response = await app.handle(
-          request("/user", { authorization: `Bearer ${token}` }),
+          request("/private/user", { authorization: `Bearer ${token}` }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -223,7 +233,7 @@ describe("API authentication", () => {
       it("rejects a SQL-like bearer token", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", { authorization: "Bearer ' OR 1=1; --" }),
+          request("/private/user", { authorization: "Bearer ' OR 1=1; --" }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -235,7 +245,7 @@ describe("API authentication", () => {
           `${account.email}:${account.password}`,
         ).toString("base64");
         const response = await app.handle(
-          request("/user", { authorization: `Basic ${credentials}` }),
+          request("/private/user", { authorization: `Basic ${credentials}` }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -244,7 +254,7 @@ describe("API authentication", () => {
       it("rejects a token sent only as a query parameter", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request(`/user?token=${encodeURIComponent(account.token)}`),
+          request(`/private/user?token=${encodeURIComponent(account.token)}`),
         );
 
         await expectUnauthorized(response, account.email);
@@ -254,7 +264,7 @@ describe("API authentication", () => {
         const account = await registerUser();
         const response = await app.handle(
           getRequestWithBody(
-            "/user",
+            "/private/user",
             JSON.stringify({ token: account.token }),
           ),
         );
@@ -265,7 +275,7 @@ describe("API authentication", () => {
       it("rejects a forged session cookie", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", {
+          request("/private/user", {
             cookie: "better-auth.session_token=forged-session-token",
           }),
         );
@@ -276,7 +286,7 @@ describe("API authentication", () => {
       it("rejects spoofed identity headers when no session is present", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", {
+          request("/private/user", {
             "x-user-id": account.userId,
             "x-user-email": account.email,
             auth: "true",
@@ -289,7 +299,7 @@ describe("API authentication", () => {
       it("rejects an authorization header that glues an invalid token to a valid one", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", {
+          request("/private/user", {
             authorization: `Bearer invalid${account.token}`,
           }),
         );
@@ -300,7 +310,7 @@ describe("API authentication", () => {
       it("rejects a valid token with its last character changed", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", {
+          request("/private/user", {
             authorization: `Bearer ${alterLastCharacter(account.token)}`,
           }),
         );
@@ -308,7 +318,7 @@ describe("API authentication", () => {
         await expectUnauthorized(response, account.email);
       });
 
-      it.each(["/user/", "/User", "/user%2f"])(
+      it.each(["/private/user/", "/private/User", "/private/user%2f"])(
         "does not return the user for %s without a session",
         async (path) => {
           const account = await registerUser();
@@ -325,7 +335,7 @@ describe("API authentication", () => {
       it("returns the authenticated user when the bearer token is valid", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", { authorization: `Bearer ${account.token}` }),
+          request("/private/user", { authorization: `Bearer ${account.token}` }),
         );
         const body = (await response.json()) as { email?: string };
 
@@ -336,7 +346,7 @@ describe("API authentication", () => {
       it("returns the authenticated user when the session cookie is valid", async () => {
         const account = await registerUser();
         const response = await app.handle(
-          request("/user", { cookie: account.sessionCookie }),
+          request("/private/user", { cookie: account.sessionCookie }),
         );
         const body = (await response.json()) as { email?: string };
 
@@ -348,7 +358,7 @@ describe("API authentication", () => {
         const account = await registerUser();
         const otherAccount = await registerUser();
         const response = await app.handle(
-          request("/user", {
+          request("/private/user", {
             authorization: `Bearer ${account.token}`,
             "x-user-id": otherAccount.userId,
             "x-user-email": otherAccount.email,
@@ -383,7 +393,7 @@ describe("API authentication", () => {
         expect(signOutResponse.ok).toBe(true);
 
         const response = await app.handle(
-          request("/user", { authorization: `Bearer ${account.token}` }),
+          request("/private/user", { authorization: `Bearer ${account.token}` }),
         );
 
         await expectUnauthorized(response, account.email);
@@ -391,12 +401,12 @@ describe("API authentication", () => {
     });
   });
 
-  describe("GET /", () => {
+  describe("GET /public", () => {
     it("returns the public payload when no credentials are sent", async () => {
-      const response = await app.handle(request("/"));
+      const response = await app.handle(request("/public"));
 
       expect(response.status).toBe(200);
-      expect(await response.text()).toBe("Hello Elysia");
+      expect(await response.text()).toBe("Hello World");
     });
   });
 });

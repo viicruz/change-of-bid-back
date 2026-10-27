@@ -1,0 +1,180 @@
+{
+  "name": "Ghoti",
+  "description": "Casual WATER Fish list that treats banishment as a resource, using the Level 2 Tuners to Synchro Summon a Fish during the opponent's Main Phase.",
+  "main": [
+    {
+      "name": "Paces, Light of the Ghoti",
+      "passcode": "46037983",
+      "quantity": 3
+    },
+    {
+      "name": "Shif, Fairy of the Ghoti",
+      "passcode": "73421698",
+      "quantity": 3
+    },
+    {
+      "name": "Zep, Ruby of the Ghoti",
+      "passcode": "76133574",
+      "quantity": 3
+    },
+    {
+      "name": "Ixeep, Omen of the Ghoti",
+      "passcode": "03137279",
+      "quantity": 3
+    },
+    {
+      "name": "Keaf, Murk of the Ghoti",
+      "passcode": "99529628",
+      "quantity": 2
+    },
+    {
+      "name": "Snopios, Shade of the Ghoti",
+      "passcode": "39522887",
+      "quantity": 2
+    },
+    {
+      "name": "Psiics, Moonlight of the Ghoti",
+      "passcode": "26523337",
+      "quantity": 2
+    },
+    {
+      "name": "Eanoc, Sentry of the Ghoti",
+      "passcode": "09416697",
+      "quantity": 2
+    },
+    {
+      "name": "Lifeless Leaffish",
+      "passcode": "89617515",
+      "quantity": 2
+    },
+    {
+      "name": "Beautunaful Princess",
+      "passcode": "06625096",
+      "quantity": 2
+    },
+    {
+      "name": "Minairuka",
+      "passcode": "61845881",
+      "quantity": 1
+    },
+    {
+      "name": "Silent Angler",
+      "passcode": "90303176",
+      "quantity": 1
+    },
+    {
+      "name": "Fishborg Harpooner",
+      "passcode": "57420265",
+      "quantity": 1
+    },
+    {
+      "name": "The Most Distant, Deepest Depths",
+      "passcode": "08794055",
+      "quantity": 3
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    },
+    {
+      "name": "Foolish Burial",
+      "passcode": "81439173",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Moray of Greed",
+      "passcode": "22123627",
+      "quantity": 1
+    },
+    {
+      "name": "Surface",
+      "passcode": "33057951",
+      "quantity": 1
+    },
+    {
+      "name": "Ghoti Chain",
+      "passcode": "45792753",
+      "quantity": 3
+    },
+    {
+      "name": "Ghoti Cosmos",
+      "passcode": "38409239",
+      "quantity": 2
+    },
+    {
+      "name": "Ghoti Fury",
+      "passcode": "65898344",
+      "quantity": 2
+    }
+  ],
+  "extra": [
+    {
+      "name": "Arionpos, Serpent of the Ghoti",
+      "passcode": "65910922",
+      "quantity": 2
+    },
+    {
+      "name": "Askaan, the Bicorned Ghoti",
+      "passcode": "46815301",
+      "quantity": 2
+    },
+    {
+      "name": "Ghoti of the Deep Beyond",
+      "passcode": "72309040",
+      "quantity": 2
+    },
+    {
+      "name": "Guoglim, Spear of the Ghoti",
+      "passcode": "02405631",
+      "quantity": 1
+    },
+    {
+      "name": "White Aura Whale",
+      "passcode": "05614808",
+      "quantity": 1
+    },
+    {
+      "name": "White Aura Dolphin",
+      "passcode": "78229193",
+      "quantity": 1
+    },
+    {
+      "name": "White Aura Monoceros",
+      "passcode": "63731062",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Cosmic Cyclone",
+      "passcode": "08267140",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 3
+    },
+    {
+      "name": "Different Dimension Ground",
+      "passcode": "31849106",
+      "quantity": 3
+    },
+    {
+      "name": "Silent Sea Nettle",
+      "passcode": "31059809",
+      "quantity": 3
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 3
+    }
+  ]
+}

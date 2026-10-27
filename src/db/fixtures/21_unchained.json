@@ -1,0 +1,125 @@
+{
+  "name": "Unchained",
+  "description": "Casual Unchained list that turns its own destruction into searches and Special Summons, keeping the Extra Deck to Fiends so the summon locks stay legal.",
+  "main": [
+    {
+      "name": "Unchained Twins - Aruha",
+      "passcode": "26236560",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Twins - Rakea",
+      "passcode": "53624265",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Twins - Sarama",
+      "passcode": "31588572",
+      "quantity": 3
+    },
+    {
+      "name": "Abominable Unchained Soul",
+      "passcode": "01966438",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Soul of Disaster",
+      "passcode": "89019964",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Soul of Sharvara",
+      "passcode": "41165831",
+      "quantity": 2
+    },
+    {
+      "name": "Unchained Soul of Shyama",
+      "passcode": "88554436",
+      "quantity": 2
+    },
+    {
+      "name": "Dark Spirit of Malice",
+      "passcode": "87988305",
+      "quantity": 3
+    },
+    {
+      "name": "Abomination's Prison",
+      "passcode": "27412542",
+      "quantity": 3
+    },
+    {
+      "name": "Abominable Chamber of the Unchained",
+      "passcode": "80801743",
+      "quantity": 3
+    },
+    {
+      "name": "Escape of the Unchained",
+      "passcode": "53417695",
+      "quantity": 3
+    },
+    {
+      "name": "Wailing of the Unchained Souls",
+      "passcode": "54807656",
+      "quantity": 3
+    },
+    {
+      "name": "Dark Spirit's Mastery",
+      "passcode": "14386013",
+      "quantity": 3
+    },
+    {
+      "name": "Supply Squad",
+      "passcode": "17626381",
+      "quantity": 3
+    }
+  ],
+  "extra": [
+    {
+      "name": "Unchained Soul Lord of Yama",
+      "passcode": "24269961",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Soul of Rage",
+      "passcode": "67680512",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Soul of Anguish",
+      "passcode": "93084621",
+      "quantity": 3
+    },
+    {
+      "name": "Unchained Abomination",
+      "passcode": "29479265",
+      "quantity": 3
+    }
+  ],
+  "side": [
+    {
+      "name": "Dark Spirit of Banishment",
+      "passcode": "51993760",
+      "quantity": 3
+    },
+    {
+      "name": "Fiend Griefing",
+      "passcode": "60743819",
+      "quantity": 3
+    },
+    {
+      "name": "Archfiend's Ghastly Glitch",
+      "passcode": "05168381",
+      "quantity": 3
+    },
+    {
+      "name": "Twin Twisters",
+      "passcode": "43898403",
+      "quantity": 3
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 3
+    }
+  ]
+}

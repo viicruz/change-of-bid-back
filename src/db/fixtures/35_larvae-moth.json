@@ -1,0 +1,139 @@
+{
+  "name": "Larvae Moth",
+  "description": "Deliberately slow list that equips Petit Moth with Cocoon of Evolution and tries to keep the cocoon alive long enough for Larvae Moth.",
+  "main": [
+    {
+      "name": "Petit Moth",
+      "passcode": "58192742",
+      "quantity": 3
+    },
+    {
+      "name": "Cocoon of Evolution",
+      "passcode": "40240595",
+      "quantity": 3
+    },
+    {
+      "name": "Larvae Moth",
+      "passcode": "87756343",
+      "quantity": 3
+    },
+    {
+      "name": "Gokipon",
+      "passcode": "14472500",
+      "quantity": 3
+    },
+    {
+      "name": "Howling Insect",
+      "passcode": "93107608",
+      "quantity": 3
+    },
+    {
+      "name": "Swarm of Locusts",
+      "passcode": "41872150",
+      "quantity": 2
+    },
+    {
+      "name": "Swarm of Scarabs",
+      "passcode": "15383415",
+      "quantity": 2
+    },
+    {
+      "name": "Parasite Paracide",
+      "passcode": "27911550",
+      "quantity": 2
+    },
+    {
+      "name": "Basic Insect",
+      "passcode": "89091579",
+      "quantity": 2
+    },
+    {
+      "name": "Killer Needle",
+      "passcode": "88979991",
+      "quantity": 2
+    },
+    {
+      "name": "Flying Kamakiri #2",
+      "passcode": "03134241",
+      "quantity": 2
+    },
+    {
+      "name": "Insect Knight",
+      "passcode": "35052053",
+      "quantity": 2
+    },
+    {
+      "name": "Hercules Beetle",
+      "passcode": "52584282",
+      "quantity": 1
+    },
+    {
+      "name": "Forest",
+      "passcode": "87430998",
+      "quantity": 2
+    },
+    {
+      "name": "Laser Cannon Armor",
+      "passcode": "77007920",
+      "quantity": 2
+    },
+    {
+      "name": "Shield & Sword",
+      "passcode": "52097679",
+      "quantity": 2
+    },
+    {
+      "name": "Insect Barrier",
+      "passcode": "23615409",
+      "quantity": 1
+    },
+    {
+      "name": "Multiplication of Ants",
+      "passcode": "22493811",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Swords of Concealing Light",
+      "passcode": "12923641",
+      "quantity": 1
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Insect Imitation",
+      "passcode": "96965364",
+      "quantity": 3
+    },
+    {
+      "name": "Jade Insect Whistle",
+      "passcode": "95214051",
+      "quantity": 3
+    },
+    {
+      "name": "The Shallow Grave",
+      "passcode": "43434803",
+      "quantity": 3
+    },
+    {
+      "name": "DNA Surgery",
+      "passcode": "74701381",
+      "quantity": 2
+    },
+    {
+      "name": "Insect Neglect",
+      "passcode": "22991179",
+      "quantity": 2
+    },
+    {
+      "name": "Attack of the Cornered Rat",
+      "passcode": "84389640",
+      "quantity": 2
+    }
+  ]
+}

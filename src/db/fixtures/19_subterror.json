@@ -1,0 +1,220 @@
+{
+  "name": "Subterror",
+  "description": "Casual flip control built around Subterror Guru, The Hidden City, and Subterror Final Battle, flipping Behemoths up and down instead of relying on floodgates.",
+  "main": [
+    {
+      "name": "Subterror Guru",
+      "passcode": "16428514",
+      "quantity": 3
+    },
+    {
+      "name": "Subterror Fiendess",
+      "passcode": "74762582",
+      "quantity": 3
+    },
+    {
+      "name": "Subterror Nemesis Archer",
+      "passcode": "39581190",
+      "quantity": 2
+    },
+    {
+      "name": "Subterror Nemesis Defender",
+      "passcode": "68823957",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Nemesis Warrior",
+      "passcode": "16719140",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Umastryx",
+      "passcode": "42713844",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Stygokraken",
+      "passcode": "65976795",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Dragossuary",
+      "passcode": "95218695",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Phospheroglacier",
+      "passcode": "01151281",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Speleogeist",
+      "passcode": "47556396",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Stalagmo",
+      "passcode": "78202553",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Voltelluric",
+      "passcode": "21607304",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Ultramafus",
+      "passcode": "92970404",
+      "quantity": 1
+    },
+    {
+      "name": "The Hidden City",
+      "passcode": "05697558",
+      "quantity": 3
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    },
+    {
+      "name": "Terrors in the Hidden City",
+      "passcode": "06589707",
+      "quantity": 2
+    },
+    {
+      "name": "Subterror Cave Clash",
+      "passcode": "68001309",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Final Battle",
+      "passcode": "74640994",
+      "quantity": 3
+    },
+    {
+      "name": "Subterror Succession",
+      "passcode": "73575650",
+      "quantity": 2
+    },
+    {
+      "name": "Subterror Behemoth Burrowing",
+      "passcode": "28369508",
+      "quantity": 1
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 1
+    },
+    {
+      "name": "Book of Taiyou",
+      "passcode": "38699854",
+      "quantity": 1
+    },
+    {
+      "name": "Desert Sunlight",
+      "passcode": "93747864",
+      "quantity": 1
+    },
+    {
+      "name": "Time Reloader",
+      "passcode": "86346363",
+      "quantity": 1
+    },
+    {
+      "name": "Swarm of Centipedes",
+      "passcode": "06116731",
+      "quantity": 1
+    },
+    {
+      "name": "Spirit of the Fall Wind",
+      "passcode": "26517393",
+      "quantity": 1
+    },
+    {
+      "name": "Solemn Judgment",
+      "passcode": "41420027",
+      "quantity": 1
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 2
+    }
+  ],
+  "extra": [
+    {
+      "name": "Subterror Behemoth Fiendess",
+      "passcode": "74937659",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Subterror Behemoth Burrowing",
+      "passcode": "28369508",
+      "quantity": 2
+    },
+    {
+      "name": "Subterror Cave Clash",
+      "passcode": "68001309",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Succession",
+      "passcode": "73575650",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Nemesis Archer",
+      "passcode": "39581190",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Nemesis Defender",
+      "passcode": "68823957",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Nemesis Warrior",
+      "passcode": "16719140",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Voltelluric",
+      "passcode": "21607304",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Stalagmo",
+      "passcode": "78202553",
+      "quantity": 1
+    },
+    {
+      "name": "Subterror Behemoth Ultramafus",
+      "passcode": "92970404",
+      "quantity": 1
+    },
+    {
+      "name": "Swarm of Centipedes",
+      "passcode": "06116731",
+      "quantity": 1
+    },
+    {
+      "name": "Time Reloader",
+      "passcode": "86346363",
+      "quantity": 1
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 2
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 1
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "name": "Final Countdown",
+  "description": "Stall list that finds the single Final Countdown and spends the next twenty turns on battle traps, stall monsters, and continuous locks.",
+  "main": [
+    {
+      "name": "Final Countdown",
+      "passcode": "95308449",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Duality",
+      "passcode": "98645731",
+      "quantity": 3
+    },
+    {
+      "name": "Card of Demise",
+      "passcode": "59750328",
+      "quantity": 1
+    },
+    {
+      "name": "One Day of Peace",
+      "passcode": "33782437",
+      "quantity": 1
+    },
+    {
+      "name": "Gold Sarcophagus",
+      "passcode": "75500286",
+      "quantity": 1
+    },
+    {
+      "name": "Different Dimension Capsule",
+      "passcode": "11961740",
+      "quantity": 2
+    },
+    {
+      "name": "Swords of Revealing Light",
+      "passcode": "72302403",
+      "quantity": 3
+    },
+    {
+      "name": "Messenger of Peace",
+      "passcode": "44656491",
+      "quantity": 3
+    },
+    {
+      "name": "Level Limit - Area B",
+      "passcode": "03136426",
+      "quantity": 2
+    },
+    {
+      "name": "Gravity Bind",
+      "passcode": "85742772",
+      "quantity": 3
+    },
+    {
+      "name": "Spirit Barrier",
+      "passcode": "53239672",
+      "quantity": 3
+    },
+    {
+      "name": "Marshmallon",
+      "passcode": "31305911",
+      "quantity": 3
+    },
+    {
+      "name": "Arcana Force 0 - The Fool",
+      "passcode": "62892347",
+      "quantity": 2
+    },
+    {
+      "name": "Battle Fader",
+      "passcode": "19665973",
+      "quantity": 3
+    },
+    {
+      "name": "Swift Scarecrow",
+      "passcode": "18964575",
+      "quantity": 3
+    },
+    {
+      "name": "Threatening Roar",
+      "passcode": "36361633",
+      "quantity": 3
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 3
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Magic Cylinder",
+      "passcode": "62279055",
+      "quantity": 3
+    },
+    {
+      "name": "Mirror Force",
+      "passcode": "44095762",
+      "quantity": 3
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 3
+    },
+    {
+      "name": "Cosmic Cyclone",
+      "passcode": "08267140",
+      "quantity": 3
+    },
+    {
+      "name": "Lava Golem",
+      "passcode": "00102380",
+      "quantity": 3
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "name": "Ice Barrier",
+  "description": "Casual WATER Synchro list that uses Revealer, Hexa Spirit, and Mirror Mage to make Tuners and Tokens, with Lancea as the payoff when the opponent Special Summons.",
+  "main": [
+    {
+      "name": "Revealer of the Ice Barrier",
+      "passcode": "18319762",
+      "quantity": 3
+    },
+    {
+      "name": "Hexa Spirit of the Ice Barrier",
+      "passcode": "70703416",
+      "quantity": 3
+    },
+    {
+      "name": "Mirror Mage of the Ice Barrier",
+      "passcode": "09396662",
+      "quantity": 3
+    },
+    {
+      "name": "Georgius, Swordman of the Ice Barrier",
+      "passcode": "32991027",
+      "quantity": 3
+    },
+    {
+      "name": "Speaker for the Ice Barriers",
+      "passcode": "44308317",
+      "quantity": 3
+    },
+    {
+      "name": "Prior of the Ice Barrier",
+      "passcode": "50088247",
+      "quantity": 2
+    },
+    {
+      "name": "General Raiho of the Ice Barrier",
+      "passcode": "81275309",
+      "quantity": 2
+    },
+    {
+      "name": "General Wayne of the Ice Barrier",
+      "passcode": "81825063",
+      "quantity": 1
+    },
+    {
+      "name": "Zuijin of the Ice Barrier",
+      "passcode": "43256007",
+      "quantity": 1
+    },
+    {
+      "name": "Warlock of the Ice Barrier",
+      "passcode": "18482591",
+      "quantity": 1
+    },
+    {
+      "name": "General Gantala of the Ice Barrier",
+      "passcode": "53921056",
+      "quantity": 1
+    },
+    {
+      "name": "Strategist of the Ice Barrier",
+      "passcode": "50032342",
+      "quantity": 1
+    },
+    {
+      "name": "Medallion of the Ice Barrier",
+      "passcode": "84206435",
+      "quantity": 3
+    },
+    {
+      "name": "Freezing Chains of the Ice Barrier",
+      "passcode": "43582229",
+      "quantity": 3
+    },
+    {
+      "name": "Winds Over the Ice Barrier",
+      "passcode": "17197110",
+      "quantity": 2
+    },
+    {
+      "name": "Magic Triangle of the Ice Barrier",
+      "passcode": "64990807",
+      "quantity": 2
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Frozen Domain of the Ice Barrier",
+      "passcode": "35380371",
+      "quantity": 2
+    },
+    {
+      "name": "Terror of Trishula",
+      "passcode": "06075533",
+      "quantity": 2
+    },
+    {
+      "name": "Ice Barrier",
+      "passcode": "34293667",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Lancea, Ancestral Dragon of the Ice Mountain",
+      "passcode": "96402918",
+      "quantity": 2
+    },
+    {
+      "name": "Brionac, Dragon of the Ice Barrier",
+      "passcode": "50321796",
+      "quantity": 1
+    },
+    {
+      "name": "Gungnir, Dragon of the Ice Barrier",
+      "passcode": "65749035",
+      "quantity": 1
+    },
+    {
+      "name": "Dewloren, Tiger King of the Ice Barrier",
+      "passcode": "70583986",
+      "quantity": 1
+    },
+    {
+      "name": "Brionac, the Magical Ice Dragon",
+      "passcode": "65892310",
+      "quantity": 1
+    },
+    {
+      "name": "Coral Dragon",
+      "passcode": "42566602",
+      "quantity": 1
+    },
+    {
+      "name": "White Aura Whale",
+      "passcode": "05614808",
+      "quantity": 1
+    },
+    {
+      "name": "Adamancipator Risen - Dragite",
+      "passcode": "09464441",
+      "quantity": 1
+    },
+    {
+      "name": "Ravenous Crocodragon Archethys",
+      "passcode": "87188910",
+      "quantity": 1
+    },
+    {
+      "name": "Icejade Gymir Aegirine",
+      "passcode": "86682165",
+      "quantity": 1
+    },
+    {
+      "name": "Graydle Dragon",
+      "passcode": "52145422",
+      "quantity": 1
+    },
+    {
+      "name": "Marincess Coral Anemone",
+      "passcode": "79130389",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Gameciel, the Sea Turtle Kaiju",
+      "passcode": "55063751",
+      "quantity": 3
+    },
+    {
+      "name": "Silent Angler",
+      "passcode": "90303176",
+      "quantity": 3
+    },
+    {
+      "name": "Silent Sea Nettle",
+      "passcode": "31059809",
+      "quantity": 3
+    },
+    {
+      "name": "Cosmic Cyclone",
+      "passcode": "08267140",
+      "quantity": 2
+    },
+    {
+      "name": "Twin Twisters",
+      "passcode": "43898403",
+      "quantity": 2
+    },
+    {
+      "name": "Harpie's Feather Duster",
+      "passcode": "18144507",
+      "quantity": 1
+    },
+    {
+      "name": "Evenly Matched",
+      "passcode": "15693423",
+      "quantity": 1
+    }
+  ]
+}

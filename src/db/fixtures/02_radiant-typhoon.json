@@ -1,0 +1,185 @@
+{
+  "name": "Radiant Typhoon",
+  "description": "Control deck that pairs the Radiant Typhoon core with spell removal and efficient interaction, then turns Wind bodies into Xyz and Link monsters.",
+  "main": [
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 3
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Radiant Typhoon Eldam",
+      "passcode": "54143349",
+      "quantity": 3
+    },
+    {
+      "name": "Radiant Typhoon Meghala",
+      "passcode": "27755794",
+      "quantity": 1
+    },
+    {
+      "name": "Radiant Typhoon Swen",
+      "passcode": "80538047",
+      "quantity": 3
+    },
+    {
+      "name": "Noble Knight's Shield-Bearer",
+      "passcode": "34242278",
+      "quantity": 1
+    },
+    {
+      "name": "Radiant Typhoon Krosea",
+      "passcode": "16922142",
+      "quantity": 3
+    },
+    {
+      "name": "Radiant Typhoon Fonix, the Great Flame",
+      "passcode": "85315450",
+      "quantity": 1
+    },
+    {
+      "name": "Radiant Typhoon Varuroon, the Vibrant Vortex",
+      "passcode": "53927851",
+      "quantity": 1
+    },
+    {
+      "name": "Shiina, Twin Tempests of Celestial Thunder",
+      "passcode": "12197223",
+      "quantity": 2
+    },
+    {
+      "name": "Pot of Extravagance",
+      "passcode": "49238328",
+      "quantity": 2
+    },
+    {
+      "name": "Mystical Space Typhoon",
+      "passcode": "05318639",
+      "quantity": 3
+    },
+    {
+      "name": "Forbidden Droplet",
+      "passcode": "24299458",
+      "quantity": 3
+    },
+    {
+      "name": "Radiant Typhoon Chant",
+      "passcode": "67115133",
+      "quantity": 1
+    },
+    {
+      "name": "Radiant Typhoon Manifestation",
+      "passcode": "94103142",
+      "quantity": 1
+    },
+    {
+      "name": "Radiant Typhoon Vision",
+      "passcode": "20508881",
+      "quantity": 3
+    },
+    {
+      "name": "Radiant Typhoon Ascendance",
+      "passcode": "25940932",
+      "quantity": 2
+    },
+    {
+      "name": "Dominus Purge",
+      "passcode": "97045737",
+      "quantity": 3
+    },
+    {
+      "name": "Radiant Typhoon Mandate",
+      "passcode": "53813120",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Maple Maiden",
+      "passcode": "73104892",
+      "quantity": 1
+    },
+    {
+      "name": "Totem Bird",
+      "passcode": "71068247",
+      "quantity": 1
+    },
+    {
+      "name": "Number 49: Fortune Tune",
+      "passcode": "16259549",
+      "quantity": 1
+    },
+    {
+      "name": "Number 75: Bamboozling Gossip Shadow",
+      "passcode": "71166481",
+      "quantity": 1
+    },
+    {
+      "name": "Phantom Fortress Enterblathnir",
+      "passcode": "95113856",
+      "quantity": 2
+    },
+    {
+      "name": "Divine Arsenal AA-ZEUS - Sky Thunder",
+      "passcode": "90448279",
+      "quantity": 1
+    },
+    {
+      "name": "Greatfly",
+      "passcode": "90512490",
+      "quantity": 2
+    },
+    {
+      "name": "Wynn the Wind Charmer, Verdant",
+      "passcode": "30674956",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    },
+    {
+      "name": "Radiant Typhoon Varuroon, the Marine Eidolon",
+      "passcode": "39341885",
+      "quantity": 3
+    },
+    {
+      "name": "Hraesvelgr, the Desperate Doom Eagle",
+      "passcode": "49105782",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Lava Golem",
+      "passcode": "00102380",
+      "quantity": 3
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 3
+    },
+    {
+      "name": "Pot of Sloth",
+      "passcode": "98476659",
+      "quantity": 3
+    },
+    {
+      "name": "Solemn Accusation",
+      "passcode": "78114463",
+      "quantity": 3
+    }
+  ]
+}

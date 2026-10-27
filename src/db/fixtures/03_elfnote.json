@@ -1,0 +1,235 @@
+{
+  "name": "Elfnote",
+  "description": "Synchro and Pendulum combo-midrange deck that opens with Elfnote, Medius, and Ars Magna or Power Patron, then climbs into Elfnote Synchros and generic bosses.",
+  "main": [
+    {
+      "name": "Elfnote Lucina",
+      "passcode": "13597785",
+      "quantity": 3
+    },
+    {
+      "name": "Elfnote Regina",
+      "passcode": "56651978",
+      "quantity": 3
+    },
+    {
+      "name": "Elfnote Fortuna",
+      "passcode": "85976588",
+      "quantity": 1
+    },
+    {
+      "name": "Elfnote Power Patron",
+      "passcode": "12375297",
+      "quantity": 2
+    },
+    {
+      "name": "Medius the Pure",
+      "passcode": "97556336",
+      "quantity": 2
+    },
+    {
+      "name": "Theorealized Medius",
+      "passcode": "90875418",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna the Finite and the Infinite",
+      "passcode": "36270527",
+      "quantity": 2
+    },
+    {
+      "name": "Ars Magna the Division and the Union",
+      "passcode": "99753860",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna the Corruption and the Purification",
+      "passcode": "62368221",
+      "quantity": 1
+    },
+    {
+      "name": "Vidolium the Unstable Power Patron of Unity",
+      "passcode": "70488851",
+      "quantity": 2
+    },
+    {
+      "name": "Nervedo the Shadebeast Power Patron",
+      "passcode": "17473466",
+      "quantity": 1
+    },
+    {
+      "name": "Junoldo the Shadespirit Power Patron",
+      "passcode": "10266279",
+      "quantity": 1
+    },
+    {
+      "name": "Skull Meister",
+      "passcode": "67750322",
+      "quantity": 2
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 3
+    },
+    {
+      "name": "Effect Veiler",
+      "passcode": "97268402",
+      "quantity": 3
+    },
+    {
+      "name": "Theorealize",
+      "passcode": "48739627",
+      "quantity": 1
+    },
+    {
+      "name": "Theorealize Past Lull",
+      "passcode": "36709484",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna \"Citrinitas\"",
+      "passcode": "37279096",
+      "quantity": 2
+    },
+    {
+      "name": "Prohibited Power Patron Portal - Terminus",
+      "passcode": "25661743",
+      "quantity": 1
+    },
+    {
+      "name": "Pendulum Treasure",
+      "passcode": "26237713",
+      "quantity": 2
+    },
+    {
+      "name": "Elfnotes: Rhapsodia of Madness",
+      "passcode": "24092792",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Elfnote June Pride",
+      "passcode": "05559570",
+      "quantity": 1
+    },
+    {
+      "name": "Elfnote Seraphim Strelitzia",
+      "passcode": "42302563",
+      "quantity": 1
+    },
+    {
+      "name": "Psychic End Punisher",
+      "passcode": "60465049",
+      "quantity": 1
+    },
+    {
+      "name": "Shooting Riser Dragon",
+      "passcode": "68431965",
+      "quantity": 1
+    },
+    {
+      "name": "Zalen the Shackled Dragon",
+      "passcode": "04891376",
+      "quantity": 1
+    },
+    {
+      "name": "Ravenous Crocodragon Archethys",
+      "passcode": "87188910",
+      "quantity": 1
+    },
+    {
+      "name": "The Executor of the Underworld - Pluto",
+      "passcode": "37706769",
+      "quantity": 1
+    },
+    {
+      "name": "Diabell, Queen of the White Forest",
+      "passcode": "14307929",
+      "quantity": 1
+    },
+    {
+      "name": "Number 90: Galaxy-Eyes Photon Lord",
+      "passcode": "08165596",
+      "quantity": 1
+    },
+    {
+      "name": "Evolzar Lars",
+      "passcode": "35103106",
+      "quantity": 1
+    },
+    {
+      "name": "Artmage Diactorus",
+      "passcode": "27184601",
+      "quantity": 1
+    },
+    {
+      "name": "Purification Power Patron",
+      "passcode": "31822037",
+      "quantity": 1
+    },
+    {
+      "name": "Mediclius the Extraordinary Power Patron",
+      "passcode": "04063756",
+      "quantity": 1
+    },
+    {
+      "name": "Dharc the Dark Charmer, Gloomy",
+      "passcode": "08264361",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Shiina, Twin Tempests of Celestial Thunder",
+      "passcode": "12197223",
+      "quantity": 3
+    },
+    {
+      "name": "The Great Gallant Bandit",
+      "passcode": "24203749",
+      "quantity": 2
+    },
+    {
+      "name": "Skull Meister",
+      "passcode": "67750322",
+      "quantity": 1
+    },
+    {
+      "name": "Hey, Space Trunade!",
+      "passcode": "02729965",
+      "quantity": 2
+    },
+    {
+      "name": "Infinite Impermanence",
+      "passcode": "10045474",
+      "quantity": 3
+    },
+    {
+      "name": "Typhoon",
+      "passcode": "14883228",
+      "quantity": 3
+    },
+    {
+      "name": "Maple Maiden",
+      "passcode": "73104892",
+      "quantity": 1
+    }
+  ]
+}

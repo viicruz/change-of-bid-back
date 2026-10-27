@@ -1,0 +1,124 @@
+{
+  "name": "Chain Burn",
+  "description": "Trap burn list that turns chain links into damage with Secret Barrel, Secret Blast, and Just Desserts, using Ojama Trio to inflate the opponent's board.",
+  "main": [
+    {
+      "name": "Chain Strike",
+      "passcode": "91623717",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Duality",
+      "passcode": "98645731",
+      "quantity": 3
+    },
+    {
+      "name": "Upstart Goblin",
+      "passcode": "70368879",
+      "quantity": 3
+    },
+    {
+      "name": "Dark Room of Nightmare",
+      "passcode": "85562745",
+      "quantity": 2
+    },
+    {
+      "name": "Secret Barrel",
+      "passcode": "27053506",
+      "quantity": 3
+    },
+    {
+      "name": "Secret Blast",
+      "passcode": "18252559",
+      "quantity": 3
+    },
+    {
+      "name": "Just Desserts",
+      "passcode": "24068492",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Trio",
+      "passcode": "29843091",
+      "quantity": 3
+    },
+    {
+      "name": "Accumulated Fortune",
+      "passcode": "98444741",
+      "quantity": 3
+    },
+    {
+      "name": "Reckless Greed",
+      "passcode": "37576645",
+      "quantity": 3
+    },
+    {
+      "name": "Jar of Greed",
+      "passcode": "83968380",
+      "quantity": 3
+    },
+    {
+      "name": "Legacy of Yata-Garasu",
+      "passcode": "30461781",
+      "quantity": 2
+    },
+    {
+      "name": "Threatening Roar",
+      "passcode": "36361633",
+      "quantity": 3
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 3
+    },
+    {
+      "name": "Dimension Wall",
+      "passcode": "67095270",
+      "quantity": 2
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Magic Cylinder",
+      "passcode": "62279055",
+      "quantity": 2
+    },
+    {
+      "name": "Ring of Destruction",
+      "passcode": "83555666",
+      "quantity": 1
+    },
+    {
+      "name": "Ceasefire",
+      "passcode": "36468556",
+      "quantity": 2
+    },
+    {
+      "name": "Chain Detonation",
+      "passcode": "51449743",
+      "quantity": 2
+    },
+    {
+      "name": "Tremendous Fire",
+      "passcode": "46918794",
+      "quantity": 3
+    },
+    {
+      "name": "Poison of the Old Man",
+      "passcode": "08842266",
+      "quantity": 2
+    },
+    {
+      "name": "Battle Fader",
+      "passcode": "19665973",
+      "quantity": 2
+    },
+    {
+      "name": "Swift Scarecrow",
+      "passcode": "18964575",
+      "quantity": 1
+    }
+  ]
+}

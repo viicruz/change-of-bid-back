@@ -1,0 +1,185 @@
+{
+  "name": "Angelechy",
+  "description": "Synchro deck built around the Angelechy core, pairing its monsters, spells, and traps with hand traps and Dominus cards to interrupt the opponent and turn those interactions into Angelechy Synchros.",
+  "main": [
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 3
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "Angelechy Problem",
+      "passcode": "17782288",
+      "quantity": 3
+    },
+    {
+      "name": "Angelechy Strategy Score",
+      "passcode": "13068112",
+      "quantity": 3
+    },
+    {
+      "name": "Angelechy Opposition",
+      "passcode": "86457955",
+      "quantity": 3
+    },
+    {
+      "name": "Angelechy Brilliant Move",
+      "passcode": "59062857",
+      "quantity": 1
+    },
+    {
+      "name": "Angelechy Endgame Problem",
+      "passcode": "12845564",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Desires",
+      "passcode": "35261759",
+      "quantity": 2
+    },
+    {
+      "name": "Foolish Burial Goods",
+      "passcode": "35726888",
+      "quantity": 3
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    },
+    {
+      "name": "Dominus Purge",
+      "passcode": "97045737",
+      "quantity": 3
+    },
+    {
+      "name": "Dominus Impulse",
+      "passcode": "40366667",
+      "quantity": 3
+    },
+    {
+      "name": "Dominus Spark",
+      "passcode": "06325660",
+      "quantity": 3
+    },
+    {
+      "name": "Transaction Rollback",
+      "passcode": "06351147",
+      "quantity": 1
+    },
+    {
+      "name": "Angelechy Disturbance",
+      "passcode": "54171327",
+      "quantity": 1
+    },
+    {
+      "name": "Angelechy Opening to e4",
+      "passcode": "80565021",
+      "quantity": 3
+    },
+    {
+      "name": "Angelechy Verdict",
+      "passcode": "48340269",
+      "quantity": 2
+    }
+  ],
+  "extra": [
+    {
+      "name": "Angelechy Shatranga",
+      "passcode": "42410161",
+      "quantity": 2
+    },
+    {
+      "name": "Angelechy Enlisted",
+      "passcode": "81797573",
+      "quantity": 2
+    },
+    {
+      "name": "Angelechy Castellan",
+      "passcode": "50284408",
+      "quantity": 1
+    },
+    {
+      "name": "Angelechy Seneschal",
+      "passcode": "86673403",
+      "quantity": 1
+    },
+    {
+      "name": "Angelechy Bastion",
+      "passcode": "28904860",
+      "quantity": 2
+    },
+    {
+      "name": "Angelechy Destrier",
+      "passcode": "55393975",
+      "quantity": 2
+    },
+    {
+      "name": "Crystron Phoenix",
+      "passcode": "02743001",
+      "quantity": 1
+    },
+    {
+      "name": "Centur-Ion Legatia",
+      "passcode": "15982593",
+      "quantity": 1
+    },
+    {
+      "name": "Maple Maiden",
+      "passcode": "73104892",
+      "quantity": 1
+    },
+    {
+      "name": "Assault Blackwing - Kusanagi the Gathering Storm",
+      "passcode": "31114334",
+      "quantity": 1
+    },
+    {
+      "name": "Black-Winged Assault Dragon",
+      "passcode": "73218989",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Shiina, Twin Tempests of Celestial Thunder",
+      "passcode": "12197223",
+      "quantity": 3
+    },
+    {
+      "name": "Inspector Boarder",
+      "passcode": "15397015",
+      "quantity": 3
+    },
+    {
+      "name": "The Great Gallant Bandit",
+      "passcode": "24203749",
+      "quantity": 3
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Triple Tactics Thrust",
+      "passcode": "35269904",
+      "quantity": 2
+    },
+    {
+      "name": "Different Dimension Ground",
+      "passcode": "31849106",
+      "quantity": 1
+    }
+  ]
+}
