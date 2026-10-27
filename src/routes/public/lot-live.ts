@@ -17,6 +17,25 @@ import {
 const roomLeaves = new WeakMap<object, () => void>();
 const closedSockets = new WeakSet<object>();
 
+type LiveRoomPeer = {
+  context?: {
+    message?: (peer: unknown, body: string) => unknown;
+  };
+};
+
+// @elysiajs/node treats any text frame whose body contains "ping" as a
+// heartbeat and handles it before the route. Drop every client frame on the
+// socket hook so the room stays one-way.
+function ignoreClientFrames(peer: object) {
+  const context = (peer as LiveRoomPeer).context;
+
+  if (context === undefined) {
+    throw new Error("Live room socket has no message hook");
+  }
+
+  context.message = () => undefined;
+}
+
 function allowsLiveOrigin(origin: string | null) {
   return origin === null || origin === env.PAGE_ORIGIN;
 }
@@ -51,6 +70,9 @@ export function publicLotLiveRoutes(app: Elysia) {
     },
     async open(ws) {
       const raw = ws.raw;
+
+      ignoreClientFrames(raw);
+
       const lotId = ws.data.params.id;
 
       try {
@@ -73,9 +95,6 @@ export function publicLotLiveRoutes(app: Elysia) {
 
         throw error;
       }
-    },
-    message() {
-      // Bids, deposits, and cancellation stay on their HTTP routes.
     },
     close(ws) {
       closedSockets.add(ws.raw);

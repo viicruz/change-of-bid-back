@@ -1,51 +1,6 @@
 //* Services imports
-import {
-  showPublicLot,
-  type ShownPublicLot,
-  type ShownPublicLotBid,
-  type ShownPublicLotItem,
-} from "./show-public-lot";
-
-export type PublicLotLiveBid = {
-  sequence: number;
-  amount: string;
-  createdAt: string;
-  participantNo: number;
-};
-
-export type PublicLotLiveItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-  cardSnapshot: Record<string, unknown>;
-};
-
-export type PublicLotLiveLot = {
-  id: string;
-  title: string;
-  description: string | null;
-  openingBid: string;
-  minIncrement: string;
-  startsAt: string;
-  endsAt: string;
-  extensionCount: number;
-  status: ShownPublicLot["lot"]["status"];
-  currentBid: string | null;
-  leaderParticipantNo: number | null;
-  bidCount: number;
-  sold: boolean;
-  winnerParticipantNo: number | null;
-  items: PublicLotLiveItem[];
-  bids: PublicLotLiveBid[];
-};
-
-export type PublicLotLiveMessage = {
-  serverNow: string;
-  lot: PublicLotLiveLot;
-};
+import { showPublicLot } from "./show-public-lot";
+import { toPublicLotLiveMessage } from "./public-lot-live-message";
 
 type PublicLotLiveSubscriber = {
   send: (payload: string) => void;
@@ -166,49 +121,4 @@ async function readPublicLotLivePayload(lotId: string) {
   const shown = await showPublicLot(lotId, { viewerId: null });
 
   return JSON.stringify(toPublicLotLiveMessage(shown));
-}
-
-function toPublicLotLiveMessage(shown: ShownPublicLot): PublicLotLiveMessage {
-  return {
-    serverNow: shown.serverNow.toISOString(),
-    lot: {
-      id: shown.lot.id,
-      title: shown.lot.title,
-      description: shown.lot.description,
-      openingBid: shown.lot.openingBid,
-      minIncrement: shown.lot.minIncrement,
-      startsAt: shown.lot.startsAt.toISOString(),
-      endsAt: shown.lot.endsAt.toISOString(),
-      extensionCount: shown.lot.extensionCount,
-      status: shown.lot.status,
-      currentBid: shown.lot.currentBid,
-      leaderParticipantNo: shown.lot.leaderParticipantNo,
-      bidCount: shown.lot.bidCount,
-      sold: shown.lot.sold,
-      winnerParticipantNo: shown.lot.winnerParticipantNo,
-      items: shown.lot.items.map(toPublicLotLiveItem),
-      bids: shown.lot.bids.map(toPublicLotLiveBid),
-    },
-  };
-}
-
-function toPublicLotLiveItem(item: ShownPublicLotItem): PublicLotLiveItem {
-  return {
-    id: item.id,
-    position: item.position,
-    cardId: item.cardId,
-    quantity: item.quantity,
-    cardName: item.cardName,
-    imagePath: item.imagePath,
-    cardSnapshot: item.cardSnapshot,
-  };
-}
-
-function toPublicLotLiveBid(entry: ShownPublicLotBid): PublicLotLiveBid {
-  return {
-    sequence: entry.sequence,
-    amount: entry.amount,
-    createdAt: entry.createdAt.toISOString(),
-    participantNo: entry.participantNo,
-  };
 }

@@ -1,5 +1,6 @@
 //* Libraries imports
 import { request as httpRequest } from "node:http";
+import { connect as connectTcp } from "node:net";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
@@ -18,10 +19,8 @@ import {
 import { env } from "../../env";
 
 //* Services imports
-import {
-  publishPublicLot,
-  type PublicLotLiveMessage,
-} from "../../services/lots/public-lot-live";
+import { publishPublicLot } from "../../services/lots/public-lot-live";
+import type { PublicLotLiveMessage } from "../../services/lots/public-lot-live-message";
 import { settleDueLots } from "../../services/lots/settle-due-lots";
 
 const password = "Correct-horse-battery-1";
@@ -30,6 +29,12 @@ const auctioneerName = "Hidden Live Auctioneer";
 const createdUserIds: string[] = [];
 const createdLotIds: string[] = [];
 const clients: LiveClient[] = [];
+const wires: LiveWire[] = [];
+
+const websocketTextOpcode = 0x1;
+const websocketCloseOpcode = 0x8;
+const websocketPingOpcode = 0x9;
+const websocketPongOpcode = 0xa;
 
 type LiveServer = {
   hostname: string;
@@ -75,6 +80,18 @@ type LiveClient = {
   close: () => Promise<void>;
 };
 
+type LiveFrame = {
+  opcode: number;
+  payload: string;
+};
+
+type LiveWire = {
+  sendText: (text: string) => void;
+  nextTextFrame: () => Promise<string>;
+  framesBefore: (payload: string) => Promise<LiveFrame[]>;
+  close: () => Promise<void>;
+};
+
 let liveServer: LiveServer | undefined;
 
 function requiredEnv(name: string, value: string | undefined) {
@@ -99,6 +116,16 @@ function request(
     headers,
     body,
   });
+}
+
+function boundPort(info: ListeningServer) {
+  const address = info.raw?.node?.server?.address();
+
+  if (address === null || address === undefined || typeof address !== "object") {
+    return undefined;
+  }
+
+  return address.port;
 }
 
 function liveUrl(lotId: string) {
@@ -201,6 +228,264 @@ function connectLive(lotId: string, headers?: Record<string, string>) {
   clients.push(client);
 
   return opened.then(() => client);
+}
+
+function encodeClientText(text: string) {
+  const payload = Buffer.from(text);
+  const mask = Buffer.from([0x11, 0x22, 0x33, 0x44]);
+  const masked = Buffer.alloc(payload.length);
+
+  if (payload.length > 125) {
+    throw new Error("Live wire only sends short client frames");
+  }
+
+  for (let index = 0; index < payload.length; index += 1) {
+    masked[index] = payload[index] ^ mask[index % mask.length];
+  }
+
+  return Buffer.concat([
+    Buffer.from([0x81, 0x80 | payload.length]),
+    mask,
+    masked,
+  ]);
+}
+
+function readLiveFrames(buffer: Buffer) {
+  const frames: LiveFrame[] = [];
+  let offset = 0;
+
+  while (offset + 2 <= buffer.length) {
+    const opcode = buffer[offset] & 0x0f;
+    const masked = (buffer[offset + 1] & 0x80) !== 0;
+    let length = buffer[offset + 1] & 0x7f;
+    let cursor = offset + 2;
+
+    if (length === 126) {
+      if (cursor + 2 > buffer.length) {
+        break;
+      }
+
+      length = buffer.readUInt16BE(cursor);
+      cursor += 2;
+    } else if (length === 127) {
+      if (cursor + 8 > buffer.length) {
+        break;
+      }
+
+      length = Number(buffer.readBigUInt64BE(cursor));
+      cursor += 8;
+    }
+
+    const maskLength = masked ? 4 : 0;
+
+    if (cursor + maskLength + length > buffer.length) {
+      break;
+    }
+
+    const payload = Buffer.from(
+      buffer.subarray(cursor + maskLength, cursor + maskLength + length),
+    );
+
+    if (masked) {
+      const mask = buffer.subarray(cursor, cursor + 4);
+
+      for (let index = 0; index < payload.length; index += 1) {
+        payload[index] ^= mask[index % 4];
+      }
+    }
+
+    frames.push({
+      opcode,
+      payload:
+        opcode === websocketTextOpcode ? payload.toString("utf8") : "",
+    });
+    offset = cursor + maskLength + length;
+  }
+
+  return {
+    frames,
+    rest: buffer.subarray(offset),
+  };
+}
+
+function openLiveWire(lotId: string) {
+  if (liveServer === undefined || liveServer.port === 0) {
+    throw new Error("Live server is not listening");
+  }
+
+  const socket = connectTcp({
+    host: "127.0.0.1",
+    port: liveServer.port,
+  });
+  let buffer = Buffer.alloc(0);
+  let handshakeDone = false;
+  const frames: LiveFrame[] = [];
+  let cursor = 0;
+  const textWaiters: Array<(payload: string) => void> = [];
+  const barrierWaiters: Array<{
+    payload: string;
+    resolve: (frames: LiveFrame[]) => void;
+  }> = [];
+
+  function textIndex() {
+    return frames.findIndex(
+      (frame, index) =>
+        index >= cursor && frame.opcode === websocketTextOpcode,
+    );
+  }
+
+  function barrierIndex(payload: string) {
+    return frames.findIndex(
+      (frame, index) =>
+        index >= cursor &&
+        frame.opcode === websocketTextOpcode &&
+        frame.payload === payload,
+    );
+  }
+
+  function flush() {
+    while (textWaiters.length > 0) {
+      const index = textIndex();
+
+      if (index === -1) {
+        break;
+      }
+
+      const waiter = textWaiters.shift();
+      const payload = frames[index]?.payload;
+
+      cursor = index + 1;
+      waiter?.(payload ?? "");
+    }
+
+    let waiterIndex = 0;
+
+    while (waiterIndex < barrierWaiters.length) {
+      const waiter = barrierWaiters[waiterIndex];
+      const index = barrierIndex(waiter.payload);
+
+      if (index === -1) {
+        waiterIndex += 1;
+        continue;
+      }
+
+      const leading = frames.slice(cursor, index);
+
+      cursor = index + 1;
+      barrierWaiters.splice(waiterIndex, 1);
+      waiter.resolve(leading);
+    }
+  }
+
+  function takeChunk(chunk: Buffer) {
+    buffer = Buffer.concat([buffer, chunk]);
+
+    if (!handshakeDone) {
+      const headerEnd = buffer.indexOf("\r\n\r\n");
+
+      if (headerEnd === -1) {
+        return false;
+      }
+
+      const header = buffer.subarray(0, headerEnd).toString("utf8");
+
+      buffer = buffer.subarray(headerEnd + 4);
+      handshakeDone = true;
+
+      if (!header.startsWith("HTTP/1.1 101")) {
+        socket.destroy();
+        throw new Error(`Live wire upgrade failed: ${header}`);
+      }
+    }
+
+    const parsed = readLiveFrames(buffer);
+
+    buffer = Buffer.from(parsed.rest);
+    frames.push(...parsed.frames);
+    flush();
+
+    return true;
+  }
+
+  const ready = new Promise<void>((resolve, reject) => {
+    socket.on("error", reject);
+    socket.on("data", (chunk: Buffer) => {
+      try {
+        if (takeChunk(chunk) && handshakeDone) {
+          resolve();
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+
+  const wire: LiveWire = {
+    sendText(text) {
+      socket.write(encodeClientText(text));
+    },
+    nextTextFrame() {
+      const index = textIndex();
+
+      if (index !== -1) {
+        const payload = frames[index]?.payload ?? "";
+
+        cursor = index + 1;
+        return Promise.resolve(payload);
+      }
+
+      return new Promise((resolve) => {
+        textWaiters.push(resolve);
+      });
+    },
+    framesBefore(payload) {
+      const index = barrierIndex(payload);
+
+      if (index !== -1) {
+        const leading = frames.slice(cursor, index);
+
+        cursor = index + 1;
+        return Promise.resolve(leading);
+      }
+
+      return new Promise((resolve) => {
+        barrierWaiters.push({
+          payload,
+          resolve,
+        });
+      });
+    },
+    close() {
+      if (socket.destroyed) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        socket.once("close", () => resolve());
+        socket.end();
+      });
+    },
+  };
+
+  wires.push(wire);
+  socket.write(liveWireHandshake(lotId));
+
+  return ready.then(() => wire);
+}
+
+function liveWireHandshake(lotId: string) {
+  const key = Buffer.from("1234567890123456").toString("base64");
+
+  return [
+    `GET /public/lots/${lotId}/live HTTP/1.1`,
+    "Host: 127.0.0.1",
+    "Upgrade: websocket",
+    "Connection: Upgrade",
+    `Sec-WebSocket-Key: ${key}`,
+    "Sec-WebSocket-Version: 13",
+    "",
+    "",
+  ].join("\r\n");
 }
 
 function upgradeRequest(path: string, headers?: Record<string, string>) {
@@ -474,11 +759,7 @@ describe("public lot live room", () => {
 
     await info.raw?.ready?.();
 
-    const address = info.raw?.node?.server?.address();
-    const port =
-      address !== null && address !== undefined && typeof address === "object"
-        ? address.port
-        : undefined;
+    const port = boundPort(info);
 
     if (port === undefined || port === 0) {
       throw new Error("Live server did not bind a port");
@@ -493,6 +774,7 @@ describe("public lot live room", () => {
 
   afterEach(async () => {
     await Promise.all(clients.splice(0).map((client) => client.close()));
+    await Promise.all(wires.splice(0).map((wire) => wire.close()));
     await cleanup();
   });
 
@@ -604,6 +886,39 @@ describe("public lot live room", () => {
       expect(messages).toEqual([]);
       expect(response.status).toBe(403);
       expect(body.code).toBe("ORIGIN_NOT_ALLOWED");
+    });
+  });
+
+  describe("when the client sends a message", () => {
+    it("does not answer, including when the text contains ping", async () => {
+      const auctioneer = await registerUser("AUCTIONEER", auctioneerName);
+      const stored = await insertLot(
+        auctioneer.userId,
+        liveLotSchedule(24 * 60 * 60 * 1000),
+      );
+      const wire = await openLiveWire(stored.id);
+      const snapshot = JSON.parse(
+        await wire.nextTextFrame(),
+      ) as PublicLotLiveMessage;
+
+      wire.sendText("ping");
+      wire.sendText('{"command":"bid","amount":"10.00"}');
+
+      const payloadAfterClientMessage = await publishPublicLot(stored.id);
+
+      if (payloadAfterClientMessage === null) {
+        throw new Error("The room had no subscriber after the client message");
+      }
+
+      const leading = await wire.framesBefore(payloadAfterClientMessage);
+      const opcodes = leading.map((frame) => frame.opcode);
+
+      expect(snapshot.lot.id).toBe(stored.id);
+      expect(snapshot).not.toHaveProperty("viewerParticipantNo");
+      expect(opcodes).not.toContain(websocketTextOpcode);
+      expect(opcodes).not.toContain(websocketPingOpcode);
+      expect(opcodes).not.toContain(websocketPongOpcode);
+      expect(opcodes).not.toContain(websocketCloseOpcode);
     });
   });
 
@@ -802,21 +1117,27 @@ describe("public lot live room", () => {
       const canceled = await client.nextMessage();
       const before = client.rawMessages.length;
       const repeated = await postCancel(auctioneer.token, stored.id);
-      const fence = await publishPublicLot(stored.id);
+      const payloadAfterRepeatedCancel = await publishPublicLot(stored.id);
 
-      if (fence === null) {
-        throw new Error("The room had no subscriber to fence the cancellation");
+      if (payloadAfterRepeatedCancel === null) {
+        throw new Error(
+          "The room had no subscriber after the repeated cancellation",
+        );
       }
 
       const published = await client.nextMessage();
 
       expect(repeated.status).toBe(200);
       expect(canceled.lot.status).toBe("CANCELED");
-      expect(client.rawMessages.indexOf(fence)).toBe(before);
-      expect(client.rawMessages).toHaveLength(before + 1);
-      expect(client.rawMessages.filter((entry) => entry === fence)).toHaveLength(
-        1,
+      expect(client.rawMessages.indexOf(payloadAfterRepeatedCancel)).toBe(
+        before,
       );
+      expect(client.rawMessages).toHaveLength(before + 1);
+      expect(
+        client.rawMessages.filter(
+          (entry) => entry === payloadAfterRepeatedCancel,
+        ),
+      ).toHaveLength(1);
       expect(published.lot.status).toBe("CANCELED");
     });
   });
