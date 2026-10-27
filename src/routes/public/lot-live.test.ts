@@ -856,34 +856,14 @@ describe("public lot live room", () => {
         auctioneer.userId,
         liveLotSchedule(60 * 60 * 1000),
       );
-      const socket = openSocket(stored.id, {
+      // Node's WebSocket client stays CONNECTING and may never emit
+      // error or close when the handshake is refused. The browser
+      // request is this HTTP upgrade, which carries the rejection.
+      const response = await upgradeRequest(`/public/lots/${stored.id}/live`, {
         origin: "https://evil.example",
       });
-      const messages: string[] = [];
-
-      socket.addEventListener("message", (event) => {
-        messages.push(String(event.data));
-      });
-      socket.addEventListener("error", () => {
-        // The failed upgrade is the assertion.
-      });
-
-      const outcome = await new Promise<"open" | "closed">((resolve) => {
-        socket.addEventListener("open", () => resolve("open"));
-        socket.addEventListener("close", () => resolve("closed"));
-      });
-      const response = await upgradeRequest(
-        `/public/lots/${stored.id}/live`,
-        { origin: "https://evil.example" },
-      );
       const body = JSON.parse(response.body) as { code?: string };
 
-      if (socket.readyState !== WebSocket.CLOSED) {
-        socket.close();
-      }
-
-      expect(outcome).toBe("closed");
-      expect(messages).toEqual([]);
       expect(response.status).toBe(403);
       expect(body.code).toBe("ORIGIN_NOT_ALLOWED");
     });
