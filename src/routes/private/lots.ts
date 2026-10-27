@@ -24,6 +24,12 @@ import {
   listAuctioneerLotsQuerySchema,
   listAuctioneerLotsResponseSchema,
 } from "../../schemas/list-lots";
+import {
+  showAuctioneerLotForbiddenSchema,
+  showAuctioneerLotNotFoundSchema,
+  showAuctioneerLotParamsSchema,
+  showAuctioneerLotResponseSchema,
+} from "../../schemas/show-auctioneer-lot";
 
 //* Local imports
 import { betterAuthMacro } from "../../lib/auth";
@@ -49,6 +55,11 @@ import {
   ListAuctioneerLotsError,
   type ListAuctioneerLotsErrorCode,
 } from "../../services/lots/list-auctioneer-lots";
+import {
+  showAuctioneerLot,
+  ShowAuctioneerLotError,
+  type ShowAuctioneerLotErrorCode,
+} from "../../services/lots/show-auctioneer-lot";
 
 const listAuctioneerLotsErrorSchema = z.object({
   code: z.literal("NOT_AUCTIONEER"),
@@ -58,6 +69,12 @@ const listAuctioneerLotsErrorSchema = z.object({
 const listAuctioneerLotsErrorStatus = {
   NOT_AUCTIONEER: 403,
 } as const satisfies Record<ListAuctioneerLotsErrorCode, 403>;
+
+const showAuctioneerLotErrorStatus = {
+  NOT_AUCTIONEER: 403,
+  LOT_NOT_OWNED: 403,
+  LOT_NOT_FOUND: 404,
+} as const satisfies Record<ShowAuctioneerLotErrorCode, 403 | 404>;
 
 const createLotErrorStatus = {
   NOT_AUCTIONEER: 403,
@@ -149,6 +166,43 @@ const lotRoutes = new Elysia({ prefix: "/lots" })
       response: {
         200: listAuctioneerLotsResponseSchema,
         403: listAuctioneerLotsErrorSchema,
+      },
+    },
+  )
+  .get(
+    "/:id",
+    async ({ params, user, status }) => {
+      try {
+        return await showAuctioneerLot({
+          lotId: params.id,
+          auctioneerId: user.id,
+          role: user.role,
+        });
+      } catch (error) {
+        if (!(error instanceof ShowAuctioneerLotError)) {
+          throw error;
+        }
+
+        if (error.code === "LOT_NOT_FOUND") {
+          return status(showAuctioneerLotErrorStatus.LOT_NOT_FOUND, {
+            code: error.code,
+            message: error.message,
+          });
+        }
+
+        return status(showAuctioneerLotErrorStatus[error.code], {
+          code: error.code,
+          message: error.message,
+        });
+      }
+    },
+    {
+      auth: true,
+      params: showAuctioneerLotParamsSchema,
+      response: {
+        200: showAuctioneerLotResponseSchema,
+        403: showAuctioneerLotForbiddenSchema,
+        404: showAuctioneerLotNotFoundSchema,
       },
     },
   )
