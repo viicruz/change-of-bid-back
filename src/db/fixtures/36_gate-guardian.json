@@ -1,0 +1,114 @@
+{
+  "name": "Gate Guardian",
+  "description": "Classic Gate Guardian reconstruction that gets Sanga, Kazejin, and Suijin on board with old tribute tools, then tributes all three for the guardian.",
+  "main": [
+    {
+      "name": "Gate Guardian",
+      "passcode": "25833572",
+      "quantity": 3
+    },
+    {
+      "name": "Sanga of the Thunder",
+      "passcode": "25955164",
+      "quantity": 3
+    },
+    {
+      "name": "Kazejin",
+      "passcode": "62340868",
+      "quantity": 3
+    },
+    {
+      "name": "Suijin",
+      "passcode": "98434877",
+      "quantity": 3
+    },
+    {
+      "name": "Labyrinth Wall",
+      "passcode": "67284908",
+      "quantity": 3
+    },
+    {
+      "name": "Giant Rat",
+      "passcode": "97017120",
+      "quantity": 3
+    },
+    {
+      "name": "Planet Pathfinder",
+      "passcode": "97526666",
+      "quantity": 3
+    },
+    {
+      "name": "Mausoleum of the Emperor",
+      "passcode": "80921533",
+      "quantity": 3
+    },
+    {
+      "name": "Tribute Doll",
+      "passcode": "02903036",
+      "quantity": 3
+    },
+    {
+      "name": "Double Summon",
+      "passcode": "43422537",
+      "quantity": 3
+    },
+    {
+      "name": "Soul Exchange",
+      "passcode": "68005187",
+      "quantity": 3
+    },
+    {
+      "name": "The Cheerful Coffin",
+      "passcode": "41142615",
+      "quantity": 3
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Card Advance",
+      "passcode": "52112003",
+      "quantity": 1
+    },
+    {
+      "name": "The Monarchs Stormforth",
+      "passcode": "79844764",
+      "quantity": 1
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 3
+    },
+    {
+      "name": "Threatening Roar",
+      "passcode": "36361633",
+      "quantity": 3
+    },
+    {
+      "name": "Gravity Bind",
+      "passcode": "85742772",
+      "quantity": 3
+    },
+    {
+      "name": "Level Limit - Area B",
+      "passcode": "03136426",
+      "quantity": 3
+    },
+    {
+      "name": "Messenger of Peace",
+      "passcode": "44656491",
+      "quantity": 3
+    }
+  ]
+}

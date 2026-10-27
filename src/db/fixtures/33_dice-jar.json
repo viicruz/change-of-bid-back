@@ -1,0 +1,119 @@
+{
+  "name": "Dice Jar",
+  "description": "High-variance list that flips Dice Jar and stacks the roll with That Six and Dice Re-Roll, keeping the rest of the deck on dice and gamble cards.",
+  "main": [
+    {
+      "name": "Dice Jar",
+      "passcode": "03549275",
+      "quantity": 3
+    },
+    {
+      "name": "That Six",
+      "passcode": "39454112",
+      "quantity": 3
+    },
+    {
+      "name": "Dice Re-Roll",
+      "passcode": "83241722",
+      "quantity": 3
+    },
+    {
+      "name": "Diced Dice",
+      "passcode": "93078761",
+      "quantity": 3
+    },
+    {
+      "name": "Dice Dungeon",
+      "passcode": "11808215",
+      "quantity": 3
+    },
+    {
+      "name": "Dimension Dice",
+      "passcode": "47292920",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Taiyou",
+      "passcode": "38699854",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 2
+    },
+    {
+      "name": "Tsukuyomi",
+      "passcode": "34853266",
+      "quantity": 2
+    },
+    {
+      "name": "Desert Sunlight",
+      "passcode": "93747864",
+      "quantity": 2
+    },
+    {
+      "name": "Summon Dice",
+      "passcode": "41139112",
+      "quantity": 3
+    },
+    {
+      "name": "Orgoth the Relentless",
+      "passcode": "15744417",
+      "quantity": 2
+    },
+    {
+      "name": "Maximum Six",
+      "passcode": "30707994",
+      "quantity": 2
+    },
+    {
+      "name": "Roulette Barrel",
+      "passcode": "46303688",
+      "quantity": 2
+    },
+    {
+      "name": "Graceful Dice",
+      "passcode": "74137509",
+      "quantity": 2
+    },
+    {
+      "name": "Skull Dice",
+      "passcode": "00126218",
+      "quantity": 1
+    },
+    {
+      "name": "Fairy Box",
+      "passcode": "21598948",
+      "quantity": 1
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Dice Try!",
+      "passcode": "59905358",
+      "quantity": 3
+    },
+    {
+      "name": "Fire Darts",
+      "passcode": "43061293",
+      "quantity": 3
+    },
+    {
+      "name": "Dice It",
+      "passcode": "08868767",
+      "quantity": 3
+    },
+    {
+      "name": "Roulette Spider",
+      "passcode": "36708764",
+      "quantity": 3
+    },
+    {
+      "name": "Blind Destruction",
+      "passcode": "32015116",
+      "quantity": 3
+    }
+  ]
+}

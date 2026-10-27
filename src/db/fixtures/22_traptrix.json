@@ -1,0 +1,225 @@
+{
+  "name": "Traptrix",
+  "description": "Field control built on Level 4 Traptrix monsters and Hole traps, with Sera as the main engine and a deliberately themed Rank 4 package.",
+  "main": [
+    {
+      "name": "Traptrix Mantis",
+      "passcode": "82738277",
+      "quantity": 3
+    },
+    {
+      "name": "Traptrix Myrmeleo",
+      "passcode": "91812341",
+      "quantity": 3
+    },
+    {
+      "name": "Traptrix Dionaea",
+      "passcode": "45803070",
+      "quantity": 3
+    },
+    {
+      "name": "Traptrix Pudica",
+      "passcode": "49027020",
+      "quantity": 2
+    },
+    {
+      "name": "Traptrix Arachnocampa",
+      "passcode": "75416738",
+      "quantity": 2
+    },
+    {
+      "name": "Traptrix Vesiculo",
+      "passcode": "28868394",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Genlisea",
+      "passcode": "88078306",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Atrax",
+      "passcode": "55428242",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Nepenthes",
+      "passcode": "28201945",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Holeutea",
+      "passcode": "74577599",
+      "quantity": 3
+    },
+    {
+      "name": "Parallel eXceed",
+      "passcode": "71278040",
+      "quantity": 2
+    },
+    {
+      "name": "Traptrip Garden",
+      "passcode": "12801833",
+      "quantity": 1
+    },
+    {
+      "name": "Trap Trick",
+      "passcode": "80101899",
+      "quantity": 2
+    },
+    {
+      "name": "Traptrix Trap Hole Nightmare",
+      "passcode": "29616929",
+      "quantity": 2
+    },
+    {
+      "name": "Bottomless Trap Hole",
+      "passcode": "29401950",
+      "quantity": 2
+    },
+    {
+      "name": "Gravedigger's Trap Hole",
+      "passcode": "31548215",
+      "quantity": 2
+    },
+    {
+      "name": "Terrifying Trap Hole Nightmare",
+      "passcode": "75294187",
+      "quantity": 2
+    },
+    {
+      "name": "Time-Space Trap Hole",
+      "passcode": "02055403",
+      "quantity": 2
+    },
+    {
+      "name": "Floodgate Trap Hole",
+      "passcode": "69599136",
+      "quantity": 1
+    },
+    {
+      "name": "Chain Hole",
+      "passcode": "09581215",
+      "quantity": 1
+    },
+    {
+      "name": "Network Trap Hole",
+      "passcode": "84640866",
+      "quantity": 1
+    },
+    {
+      "name": "Trap Hole",
+      "passcode": "04206964",
+      "quantity": 1
+    },
+    {
+      "name": "Void Trap Hole",
+      "passcode": "01005587",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Traptrix Sera",
+      "passcode": "73639099",
+      "quantity": 2
+    },
+    {
+      "name": "Traptrix Rafflesia",
+      "passcode": "06511113",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Pinguicula",
+      "passcode": "01688285",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Allomerus",
+      "passcode": "59071624",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Cularia",
+      "passcode": "00952523",
+      "quantity": 1
+    },
+    {
+      "name": "Traptrix Atypus",
+      "passcode": "48183890",
+      "quantity": 1
+    },
+    {
+      "name": "Time Thief Redoer",
+      "passcode": "55285840",
+      "quantity": 1
+    },
+    {
+      "name": "Number 70: Malevolent Sin",
+      "passcode": "80796456",
+      "quantity": 1
+    },
+    {
+      "name": "Number 101: Silent Honor ARK",
+      "passcode": "48739166",
+      "quantity": 1
+    },
+    {
+      "name": "Tornado Dragon",
+      "passcode": "06983839",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 2
+    },
+    {
+      "name": "Torrential Tribute",
+      "passcode": "53582587",
+      "quantity": 2
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 1
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 2
+    },
+    {
+      "name": "Lost Wind",
+      "passcode": "74003290",
+      "quantity": 2
+    },
+    {
+      "name": "Needle Ceiling",
+      "passcode": "38411870",
+      "quantity": 2
+    },
+    {
+      "name": "Fairy Wind",
+      "passcode": "73507661",
+      "quantity": 1
+    },
+    {
+      "name": "Waking the Dragon",
+      "passcode": "10813327",
+      "quantity": 1
+    },
+    {
+      "name": "The Phantom Knights of Shade Brigandine",
+      "passcode": "98827725",
+      "quantity": 1
+    },
+    {
+      "name": "Trap Hole of Spikes",
+      "passcode": "75902998",
+      "quantity": 1
+    }
+  ]
+}

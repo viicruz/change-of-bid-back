@@ -1,0 +1,310 @@
+{
+  "name": "Yuma Tsukumo — Utopia",
+  "description": "Casual Onomat reconstruction where Gagaga, Gogogo, Dododo, and Zubaba supply Level 4 monsters and the Onomat cards gather them for Utopia.",
+  "main": [
+    {
+      "name": "Gagaga Magician",
+      "passcode": "26082117",
+      "quantity": 3
+    },
+    {
+      "name": "Gagaga Sister",
+      "passcode": "00387282",
+      "quantity": 2
+    },
+    {
+      "name": "Gagaga Girl",
+      "passcode": "03606728",
+      "quantity": 1
+    },
+    {
+      "name": "Gagaga Head",
+      "passcode": "67120578",
+      "quantity": 1
+    },
+    {
+      "name": "Gagaga Clerk",
+      "passcode": "44250812",
+      "quantity": 1
+    },
+    {
+      "name": "Gagaga Child",
+      "passcode": "94203886",
+      "quantity": 1
+    },
+    {
+      "name": "Gogogo Golem",
+      "passcode": "62476815",
+      "quantity": 2
+    },
+    {
+      "name": "Gogogo Giant",
+      "passcode": "39695323",
+      "quantity": 2
+    },
+    {
+      "name": "Gogogo Ghost",
+      "passcode": "56105047",
+      "quantity": 1
+    },
+    {
+      "name": "Gogogo Gigas",
+      "passcode": "19667590",
+      "quantity": 1
+    },
+    {
+      "name": "Dododo Buster",
+      "passcode": "57996334",
+      "quantity": 2
+    },
+    {
+      "name": "Dododo Witch",
+      "passcode": "39432962",
+      "quantity": 1
+    },
+    {
+      "name": "Zubaba Knight",
+      "passcode": "97896503",
+      "quantity": 1
+    },
+    {
+      "name": "Zubaba Buster",
+      "passcode": "57036718",
+      "quantity": 1
+    },
+    {
+      "name": "Utopic Onomatopoeia",
+      "passcode": "08512558",
+      "quantity": 1
+    },
+    {
+      "name": "Dodododwarf Gogogoglove",
+      "passcode": "59724555",
+      "quantity": 1
+    },
+    {
+      "name": "Zubababancho Gagagacoat",
+      "passcode": "23720856",
+      "quantity": 1
+    },
+    {
+      "name": "Onomatopaira",
+      "passcode": "06595475",
+      "quantity": 1
+    },
+    {
+      "name": "Onomatopia",
+      "passcode": "26493435",
+      "quantity": 1
+    },
+    {
+      "name": "Onomatopickup",
+      "passcode": "85119159",
+      "quantity": 1
+    },
+    {
+      "name": "Gagagadraw",
+      "passcode": "21831848",
+      "quantity": 2
+    },
+    {
+      "name": "Gagagarevenge",
+      "passcode": "90673413",
+      "quantity": 2
+    },
+    {
+      "name": "Gagagabolt",
+      "passcode": "17494901",
+      "quantity": 1
+    },
+    {
+      "name": "Double or Nothing!",
+      "passcode": "94770493",
+      "quantity": 1
+    },
+    {
+      "name": "Rank-Up-Magic Astral Force",
+      "passcode": "45950291",
+      "quantity": 1
+    },
+    {
+      "name": "Rank-Up-Magic Numeron Force",
+      "passcode": "48333324",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Xyz Reception",
+      "passcode": "74728028",
+      "quantity": 1
+    },
+    {
+      "name": "Swords of Burning Light",
+      "passcode": "93087299",
+      "quantity": 1
+    },
+    {
+      "name": "Half Unbreak",
+      "passcode": "00981540",
+      "quantity": 1
+    },
+    {
+      "name": "Xyz Reborn",
+      "passcode": "26708437",
+      "quantity": 1
+    },
+    {
+      "name": "Xyz Revenge Shuffle",
+      "passcode": "31554054",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Number 39: Utopia",
+      "passcode": "84013237",
+      "quantity": 2
+    },
+    {
+      "name": "Number 39: Utopia Double",
+      "passcode": "62517849",
+      "quantity": 1
+    },
+    {
+      "name": "Number C39: Utopia Ray",
+      "passcode": "56840427",
+      "quantity": 1
+    },
+    {
+      "name": "Number C39: Utopia Ray V",
+      "passcode": "66970002",
+      "quantity": 1
+    },
+    {
+      "name": "Number C39: Utopia Ray Victory",
+      "passcode": "87911394",
+      "quantity": 1
+    },
+    {
+      "name": "Number S39: Utopia the Lightning",
+      "passcode": "56832966",
+      "quantity": 1
+    },
+    {
+      "name": "Number 39: Utopia Beyond",
+      "passcode": "21521304",
+      "quantity": 1
+    },
+    {
+      "name": "Gagagaga Magician",
+      "passcode": "86331741",
+      "quantity": 1
+    },
+    {
+      "name": "Gagaga Cowboy",
+      "passcode": "12014404",
+      "quantity": 1
+    },
+    {
+      "name": "Gagaga Samurai",
+      "passcode": "91499077",
+      "quantity": 1
+    },
+    {
+      "name": "Heroic Champion - Excalibur",
+      "passcode": "60645181",
+      "quantity": 1
+    },
+    {
+      "name": "Zubaba General",
+      "passcode": "31563350",
+      "quantity": 1
+    },
+    {
+      "name": "Number 55: Gogogo Goliath",
+      "passcode": "46871387",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Gagaga Gardna",
+      "passcode": "12423762",
+      "quantity": 1
+    },
+    {
+      "name": "Ganbara Knight",
+      "passcode": "24291651",
+      "quantity": 1
+    },
+    {
+      "name": "Goblindbergh",
+      "passcode": "25259669",
+      "quantity": 1
+    },
+    {
+      "name": "Kagetokage",
+      "passcode": "94656263",
+      "quantity": 1
+    },
+    {
+      "name": "Dododo Warrior",
+      "passcode": "83274244",
+      "quantity": 1
+    },
+    {
+      "name": "Dododo Witch",
+      "passcode": "39432962",
+      "quantity": 1
+    },
+    {
+      "name": "Zubaba Knight",
+      "passcode": "97896503",
+      "quantity": 1
+    },
+    {
+      "name": "ZW - Unicorn Spear",
+      "passcode": "76080032",
+      "quantity": 1
+    },
+    {
+      "name": "ZW - Tornado Bringer",
+      "passcode": "81471108",
+      "quantity": 1
+    },
+    {
+      "name": "ZW - Ultimate Shield",
+      "passcode": "18865703",
+      "quantity": 1
+    },
+    {
+      "name": "Rainbow Kuriboh",
+      "passcode": "02830693",
+      "quantity": 1
+    },
+    {
+      "name": "Overlay Owl",
+      "passcode": "59644958",
+      "quantity": 1
+    },
+    {
+      "name": "Overlay Eater",
+      "passcode": "81816475",
+      "quantity": 1
+    },
+    {
+      "name": "Damage Diet",
+      "passcode": "95448692",
+      "quantity": 1
+    },
+    {
+      "name": "Impenetrable Attack",
+      "passcode": "86778566",
+      "quantity": 1
+    }
+  ]
+}

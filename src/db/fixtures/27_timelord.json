@@ -1,0 +1,194 @@
+{
+  "name": "Timelord",
+  "description": "Timelord list that summons a 0 ATK Timelord each turn to bounce, burn, or halve Life Points, then returns it to the Deck on the next Standby Phase.",
+  "main": [
+    {
+      "name": "Time Maiden",
+      "passcode": "27107590",
+      "quantity": 3
+    },
+    {
+      "name": "Metaion, the Timelord",
+      "passcode": "74530899",
+      "quantity": 3
+    },
+    {
+      "name": "Michion, the Timelord",
+      "passcode": "07733560",
+      "quantity": 3
+    },
+    {
+      "name": "Raphion, the Timelord",
+      "passcode": "60222213",
+      "quantity": 2
+    },
+    {
+      "name": "Lazion, the Timelord",
+      "passcode": "92435533",
+      "quantity": 2
+    },
+    {
+      "name": "Kamion, the Timelord",
+      "passcode": "91712985",
+      "quantity": 1
+    },
+    {
+      "name": "Zaphion, the Timelord",
+      "passcode": "28929131",
+      "quantity": 1
+    },
+    {
+      "name": "Sandaion, the Timelord",
+      "passcode": "33015627",
+      "quantity": 1
+    },
+    {
+      "name": "Gabrion, the Timelord",
+      "passcode": "06616912",
+      "quantity": 1
+    },
+    {
+      "name": "Lava Golem",
+      "passcode": "00102380",
+      "quantity": 1
+    },
+    {
+      "name": "Empty Machine",
+      "passcode": "09409625",
+      "quantity": 2
+    },
+    {
+      "name": "Infinite Machine",
+      "passcode": "36894320",
+      "quantity": 1
+    },
+    {
+      "name": "Infinite Light",
+      "passcode": "72883039",
+      "quantity": 1
+    },
+    {
+      "name": "Celestial Transformation",
+      "passcode": "28890974",
+      "quantity": 2
+    },
+    {
+      "name": "Card Advance",
+      "passcode": "52112003",
+      "quantity": 2
+    },
+    {
+      "name": "Pot of Duality",
+      "passcode": "98645731",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Room of Nightmare",
+      "passcode": "85562745",
+      "quantity": 1
+    },
+    {
+      "name": "Threatening Roar",
+      "passcode": "36361633",
+      "quantity": 2
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 2
+    },
+    {
+      "name": "Magic Cylinder",
+      "passcode": "62279055",
+      "quantity": 2
+    },
+    {
+      "name": "Dimension Wall",
+      "passcode": "67095270",
+      "quantity": 1
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 1
+    },
+    {
+      "name": "Just Desserts",
+      "passcode": "24068492",
+      "quantity": 1
+    },
+    {
+      "name": "Secret Barrel",
+      "passcode": "27053506",
+      "quantity": 1
+    },
+    {
+      "name": "The Transmigration Prophecy",
+      "passcode": "46652477",
+      "quantity": 2
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Hailon, the Timelord",
+      "passcode": "34137269",
+      "quantity": 1
+    },
+    {
+      "name": "Sadion, the Timelord",
+      "passcode": "65314286",
+      "quantity": 1
+    },
+    {
+      "name": "Zaphion, the Timelord",
+      "passcode": "28929131",
+      "quantity": 2
+    },
+    {
+      "name": "Gabrion, the Timelord",
+      "passcode": "06616912",
+      "quantity": 2
+    },
+    {
+      "name": "Kamion, the Timelord",
+      "passcode": "91712985",
+      "quantity": 2
+    },
+    {
+      "name": "Sandaion, the Timelord",
+      "passcode": "33015627",
+      "quantity": 1
+    },
+    {
+      "name": "Sephylon, the Ultimate Timelord",
+      "passcode": "08967776",
+      "quantity": 1
+    },
+    {
+      "name": "Lava Golem",
+      "passcode": "00102380",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Room of Nightmare",
+      "passcode": "85562745",
+      "quantity": 1
+    },
+    {
+      "name": "Secret Barrel",
+      "passcode": "27053506",
+      "quantity": 1
+    },
+    {
+      "name": "Just Desserts",
+      "passcode": "24068492",
+      "quantity": 1
+    },
+    {
+      "name": "Dimension Wall",
+      "passcode": "67095270",
+      "quantity": 1
+    }
+  ]
+}

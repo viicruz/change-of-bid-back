@@ -1,0 +1,150 @@
+{
+  "name": "Nouvelles",
+  "description": "Culinary Ritual pile where the Nouvelles chefs climb in Level by tributing Attack Position monsters, with Hungry Burger as the centerpiece.",
+  "main": [
+    {
+      "name": "Buerillabaisse de Nouvelles",
+      "passcode": "26223582",
+      "quantity": 3
+    },
+    {
+      "name": "Confiras de Nouvelles",
+      "passcode": "53618197",
+      "quantity": 3
+    },
+    {
+      "name": "Poeltis de Nouvelles",
+      "passcode": "89016236",
+      "quantity": 3
+    },
+    {
+      "name": "Foie Glasya de Nouvelles",
+      "passcode": "15001940",
+      "quantity": 2
+    },
+    {
+      "name": "Balameuniere de Nouvelles",
+      "passcode": "52495649",
+      "quantity": 2
+    },
+    {
+      "name": "Baelgrill de Nouvelles",
+      "passcode": "88890658",
+      "quantity": 2
+    },
+    {
+      "name": "Hungry Burger",
+      "passcode": "30243636",
+      "quantity": 2
+    },
+    {
+      "name": "Angry Burger",
+      "passcode": "28306253",
+      "quantity": 1
+    },
+    {
+      "name": "Chef de Nouvelles",
+      "passcode": "29251488",
+      "quantity": 2
+    },
+    {
+      "name": "Poissonniere de Nouvelles",
+      "passcode": "46485778",
+      "quantity": 2
+    },
+    {
+      "name": "Manju of the Ten Thousand Hands",
+      "passcode": "95492061",
+      "quantity": 3
+    },
+    {
+      "name": "Impcantation Penciplume",
+      "passcode": "82085295",
+      "quantity": 1
+    },
+    {
+      "name": "Impcantation Talismandra",
+      "passcode": "80701178",
+      "quantity": 1
+    },
+    {
+      "name": "Impcantation Candoll",
+      "passcode": "53303460",
+      "quantity": 1
+    },
+    {
+      "name": "Hamburger Recipe",
+      "passcode": "80811661",
+      "quantity": 3
+    },
+    {
+      "name": "Recette de Poisson (Fish Recipe)",
+      "passcode": "87778106",
+      "quantity": 3
+    },
+    {
+      "name": "Recette de Viande (Meat Recipe)",
+      "passcode": "14166715",
+      "quantity": 1
+    },
+    {
+      "name": "Voici la Carte (Today's Menu)",
+      "passcode": "41773061",
+      "quantity": 1
+    },
+    {
+      "name": "Concours de Cuisine (Culinary Confrontation)",
+      "passcode": "14283055",
+      "quantity": 1
+    },
+    {
+      "name": "Foolish Burial Goods",
+      "passcode": "35726888",
+      "quantity": 1
+    },
+    {
+      "name": "Chef's Special Recipe",
+      "passcode": "87955518",
+      "quantity": 2
+    }
+  ],
+  "extra": [
+    {
+      "name": "Patissciel Couverture",
+      "passcode": "26435595",
+      "quantity": 2
+    }
+  ],
+  "side": [
+    {
+      "name": "Creature Swap",
+      "passcode": "31036355",
+      "quantity": 3
+    },
+    {
+      "name": "Enemy Controller",
+      "passcode": "98045062",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Eclipse",
+      "passcode": "35480699",
+      "quantity": 3
+    },
+    {
+      "name": "Cosmic Cyclone",
+      "passcode": "08267140",
+      "quantity": 2
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 2
+    },
+    {
+      "name": "Torrential Tribute",
+      "passcode": "53582587",
+      "quantity": 2
+    }
+  ]
+}

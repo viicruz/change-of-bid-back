@@ -5,6 +5,7 @@ import { and, eq } from "drizzle-orm";
 
 //* Local imports
 import { db } from "./index";
+import { seedLotActivity } from "./seed-lot-activity";
 import { seedLots } from "./seed-lots";
 import { account, user } from "./schema";
 
@@ -13,16 +14,18 @@ import { createWallet } from "../models/wallet";
 
 const testPassword = "123123123";
 const auctioneerEmail = "auctioneer@auctioneer.auctioneer";
+const bidderEmail = "bidder@bidder.bidder";
+const bidder2Email = "bidder2@bidder.bidder";
 
 const seedUsers = [
   {
     name: "Bidder",
-    email: "bidder@bidder.bidder",
+    email: bidderEmail,
     role: "BIDDER",
   },
   {
     name: "Bidder 2",
-    email: "bidder2@bidder.bidder",
+    email: bidder2Email,
     role: "BIDDER",
   },
   {
@@ -106,7 +109,18 @@ async function seed() {
     console.log(`${action} ${seedUser.email} (${seedUser.role})`);
   }
 
-  await seedLots(auctioneerEmail);
+  const now = new Date();
+  const seededLots = await seedLots(auctioneerEmail, now);
+
+  await seedLotActivity({
+    auctioneerEmail,
+    bidderEmails: {
+      bidder: bidderEmail,
+      bidder2: bidder2Email,
+    },
+    lots: seededLots,
+    now,
+  });
 }
 
 seed()

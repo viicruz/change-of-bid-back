@@ -1,0 +1,230 @@
+{
+  "name": "Yuya Sakaki — Odd-Eyes",
+  "description": "Performapal and Odd-Eyes list that searches scales with Skullcrobat Joker, Monkeyboard, and Sky Iris, then Pendulum Summons into themed Fusion, Synchro, and Rank 7 lines.",
+  "main": [
+    {
+      "name": "Performapal Skullcrobat Joker",
+      "passcode": "40318957",
+      "quantity": 3
+    },
+    {
+      "name": "Performapal Pendulum Sorcerer",
+      "passcode": "47075569",
+      "quantity": 3
+    },
+    {
+      "name": "Performapal Monkeyboard",
+      "passcode": "17330916",
+      "quantity": 3
+    },
+    {
+      "name": "Performapal Friendonkey",
+      "passcode": "96606246",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Odd-Eyes Dissolver",
+      "passcode": "46136942",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Odd-Eyes Synchron",
+      "passcode": "82224646",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Odd-Eyes Unicorn",
+      "passcode": "86157908",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Odd-Eyes Light Phoenix",
+      "passcode": "59762399",
+      "quantity": 1
+    },
+    {
+      "name": "Performapal Odd-Eyes Minitaurus",
+      "passcode": "10731333",
+      "quantity": 1
+    },
+    {
+      "name": "Performapal Silver Claw",
+      "passcode": "26270847",
+      "quantity": 1
+    },
+    {
+      "name": "Performapal Trump Witch",
+      "passcode": "91584698",
+      "quantity": 1
+    },
+    {
+      "name": "Timegazer Magician",
+      "passcode": "20409757",
+      "quantity": 1
+    },
+    {
+      "name": "Stargazer Magician",
+      "passcode": "94415058",
+      "quantity": 1
+    },
+    {
+      "name": "Wisdom-Eye Magician",
+      "passcode": "72714461",
+      "quantity": 1
+    },
+    {
+      "name": "Dragonpit Magician",
+      "passcode": "51531505",
+      "quantity": 1
+    },
+    {
+      "name": "Nobledragon Magician",
+      "passcode": "88935103",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Pendulum Dragon",
+      "passcode": "16178683",
+      "quantity": 2
+    },
+    {
+      "name": "Odd-Eyes Arc Pendulum Dragon",
+      "passcode": "14105623",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Persona Dragon",
+      "passcode": "21250202",
+      "quantity": 1
+    },
+    {
+      "name": "Sky Iris",
+      "passcode": "27813661",
+      "quantity": 3
+    },
+    {
+      "name": "Duelist Alliance",
+      "passcode": "37469904",
+      "quantity": 2
+    },
+    {
+      "name": "Pendulum Call",
+      "passcode": "53208660",
+      "quantity": 2
+    },
+    {
+      "name": "Odd-Eyes Fusion",
+      "passcode": "48144509",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Polymerization",
+      "passcode": "24094653",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Rune-Eyes Pendulum Dragon",
+      "passcode": "01516510",
+      "quantity": 1
+    },
+    {
+      "name": "Beast-Eyes Pendulum Dragon",
+      "passcode": "72378329",
+      "quantity": 1
+    },
+    {
+      "name": "Performapal Gatlinghoul",
+      "passcode": "49820233",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Vortex Dragon",
+      "passcode": "53262004",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Absolute Dragon",
+      "passcode": "16691074",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Meteorburst Dragon",
+      "passcode": "80696379",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Rebellion Dragon",
+      "passcode": "45627618",
+      "quantity": 1
+    },
+    {
+      "name": "Odd-Eyes Raging Dragon",
+      "passcode": "86238081",
+      "quantity": 1
+    },
+    {
+      "name": "Enlightenment Paladin",
+      "passcode": "59123194",
+      "quantity": 1
+    },
+    {
+      "name": "Nirvana High Paladin",
+      "passcode": "80896940",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Odd-Eyes Persona Dragon",
+      "passcode": "21250202",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Odd-Eyes Light Phoenix",
+      "passcode": "59762399",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Whip Snake",
+      "passcode": "79967395",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Sword Fish",
+      "passcode": "15452043",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Whim Witch",
+      "passcode": "64450427",
+      "quantity": 2
+    },
+    {
+      "name": "Performapal Rain Goat",
+      "passcode": "16617334",
+      "quantity": 2
+    },
+    {
+      "name": "Harpie's Feather Duster",
+      "passcode": "18144507",
+      "quantity": 1
+    },
+    {
+      "name": "Pendulum Storm",
+      "passcode": "83461421",
+      "quantity": 1
+    },
+    {
+      "name": "Smile World",
+      "passcode": "02099841",
+      "quantity": 1
+    }
+  ]
+}

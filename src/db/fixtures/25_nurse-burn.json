@@ -1,0 +1,134 @@
+{
+  "name": "Nurse Burn",
+  "description": "Casual burn list that converts the opponent's healing into damage with Darklord Nurse Reficule and Bad Reaction to Simochi.",
+  "main": [
+    {
+      "name": "Darklord Nurse Reficule",
+      "passcode": "67316075",
+      "quantity": 3
+    },
+    {
+      "name": "Condemned Witch",
+      "passcode": "44656450",
+      "quantity": 2
+    },
+    {
+      "name": "Darklord Ixchel",
+      "passcode": "52840267",
+      "quantity": 1
+    },
+    {
+      "name": "Darklord Superbia",
+      "passcode": "11260714",
+      "quantity": 1
+    },
+    {
+      "name": "Lava Golem",
+      "passcode": "00102380",
+      "quantity": 1
+    },
+    {
+      "name": "Upstart Goblin",
+      "passcode": "70368879",
+      "quantity": 3
+    },
+    {
+      "name": "Rain of Mercy",
+      "passcode": "66719324",
+      "quantity": 3
+    },
+    {
+      "name": "Banishment of the Darklords",
+      "passcode": "87112784",
+      "quantity": 3
+    },
+    {
+      "name": "Darklord Contact",
+      "passcode": "14517422",
+      "quantity": 2
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Duality",
+      "passcode": "98645731",
+      "quantity": 1
+    },
+    {
+      "name": "Bad Reaction to Simochi",
+      "passcode": "40633297",
+      "quantity": 3
+    },
+    {
+      "name": "Gift Card",
+      "passcode": "39526584",
+      "quantity": 3
+    },
+    {
+      "name": "The Paths of Destiny",
+      "passcode": "50470982",
+      "quantity": 3
+    },
+    {
+      "name": "The Eye of Truth",
+      "passcode": "34694160",
+      "quantity": 3
+    },
+    {
+      "name": "Ichiroku's Ledger Book",
+      "passcode": "04825390",
+      "quantity": 3
+    },
+    {
+      "name": "Trap Trick",
+      "passcode": "80101899",
+      "quantity": 2
+    },
+    {
+      "name": "Reckless Greed",
+      "passcode": "37576645",
+      "quantity": 2
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Lava Golem",
+      "passcode": "00102380",
+      "quantity": 2
+    },
+    {
+      "name": "Gravedigger's Trap Hole",
+      "passcode": "31548215",
+      "quantity": 3
+    },
+    {
+      "name": "Darklord Rebellion",
+      "passcode": "50501121",
+      "quantity": 2
+    },
+    {
+      "name": "The Sanctified Darklord",
+      "passcode": "48152161",
+      "quantity": 2
+    },
+    {
+      "name": "Threatening Roar",
+      "passcode": "36361633",
+      "quantity": 2
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 2
+    },
+    {
+      "name": "Forbidden Dress",
+      "passcode": "96864811",
+      "quantity": 2
+    }
+  ]
+}
