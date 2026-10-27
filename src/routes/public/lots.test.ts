@@ -5,7 +5,16 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 //* Local imports
 import { app } from "../../app";
 import { db } from "../../db/index";
-import { bid, card, lot, lotItem, lotParticipant, user } from "../../db/schema";
+import {
+  bid,
+  card,
+  lot,
+  lotItem,
+  lotParticipant,
+  user,
+  wallet,
+  walletMovement,
+} from "../../db/schema";
 
 const createdUserIds: string[] = [];
 const createdCardIds: number[] = [];
@@ -305,17 +314,39 @@ async function insertCanceledLot() {
 }
 
 async function cleanup() {
+  const wallets =
+    createdUserIds.length === 0
+      ? []
+      : await db
+          .select({ id: wallet.id })
+          .from(wallet)
+          .where(inArray(wallet.userId, createdUserIds));
+  const walletIds = wallets.map((entry) => entry.id);
+
+  if (walletIds.length > 0) {
+    await db
+      .delete(walletMovement)
+      .where(inArray(walletMovement.walletId, walletIds));
+  }
+
   if (createdLotIds.length > 0) {
     await db
       .update(lot)
       .set({ currentBidId: null, winnerId: null })
       .where(inArray(lot.id, createdLotIds));
+    await db
+      .delete(walletMovement)
+      .where(inArray(walletMovement.lotId, createdLotIds));
     await db.delete(bid).where(inArray(bid.lotId, createdLotIds));
     await db
       .delete(lotParticipant)
       .where(inArray(lotParticipant.lotId, createdLotIds));
     await db.delete(lotItem).where(inArray(lotItem.lotId, createdLotIds));
     await db.delete(lot).where(inArray(lot.id, createdLotIds));
+  }
+
+  if (walletIds.length > 0) {
+    await db.delete(wallet).where(inArray(wallet.id, walletIds));
   }
 
   if (createdUserIds.length > 0) {
