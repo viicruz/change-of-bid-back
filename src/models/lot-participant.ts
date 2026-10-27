@@ -5,6 +5,25 @@ import { and, eq, max } from "drizzle-orm";
 import { lotParticipant } from "../db/schema";
 import type { DatabaseExecutor } from "./executor";
 
+export async function findLotParticipantByUserId(
+  executor: DatabaseExecutor,
+  lotId: string,
+  userId: string,
+) {
+  const rows = await executor
+    .select({
+      id: lotParticipant.id,
+      participantNo: lotParticipant.participantNo,
+    })
+    .from(lotParticipant)
+    .where(
+      and(eq(lotParticipant.lotId, lotId), eq(lotParticipant.userId, userId)),
+    )
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
 // The caller holds the lot row lock, so the next participant number is stable.
 export async function findOrCreateLotParticipant(
   executor: DatabaseExecutor,
