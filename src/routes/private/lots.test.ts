@@ -708,3 +708,168 @@ describe("POST /private/lots/:id/cancel", () => {
     expect(stored?.canceledAt?.toISOString()).toBe(body.canceledAt);
   });
 });
+
+describe("GET /private/lots/:id", () => {
+  afterEach(async () => {
+    const emails = createdEmails.splice(0, createdEmails.length);
+    const cardIds = createdCardIds.splice(0, createdCardIds.length);
+
+    await cleanup(emails, cardIds);
+  });
+
+  function getLot(token: string | undefined, lotId: string) {
+    return app.handle(
+      request(
+        `/private/lots/${lotId}`,
+        token === undefined
+          ? undefined
+          : { authorization: `Bearer ${token}` },
+      ),
+    );
+  }
+
+  it("rejects a request with no session", async () => {
+    const response = await getLot(undefined, crypto.randomUUID());
+
+    expect(response.status).toBe(401);
+  });
+
+  it("rejects a bidder", async () => {
+    const account = await registerUser();
+    const response = await getLot(account.token, crypto.randomUUID());
+    const body = (await response.json()) as { code?: string };
+
+    expect(response.status).toBe(403);
+    expect(body.code).toBe("NOT_AUCTIONEER");
+  });
+
+  it("rejects a lot owned by another auctioneer", async () => {
+    const owner = await registerAuctioneer();
+    const other = await registerAuctioneer();
+    const cardId = await insertCatalogCard(
+      "Owned Dragon",
+      "https://images.example/owned.jpg",
+    );
+    const created = await postLot(owner.token, createLotPayload([cardId]));
+    const createdBody = (await created.json()) as { id?: string };
+    const response = await getLot(other.token, createdBody.id ?? "");
+    const body = (await response.json()) as { code?: string };
+
+    expect(created.status).toBe(201);
+    expect(response.status).toBe(403);
+    expect(body.code).toBe("LOT_NOT_OWNED");
+  });
+
+  it("rejects an unknown lot", async () => {
+    const account = await registerAuctioneer();
+    const response = await getLot(account.token, crypto.randomUUID());
+    const body = (await response.json()) as { code?: string };
+
+    expect(response.status).toBe(404);
+    expect(body).toEqual({
+      code: "LOT_NOT_FOUND",
+      message: "Lot was not found.",
+    });
+  });
+
+  it("rejects an id that is not a uuid", async () => {
+    const account = await registerAuctioneer();
+    const response = await getLot(account.token, "not-a-uuid");
+    const body = (await response.json()) as { type?: string };
+
+    expect(response.status).toBe(422);
+    expect(body.type).toBe("validation");
+  });
+
+  it("returns the auctioneer's lot without personal fields", async () => {
+    const account = await registerAuctioneer();
+    const cardId = await insertCatalogCard(
+      "Shown Dragon",
+      "https://images.example/shown.jpg",
+    );
+    const created = await postLot(account.token, createLotPayload([cardId]));
+    const createdBody = (await created.json()) as {
+      id?: string;
+      startsAt?: string;
+      endsAt?: string;
+    };
+    const response = await getLot(account.token, createdBody.id ?? "");
+    const raw = await response.text();
+    const body = JSON.parse(raw) as {
+      serverNow?: string;
+      lot?: {
+        items?: Array<Record<string, unknown>>;
+        bids?: unknown[];
+      };
+    };
+    const shown = body.lot;
+    const item = shown?.items?.[0];
+
+    expect(created.status).toBe(201);
+    expect(response.status).toBe(200);
+    expect(Object.keys(body).sort()).toEqual(["lot", "serverNow"]);
+    expect(shown).toEqual(
+      expect.objectContaining({
+        id: createdBody.id,
+        title: "Blue-Eyes lot",
+        description: null,
+        openingBid: "10.00",
+        minIncrement: "0.50",
+        startsAt: createdBody.startsAt,
+        endsAt: createdBody.endsAt,
+        extensionCount: 0,
+        status: "LIVE",
+        currentBid: null,
+        leaderParticipantNo: null,
+        bidCount: 0,
+        sold: false,
+        winnerParticipantNo: null,
+        receivedAmount: null,
+        bids: [],
+        items: [
+          expect.objectContaining({
+            position: 1,
+            cardId,
+            quantity: 1,
+            cardName: "Shown Dragon",
+            imagePath: "https://images.example/shown.jpg",
+          }),
+        ],
+      }),
+    );
+    expect(Object.keys(shown ?? {}).sort()).toEqual([
+      "bidCount",
+      "bids",
+      "currentBid",
+      "description",
+      "endsAt",
+      "extensionCount",
+      "id",
+      "items",
+      "leaderParticipantNo",
+      "minIncrement",
+      "openingBid",
+      "receivedAmount",
+      "sold",
+      "startsAt",
+      "status",
+      "title",
+      "winnerParticipantNo",
+    ]);
+    expect(Object.keys(item ?? {}).sort()).toEqual([
+      "cardId",
+      "cardName",
+      "cardSnapshot",
+      "id",
+      "imagePath",
+      "position",
+      "quantity",
+    ]);
+    expect(raw).not.toContain(account.email);
+    expect(raw).not.toContain(account.userId);
+    expect(raw).not.toContain("Lot Tester");
+    expect(
+      Math.abs(Date.parse(body.serverNow ?? "") - Date.now()),
+    ).toBeLessThan(5_000);
+  });
+});
