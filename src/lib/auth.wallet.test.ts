@@ -21,18 +21,23 @@ function requiredEnv(name: string, value: string | undefined) {
 const baseUrl = requiredEnv("BETTER_AUTH_URL", process.env.BETTER_AUTH_URL);
 const pageOrigin = requiredEnv("PAGE_ORIGIN", process.env.PAGE_ORIGIN);
 
-function request(path: string, body: string) {
+function request(
+  path: string,
+  body: string,
+  headers?: Record<string, string>,
+) {
   return new Request(`${baseUrl}${path}`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
       origin: pageOrigin,
+      ...headers,
     },
     body,
   });
 }
 
-async function signUp() {
+async function signUp(role?: "BIDDER" | "AUCTIONEER") {
   const email = `wallet-${crypto.randomUUID()}@example.com`;
   const response = await app.handle(
     request(
@@ -41,6 +46,7 @@ async function signUp() {
         name: "Wallet Tester",
         email,
         password,
+        ...(role === undefined ? {} : { role }),
       }),
     ),
   );
@@ -60,12 +66,46 @@ async function signUp() {
     };
   };
   const userId = body.user?.id;
+  const token = response.headers.get("set-auth-token");
 
   if (!userId) {
     throw new Error("Sign-up did not return a user id");
   }
 
-  return { email, userId };
+  if (!token) {
+    throw new Error("Sign-up did not return a bearer token");
+  }
+
+  return { email, userId, token };
+}
+
+async function submitSignUp(role: unknown) {
+  const email = `wallet-${crypto.randomUUID()}@example.com`;
+
+  createdEmails.push(email);
+
+  const response = await app.handle(
+    request(
+      "/api/auth/sign-up/email",
+      JSON.stringify({
+        name: "Wallet Tester",
+        email,
+        password,
+        role,
+      }),
+    ),
+  );
+
+  return { email, response };
+}
+
+async function readRole(userId: string) {
+  const [stored] = await db
+    .select({ role: user.role })
+    .from(user)
+    .where(eq(user.id, userId));
+
+  return stored?.role;
 }
 
 async function readWallets(userId: string) {
@@ -94,15 +134,41 @@ async function deleteUserByEmail(email: string) {
   await db.delete(user).where(eq(user.email, email));
 }
 
+afterEach(async () => {
+  const emails = createdEmails.splice(0, createdEmails.length);
+
+  await Promise.all(emails.map((email) => deleteUserByEmail(email)));
+});
+
+afterAll(async () => {
+  await db.$client.end();
+});
+
 describe("sign-up", () => {
-  afterEach(async () => {
-    const emails = createdEmails.splice(0, createdEmails.length);
+  describe("role", () => {
+    it("stores the bidder role when sign-up omits it", async () => {
+      const account = await signUp();
 
-    await Promise.all(emails.map((email) => deleteUserByEmail(email)));
-  });
+      expect(await readRole(account.userId)).toBe("BIDDER");
+    });
 
-  afterAll(async () => {
-    await db.$client.end();
+    it("stores the bidder role when sign-up sends it", async () => {
+      const account = await signUp("BIDDER");
+
+      expect(await readRole(account.userId)).toBe("BIDDER");
+    });
+
+    it("rejects an invalid role and does not create the user", async () => {
+      const submitted = await submitSignUp("ADMIN");
+      const rows = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, submitted.email));
+
+      expect(submitted.response.ok).toBe(false);
+      expect(submitted.response.status).toBe(400);
+      expect(rows).toHaveLength(0);
+    });
   });
 
   describe("wallet", () => {
@@ -144,6 +210,25 @@ describe("sign-up", () => {
       const wallets = await readWallets(account.userId);
 
       expect(wallets).toHaveLength(1);
+    });
+  });
+});
+
+describe("update-user", () => {
+  describe("role", () => {
+    it("keeps the stored role when an authenticated update sends a new role", async () => {
+      const account = await signUp("BIDDER");
+      const response = await app.handle(
+        request(
+          "/api/auth/update-user",
+          JSON.stringify({ role: "AUCTIONEER" }),
+          { authorization: `Bearer ${account.token}` },
+        ),
+      );
+
+      expect(response.ok).toBe(false);
+      expect(response.status).toBe(400);
+      expect(await readRole(account.userId)).toBe("BIDDER");
     });
   });
 });

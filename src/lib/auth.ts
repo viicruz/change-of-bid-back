@@ -1,9 +1,10 @@
 //* Libraries imports
 import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { bearer, openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { Elysia } from "elysia";
+import { z } from "zod";
 
 //* Local imports
 import { db } from "../db/index";
@@ -33,7 +34,9 @@ export const auth = betterAuth({
         type: "string",
         required: true,
         defaultValue: "BIDDER",
-        input: false,
+        validator: {
+          input: z.enum(["BIDDER", "AUCTIONEER"]),
+        },
       },
     },
   },
@@ -46,6 +49,16 @@ export const auth = betterAuth({
           } catch (error) {
             await removeUserCreatedWithoutWallet(createdUser.id);
             throw error;
+          }
+        },
+      },
+      update: {
+        before: async (userData) => {
+          if ("role" in userData) {
+            throw APIError.from("BAD_REQUEST", {
+              code: "FIELD_NOT_ALLOWED",
+              message: "role cannot be changed",
+            });
           }
         },
       },
