@@ -1,6 +1,9 @@
 //* Libraries imports
 import { z } from "zod";
 
+//* Schemas imports
+import { shareTokenSchema } from "./show-receipt";
+
 export const bidderParticipationStatusSchema = z.enum([
   "SCHEDULED",
   "LIVE",
@@ -30,6 +33,7 @@ const bidderParticipationSchema = z.object({
   bidCount: z.number().int(),
   participantNo: z.number().int().positive(),
   won: z.boolean(),
+  shareToken: shareTokenSchema.nullable(),
   items: z.array(listedParticipationItemSchema),
 });
 

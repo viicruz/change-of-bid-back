@@ -6,7 +6,7 @@ import type { BidderParticipationStatus } from "../../schemas/list-bidder-partic
 
 //* Local imports
 import { db } from "../../db/index";
-import { bid, lot, lotItem, lotParticipant } from "../../db/schema";
+import { bid, lot, lotItem, lotParticipant, receipt } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 import {
   isCanceled,
@@ -57,6 +57,7 @@ export type BidderParticipation = {
   bidCount: number;
   participantNo: number;
   won: boolean;
+  shareToken: string | null;
   items: BidderParticipationItem[];
 };
 
@@ -100,10 +101,12 @@ export async function listBidderParticipations(
       bidCount: lot.bidCount,
       participantNo: lotParticipant.participantNo,
       winnerId: lot.winnerId,
+      shareToken: receipt.shareToken,
     })
     .from(lotParticipant)
     .innerJoin(lot, eq(lot.id, lotParticipant.lotId))
     .leftJoin(bid, eq(bid.id, lot.currentBidId))
+    .leftJoin(receipt, eq(receipt.lotId, lot.id))
     .where(eq(lotParticipant.userId, input.userId))
     .orderBy(
       sql`CASE
@@ -125,22 +128,27 @@ export async function listBidderParticipations(
   );
 
   return {
-    lots: rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      description: row.description,
-      openingBid: formatListedMoney(row.openingBid),
-      minIncrement: formatListedMoney(row.minIncrement),
-      startsAt: row.startsAt,
-      endsAt: row.endsAt,
-      status: requireStatus(row.status),
-      currentBid:
-        row.currentBid === null ? null : formatListedMoney(row.currentBid),
-      bidCount: row.bidCount,
-      participantNo: row.participantNo,
-      won: row.winnerId === input.userId,
-      items: itemsByLotId.get(row.id) ?? [],
-    })),
+    lots: rows.map((row) => {
+      const won = row.winnerId === input.userId;
+
+      return {
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        openingBid: formatListedMoney(row.openingBid),
+        minIncrement: formatListedMoney(row.minIncrement),
+        startsAt: row.startsAt,
+        endsAt: row.endsAt,
+        status: requireStatus(row.status),
+        currentBid:
+          row.currentBid === null ? null : formatListedMoney(row.currentBid),
+        bidCount: row.bidCount,
+        participantNo: row.participantNo,
+        won,
+        shareToken: shareTokenForBidder(won, row.shareToken),
+        items: itemsByLotId.get(row.id) ?? [],
+      };
+    }),
   };
 }
 
@@ -200,6 +208,20 @@ function requireStatus(status: string | null): BidderParticipationStatus {
   }
 
   throw new Error("Participation listing returned an unexpected status");
+}
+
+function shareTokenForBidder(won: boolean, shareToken: string | null) {
+  if (!won) {
+    return null;
+  }
+
+  // Settlement writes the link on the receipt. A win without that row would
+  // leave won true and no token, so the listing fails closed.
+  if (shareToken === null) {
+    throw new Error("Won participation is missing its receipt");
+  }
+
+  return shareToken;
 }
 
 function formatListedMoney(value: string): string {

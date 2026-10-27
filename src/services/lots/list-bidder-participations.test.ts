@@ -1,4 +1,5 @@
 //* Libraries imports
+import { randomBytes } from "node:crypto";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
@@ -10,6 +11,7 @@ import {
   lot,
   lotItem,
   lotParticipant,
+  receipt,
   user,
   wallet,
   walletMovement,
@@ -26,6 +28,10 @@ const createdLotIds: string[] = [];
 
 function hoursFromNow(hours: number) {
   return new Date(now.getTime() + hours * 60 * 60 * 1000);
+}
+
+function createShareToken() {
+  return randomBytes(32).toString("base64url");
 }
 
 function dependencies() {
@@ -216,6 +222,26 @@ async function insertAcceptedBid(values: {
   return createdBid.id;
 }
 
+async function insertReceipt(values: {
+  lotId: string;
+  winningBidId: string;
+  winnerId: string;
+  winnerParticipantNo: number;
+  finalAmount: string;
+  shareToken: string;
+  endedAt?: Date;
+}) {
+  await db.insert(receipt).values({
+    lotId: values.lotId,
+    winningBidId: values.winningBidId,
+    winnerId: values.winnerId,
+    winnerParticipantNo: values.winnerParticipantNo,
+    finalAmount: values.finalAmount,
+    endedAt: values.endedAt ?? now,
+    shareToken: values.shareToken,
+  });
+}
+
 async function cleanup() {
   const wallets =
     createdUserIds.length === 0
@@ -240,6 +266,7 @@ async function cleanup() {
     await db
       .delete(walletMovement)
       .where(inArray(walletMovement.lotId, createdLotIds));
+    await db.delete(receipt).where(inArray(receipt.lotId, createdLotIds));
     await db.delete(bid).where(inArray(bid.lotId, createdLotIds));
     await db
       .delete(lotParticipant)
@@ -328,6 +355,7 @@ describe("listBidderParticipations", () => {
             bidCount: 1,
             participantNo: 3,
             won: false,
+            shareToken: null,
             items: [
               {
                 id: created.items[0]?.id,
@@ -477,7 +505,7 @@ describe("listBidderParticipations", () => {
         ],
       });
 
-      await insertAcceptedBid({
+      const winningBidId = await insertAcceptedBid({
         lotId: created.id,
         userId: bidderId,
         participantNo: 1,
@@ -485,6 +513,16 @@ describe("listBidderParticipations", () => {
         amount: "20.00",
         current: true,
         winner: true,
+      });
+      const token = createShareToken();
+
+      await insertReceipt({
+        lotId: created.id,
+        winningBidId,
+        winnerId: bidderId,
+        winnerParticipantNo: 1,
+        finalAmount: "20.00",
+        shareToken: token,
       });
 
       const listed = await listFor(bidderId);
@@ -495,6 +533,7 @@ describe("listBidderParticipations", () => {
           status: "ENDED",
           currentBid: "20.00",
           won: true,
+          shareToken: token,
         }),
       ]);
     });
@@ -677,6 +716,212 @@ describe("listBidderParticipations", () => {
           won: false,
         }),
       ]);
+    });
+  });
+
+  describe("shareToken", () => {
+    it("includes the settlement share token when this bidder won the lot", async () => {
+      const auctioneerId = await insertUser("AUCTIONEER");
+      const bidderId = await insertUser("BIDDER");
+      const cardId = await insertCard("Settled Dragon");
+      const created = await insertLot(auctioneerId, {
+        title: "Settled lot",
+        startsAt: hoursFromNow(-3),
+        endsAt: hoursFromNow(-1),
+        status: "ENDED",
+        items: [
+          {
+            cardId,
+            cardName: "Settled Dragon",
+            imagePath: "https://images.example/settled.jpg",
+          },
+        ],
+      });
+      const token = createShareToken();
+      const winningBidId = await insertAcceptedBid({
+        lotId: created.id,
+        userId: bidderId,
+        participantNo: 4,
+        sequence: 1,
+        amount: "22.00",
+        current: true,
+        winner: true,
+      });
+
+      await insertReceipt({
+        lotId: created.id,
+        winningBidId,
+        winnerId: bidderId,
+        winnerParticipantNo: 4,
+        finalAmount: "22.00",
+        shareToken: token,
+      });
+
+      const listed = await listFor(bidderId);
+      const serialized = JSON.stringify(listed);
+
+      expect(listed.lots).toEqual([
+        expect.objectContaining({
+          id: created.id,
+          status: "ENDED",
+          won: true,
+          shareToken: token,
+        }),
+      ]);
+      expect(serialized).not.toContain(bidderId);
+      expect(serialized).not.toContain(auctioneerId);
+      expect(serialized).not.toContain(winningBidId);
+    });
+
+    it("returns a null share token for a live, lost, or canceled participation and for another bidder", async () => {
+      const auctioneerId = await insertUser("AUCTIONEER");
+      const bidderId = await insertUser("BIDDER");
+      const winnerId = await insertUser("BIDDER");
+      const live = await insertLot(auctioneerId, {
+        title: "Live lot",
+        startsAt: hoursFromNow(-1),
+        endsAt: hoursFromNow(2),
+        items: [
+          {
+            cardId: await insertCard("Live Dragon"),
+            cardName: "Live Dragon",
+            imagePath: "https://images.example/live.jpg",
+          },
+        ],
+      });
+      const lost = await insertLot(auctioneerId, {
+        title: "Lost lot",
+        startsAt: hoursFromNow(-4),
+        endsAt: hoursFromNow(-1),
+        status: "ENDED",
+        items: [
+          {
+            cardId: await insertCard("Lost Dragon"),
+            cardName: "Lost Dragon",
+            imagePath: "https://images.example/lost.jpg",
+          },
+        ],
+      });
+      const canceled = await insertLot(auctioneerId, {
+        title: "Canceled lot",
+        startsAt: hoursFromNow(-1),
+        endsAt: hoursFromNow(2),
+        status: "CANCELED",
+        canceledAt: now,
+        items: [
+          {
+            cardId: await insertCard("Canceled Dragon"),
+            cardName: "Canceled Dragon",
+            imagePath: "https://images.example/canceled.jpg",
+          },
+        ],
+      });
+      const winnerToken = createShareToken();
+
+      await insertAcceptedBid({
+        lotId: live.id,
+        userId: bidderId,
+        participantNo: 1,
+        sequence: 1,
+        amount: "11.00",
+        current: true,
+      });
+      await insertAcceptedBid({
+        lotId: lost.id,
+        userId: bidderId,
+        participantNo: 1,
+        sequence: 1,
+        amount: "11.00",
+      });
+      const winningBidId = await insertAcceptedBid({
+        lotId: lost.id,
+        userId: winnerId,
+        participantNo: 2,
+        sequence: 2,
+        amount: "19.00",
+        current: true,
+        winner: true,
+      });
+
+      await insertReceipt({
+        lotId: lost.id,
+        winningBidId,
+        winnerId,
+        winnerParticipantNo: 2,
+        finalAmount: "19.00",
+        shareToken: winnerToken,
+      });
+      await insertAcceptedBid({
+        lotId: canceled.id,
+        userId: bidderId,
+        participantNo: 3,
+        sequence: 1,
+        amount: "13.00",
+        current: true,
+      });
+
+      const listed = await listFor(bidderId);
+
+      expect(listed.lots.map((entry) => entry.id)).toEqual([
+        live.id,
+        lost.id,
+        canceled.id,
+      ]);
+      expect(listed.lots.map((entry) => entry.status)).toEqual([
+        "LIVE",
+        "ENDED",
+        "CANCELED",
+      ]);
+      expect(listed.lots.map((entry) => entry.won)).toEqual([
+        false,
+        false,
+        false,
+      ]);
+      expect(listed.lots.map((entry) => entry.shareToken)).toEqual([
+        null,
+        null,
+        null,
+      ]);
+      expect(JSON.stringify(listed)).not.toContain(winnerToken);
+      expect(JSON.stringify(listed)).not.toContain(winnerId);
+    });
+
+    it("fails the listing when this bidder won and the receipt is missing", async () => {
+      const auctioneerId = await insertUser("AUCTIONEER");
+      const bidderId = await insertUser("BIDDER");
+      const cardId = await insertCard("Unsettled Dragon");
+      const created = await insertLot(auctioneerId, {
+        title: "Unsettled lot",
+        startsAt: hoursFromNow(-3),
+        endsAt: hoursFromNow(-1),
+        status: "ENDED",
+        items: [
+          {
+            cardId,
+            cardName: "Unsettled Dragon",
+            imagePath: "https://images.example/unsettled.jpg",
+          },
+        ],
+      });
+
+      await insertAcceptedBid({
+        lotId: created.id,
+        userId: bidderId,
+        participantNo: 1,
+        sequence: 1,
+        amount: "21.00",
+        current: true,
+        winner: true,
+      });
+
+      const listed = listFor(bidderId);
+
+      await expect(listed).rejects.toThrow(
+        "Won participation is missing its receipt",
+      );
+      await expect(listed).rejects.not.toBeInstanceOf(
+        ListBidderParticipationsError,
+      );
     });
   });
 
