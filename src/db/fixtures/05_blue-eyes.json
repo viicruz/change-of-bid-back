@@ -1,0 +1,195 @@
+{
+  "name": "Blue-Eyes",
+  "description": "Primite Blue-Eyes list that uses Sage, Maiden, Wishes, and Roar to put the dragons on board and reach Synchro and Link plays, with hand traps covering interaction.",
+  "main": [
+    {
+      "name": "Blue-Eyes White Dragon",
+      "passcode": "89631139",
+      "quantity": 2
+    },
+    {
+      "name": "Maiden of White",
+      "passcode": "17947697",
+      "quantity": 3
+    },
+    {
+      "name": "Sage with Eyes of Blue",
+      "passcode": "08240199",
+      "quantity": 3
+    },
+    {
+      "name": "Neo Kaiser Sea Horse",
+      "passcode": "54332792",
+      "quantity": 1
+    },
+    {
+      "name": "Primite Dragon Ether Beryl",
+      "passcode": "63198739",
+      "quantity": 3
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Belle & Haunted Mansion",
+      "passcode": "73642296",
+      "quantity": 2
+    },
+    {
+      "name": "Effect Veiler",
+      "passcode": "97268402",
+      "quantity": 2
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "Bystial Magnamhut",
+      "passcode": "33854624",
+      "quantity": 1
+    },
+    {
+      "name": "Wishes for Eyes of Blue",
+      "passcode": "80326401",
+      "quantity": 3
+    },
+    {
+      "name": "Roar of the Blue-Eyed Dragons",
+      "passcode": "17725109",
+      "quantity": 1
+    },
+    {
+      "name": "Mausoleum of White",
+      "passcode": "24382602",
+      "quantity": 1
+    },
+    {
+      "name": "Primite Drillbeam",
+      "passcode": "29095457",
+      "quantity": 1
+    },
+    {
+      "name": "Primite Lordly Lode",
+      "passcode": "56506740",
+      "quantity": 2
+    },
+    {
+      "name": "Infinite Impermanence",
+      "passcode": "10045474",
+      "quantity": 3
+    },
+    {
+      "name": "Dominus Purge",
+      "passcode": "97045737",
+      "quantity": 3
+    },
+    {
+      "name": "Majesty of the White Dragons",
+      "passcode": "43219114",
+      "quantity": 1
+    },
+    {
+      "name": "True Light",
+      "passcode": "62089826",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Blue-Eyes Spirit Dragon",
+      "passcode": "59822133",
+      "quantity": 3
+    },
+    {
+      "name": "Blue-Eyes Ultimate Spirit Dragon",
+      "passcode": "89604813",
+      "quantity": 1
+    },
+    {
+      "name": "Lightstorm Dragon",
+      "passcode": "10515412",
+      "quantity": 1
+    },
+    {
+      "name": "Ancient Fairy Life Dragon",
+      "passcode": "43321985",
+      "quantity": 1
+    },
+    {
+      "name": "Cosmic Blazar Dragon",
+      "passcode": "21123811",
+      "quantity": 1
+    },
+    {
+      "name": "Crimson Dragon",
+      "passcode": "63436931",
+      "quantity": 1
+    },
+    {
+      "name": "Blue-Eyes Tyrant Dragon",
+      "passcode": "11443677",
+      "quantity": 2
+    },
+    {
+      "name": "Neo Blue-Eyes Ultimate Dragon",
+      "passcode": "56532353",
+      "quantity": 1
+    },
+    {
+      "name": "Hieratic Seal of the Heavenly Spheres",
+      "passcode": "24361622",
+      "quantity": 2
+    },
+    {
+      "name": "Spirit with Eyes of Blue",
+      "passcode": "42097666",
+      "quantity": 2
+    }
+  ],
+  "side": [
+    {
+      "name": "Blue-Eyes Jet Dragon",
+      "passcode": "30576089",
+      "quantity": 1
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 2
+    },
+    {
+      "name": "Cosmic Cyclone",
+      "passcode": "08267140",
+      "quantity": 3
+    },
+    {
+      "name": "Sales Ban",
+      "passcode": "64964750",
+      "quantity": 3
+    },
+    {
+      "name": "Champion's Vigilance",
+      "passcode": "82382815",
+      "quantity": 2
+    },
+    {
+      "name": "Solemn Judgment",
+      "passcode": "41420027",
+      "quantity": 1
+    }
+  ]
+}

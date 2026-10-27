@@ -1,0 +1,265 @@
+{
+  "name": "DoomZ",
+  "description": "Combo and midrange list built on the DoomZ, Power Patron, and Ars Magna engines, with Xyz and Link access plus interaction from hand traps, removal, and traps.",
+  "main": [
+    {
+      "name": "DoomZ XII Zero - Drastea",
+      "passcode": "92472273",
+      "quantity": 2
+    },
+    {
+      "name": "DoomZ V Five - Amalthe",
+      "passcode": "28877382",
+      "quantity": 1
+    },
+    {
+      "name": "DoomZ VII Seven - Elara",
+      "passcode": "54265980",
+      "quantity": 3
+    },
+    {
+      "name": "Power Patron DoomZ",
+      "passcode": "81650695",
+      "quantity": 1
+    },
+    {
+      "name": "Jupredo the Shademachine Power Patron",
+      "passcode": "43871165",
+      "quantity": 3
+    },
+    {
+      "name": "Vidolium the Unstable Power Patron of Unity",
+      "passcode": "70488851",
+      "quantity": 1
+    },
+    {
+      "name": "Nervedo the Shadebeast Power Patron",
+      "passcode": "17473466",
+      "quantity": 1
+    },
+    {
+      "name": "Junoldo the Shadespirit Power Patron",
+      "passcode": "10266279",
+      "quantity": 1
+    },
+    {
+      "name": "Shade the Obscure",
+      "passcode": "77157846",
+      "quantity": 1
+    },
+    {
+      "name": "Medius the Pure",
+      "passcode": "97556336",
+      "quantity": 1
+    },
+    {
+      "name": "Theorealized Medius",
+      "passcode": "90875418",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna the Finite and the Infinite",
+      "passcode": "36270527",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna the Corruption and the Purification",
+      "passcode": "62368221",
+      "quantity": 1
+    },
+    {
+      "name": "Therion \"King\" Regulus",
+      "passcode": "10604644",
+      "quantity": 1
+    },
+    {
+      "name": "Bystial Magnamhut",
+      "passcode": "33854624",
+      "quantity": 1
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 2
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "DoomZ Raiders",
+      "passcode": "32442017",
+      "quantity": 2
+    },
+    {
+      "name": "DoomZ Change",
+      "passcode": "38007649",
+      "quantity": 2
+    },
+    {
+      "name": "DoomZ Command \"D.O.O.M.D.U.R.G.\"",
+      "passcode": "68831625",
+      "quantity": 1
+    },
+    {
+      "name": "DoomZ Command \"A.D.R.A.S.T.E.I.A.\"",
+      "passcode": "84054556",
+      "quantity": 1
+    },
+    {
+      "name": "Plundered Power Patron Plane - Vidolia",
+      "passcode": "51669847",
+      "quantity": 1
+    },
+    {
+      "name": "Prohibited Power Patron Portal - Terminus",
+      "passcode": "25661743",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna \"Citrinitas\"",
+      "passcode": "37279096",
+      "quantity": 2
+    },
+    {
+      "name": "Theorealize Past Lull",
+      "passcode": "36709484",
+      "quantity": 1
+    },
+    {
+      "name": "Infinite Impermanence",
+      "passcode": "10045474",
+      "quantity": 2
+    },
+    {
+      "name": "DoomZ Destruction",
+      "passcode": "80320877",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "DoomZ XIII Over - Graflareio",
+      "passcode": "65848113",
+      "quantity": 1
+    },
+    {
+      "name": "DoomZ XII End - Drastrius",
+      "passcode": "95626382",
+      "quantity": 2
+    },
+    {
+      "name": "DoomZ Break - Diactorus",
+      "passcode": "31010081",
+      "quantity": 1
+    },
+    {
+      "name": "Jupiter the Power Patron of Destruction",
+      "passcode": "68231287",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Ceruvim Irisfil",
+      "passcode": "64626565",
+      "quantity": 1
+    },
+    {
+      "name": "Gigantic \"Champion\" Sargas",
+      "passcode": "11132674",
+      "quantity": 1
+    },
+    {
+      "name": "Springans Merrymaker",
+      "passcode": "48285768",
+      "quantity": 1
+    },
+    {
+      "name": "Junora the Power Patron of Tuning",
+      "passcode": "05914858",
+      "quantity": 1
+    },
+    {
+      "name": "Nerva the Power Patron of Creation",
+      "passcode": "53589300",
+      "quantity": 1
+    },
+    {
+      "name": "Artmage Diactorus",
+      "passcode": "27184601",
+      "quantity": 1
+    },
+    {
+      "name": "Purification Power Patron",
+      "passcode": "31822037",
+      "quantity": 1
+    },
+    {
+      "name": "Mediclius the Extraordinary Power Patron",
+      "passcode": "04063756",
+      "quantity": 1
+    },
+    {
+      "name": "Clockwork Knight",
+      "passcode": "41739381",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Santa Claws",
+      "passcode": "46565218",
+      "quantity": 3
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Lightning Storm",
+      "passcode": "14532163",
+      "quantity": 1
+    },
+    {
+      "name": "Hey, Space Trunade!",
+      "passcode": "02729965",
+      "quantity": 1
+    },
+    {
+      "name": "Mistaken Arrest",
+      "passcode": "04227096",
+      "quantity": 2
+    },
+    {
+      "name": "Evenly Matched",
+      "passcode": "15693423",
+      "quantity": 2
+    },
+    {
+      "name": "Solemn Warning",
+      "passcode": "84749824",
+      "quantity": 1
+    },
+    {
+      "name": "Solemn Judgment",
+      "passcode": "41420027",
+      "quantity": 1
+    },
+    {
+      "name": "Ars Magna \"Philosophorum\"",
+      "passcode": "90728287",
+      "quantity": 1
+    }
+  ]
+}

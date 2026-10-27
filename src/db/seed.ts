@@ -5,12 +5,14 @@ import { and, eq } from "drizzle-orm";
 
 //* Local imports
 import { db } from "./index";
+import { seedLots } from "./seed-lots";
 import { account, user } from "./schema";
 
 //* Models imports
 import { createWallet } from "../models/wallet";
 
 const testPassword = "123123123";
+const auctioneerEmail = "auctioneer@auctioneer.auctioneer";
 
 const seedUsers = [
   {
@@ -25,7 +27,7 @@ const seedUsers = [
   },
   {
     name: "Auctioneer",
-    email: "auctioneer@auctioneer.auctioneer",
+    email: auctioneerEmail,
     role: "AUCTIONEER",
   },
 ] as const;
@@ -103,6 +105,8 @@ async function seed() {
 
     console.log(`${action} ${seedUser.email} (${seedUser.role})`);
   }
+
+  await seedLots(auctioneerEmail);
 }
 
 seed()

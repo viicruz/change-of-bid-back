@@ -1,0 +1,265 @@
+{
+  "name": "Light and Darkness Ritual - Dark Magician",
+  "description": "Dark Magician variant that uses Light and Darkness Ritual and Chaos monsters to turn the Magician package into high-impact threats, with Fusion, Link, and Synchro lines in the Extra Deck.",
+  "main": [
+    {
+      "name": "Black Luster Soldier - Soldier of Light and Darkness",
+      "passcode": "70405001",
+      "quantity": 1
+    },
+    {
+      "name": "Magician of Dark Chaos - Black Chaos",
+      "passcode": "44001993",
+      "quantity": 1
+    },
+    {
+      "name": "Illusion of Chaos",
+      "passcode": "12266229",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Magician",
+      "passcode": "46986420",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Magician, the Pharaoh's Servant",
+      "passcode": "88570003",
+      "quantity": 1
+    },
+    {
+      "name": "Black Chaos",
+      "passcode": "98684220",
+      "quantity": 3
+    },
+    {
+      "name": "Celtic Mystic",
+      "passcode": "50073633",
+      "quantity": 1
+    },
+    {
+      "name": "Skull Archfiend of Chaos",
+      "passcode": "24088928",
+      "quantity": 2
+    },
+    {
+      "name": "Griffoh",
+      "passcode": "97462632",
+      "quantity": 1
+    },
+    {
+      "name": "Kuriboh - Multiply!",
+      "passcode": "14965712",
+      "quantity": 2
+    },
+    {
+      "name": "Magician's Rod",
+      "passcode": "07084129",
+      "quantity": 1
+    },
+    {
+      "name": "The Great Gallant Bandit",
+      "passcode": "24203749",
+      "quantity": 1
+    },
+    {
+      "name": "Mulcharmy Fuwalos",
+      "passcode": "42141493",
+      "quantity": 3
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 1
+    },
+    {
+      "name": "Ash Blossom & Joyous Spring",
+      "passcode": "14558127",
+      "quantity": 3
+    },
+    {
+      "name": "Ghost Ogre & Snow Rabbit",
+      "passcode": "59438930",
+      "quantity": 2
+    },
+    {
+      "name": "Droll & Lock Bird",
+      "passcode": "94145021",
+      "quantity": 1
+    },
+    {
+      "name": "Light and Darkness Ritual",
+      "passcode": "33599853",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Magical Curtain",
+      "passcode": "41350417",
+      "quantity": 3
+    },
+    {
+      "name": "Dark Magical Circle",
+      "passcode": "47222536",
+      "quantity": 1
+    },
+    {
+      "name": "The Gaze of Timaeus",
+      "passcode": "22283204",
+      "quantity": 1
+    },
+    {
+      "name": "Ragged Records of Rites",
+      "passcode": "24461358",
+      "quantity": 3
+    },
+    {
+      "name": "Super Polymerization",
+      "passcode": "48130397",
+      "quantity": 1
+    },
+    {
+      "name": "Dominus Impulse",
+      "passcode": "40366667",
+      "quantity": 3
+    },
+    {
+      "name": "Mind Shuffle",
+      "passcode": "24749710",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Dark Magician of Destruction",
+      "passcode": "59400890",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Paladin",
+      "passcode": "98502113",
+      "quantity": 1
+    },
+    {
+      "name": "Master of Chaos",
+      "passcode": "85059922",
+      "quantity": 1
+    },
+    {
+      "name": "Chaos Angel",
+      "passcode": "22850702",
+      "quantity": 1
+    },
+    {
+      "name": "Relinquished Anima",
+      "passcode": "94259633",
+      "quantity": 1
+    },
+    {
+      "name": "Accesscode Talker",
+      "passcode": "86066372",
+      "quantity": 1
+    },
+    {
+      "name": "Selene, Queen of the Master Magicians",
+      "passcode": "45819647",
+      "quantity": 1
+    },
+    {
+      "name": "Mediclius the Extraordinary Power Patron",
+      "passcode": "04063756",
+      "quantity": 1
+    },
+    {
+      "name": "A Bao A Qu, the Lightless Shadow",
+      "passcode": "04731783",
+      "quantity": 1
+    },
+    {
+      "name": "Dharc the Dark Charmer, Gloomy",
+      "passcode": "08264361",
+      "quantity": 1
+    },
+    {
+      "name": "Miasma Necromancer",
+      "passcode": "69176851",
+      "quantity": 1
+    },
+    {
+      "name": "I:P Masquerena",
+      "passcode": "65741786",
+      "quantity": 1
+    },
+    {
+      "name": "S:P Little Knight",
+      "passcode": "29301450",
+      "quantity": 1
+    },
+    {
+      "name": "Garura, Wings of Resonant Life",
+      "passcode": "11765832",
+      "quantity": 1
+    },
+    {
+      "name": "Mixousia the Confounder",
+      "passcode": "80843006",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Skull Meister",
+      "passcode": "67750322",
+      "quantity": 2
+    },
+    {
+      "name": "Mulcharmy Purulia",
+      "passcode": "84192580",
+      "quantity": 2
+    },
+    {
+      "name": "Nibiru, the Primal Being",
+      "passcode": "27204311",
+      "quantity": 1
+    },
+    {
+      "name": "Ghost Belle & Haunted Mansion",
+      "passcode": "73642296",
+      "quantity": 1
+    },
+    {
+      "name": "Harpie's Feather Duster",
+      "passcode": "18144507",
+      "quantity": 1
+    },
+    {
+      "name": "Spell Shattering Sword",
+      "passcode": "77456448",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Sloth",
+      "passcode": "98476659",
+      "quantity": 2
+    },
+    {
+      "name": "Evenly Matched",
+      "passcode": "15693423",
+      "quantity": 2
+    },
+    {
+      "name": "Solemn Warning",
+      "passcode": "84749824",
+      "quantity": 1
+    },
+    {
+      "name": "Solemn Accusation",
+      "passcode": "78114463",
+      "quantity": 1
+    },
+    {
+      "name": "Solemn Judgment",
+      "passcode": "41420027",
+      "quantity": 1
+    }
+  ]
+}
