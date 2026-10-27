@@ -11,6 +11,7 @@ import type {
 import { db } from "../../db/index";
 import { bid, lot, lotItem } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
+import { isEnded, isLive, isScheduled } from "./effective-lot-status";
 
 export type PublicLotItem = {
   id: string;
@@ -111,18 +112,6 @@ function createDefaultDependencies(): ListPublicLotsDependencies {
     now: () => new Date(),
     executor: db,
   };
-}
-
-function isEnded(now: Date) {
-  return sql`(${lot.status} = 'ENDED' OR (${lot.status} = 'ACTIVE' AND ${lot.endsAt} <= ${now}))`;
-}
-
-function isScheduled(now: Date) {
-  return sql`(${lot.status} = 'ACTIVE' AND ${lot.startsAt} > ${now})`;
-}
-
-function isLive(now: Date) {
-  return sql`(${lot.status} = 'ACTIVE' AND ${lot.startsAt} <= ${now} AND ${lot.endsAt} > ${now})`;
 }
 
 function matchesStatus(status: PublicLotStatus | undefined, now: Date) {

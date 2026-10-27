@@ -1,8 +1,13 @@
 //* Libraries imports
 import { Elysia } from "elysia";
+import { z } from "zod";
 
 //* Schemas imports
 import { createLotBodySchema } from "../../schemas/create-lot";
+import {
+  listAuctioneerLotsQuerySchema,
+  listAuctioneerLotsResponseSchema,
+} from "../../schemas/list-lots";
 
 //* Local imports
 import { betterAuthMacro } from "../../lib/auth";
@@ -13,6 +18,20 @@ import {
   CreateLotError,
   type CreateLotErrorCode,
 } from "../../services/lots/create-lot";
+import {
+  listAuctioneerLots,
+  ListAuctioneerLotsError,
+  type ListAuctioneerLotsErrorCode,
+} from "../../services/lots/list-auctioneer-lots";
+
+const listAuctioneerLotsErrorSchema = z.object({
+  code: z.literal("NOT_AUCTIONEER"),
+  message: z.string(),
+});
+
+const listAuctioneerLotsErrorStatus = {
+  NOT_AUCTIONEER: 403,
+} as const satisfies Record<ListAuctioneerLotsErrorCode, 403>;
 
 const createLotErrorStatus = {
   NOT_AUCTIONEER: 403,
@@ -56,6 +75,35 @@ const lotRoutes = new Elysia({ prefix: "/lots" })
     {
       auth: true,
       body: createLotBodySchema,
+    },
+  )
+  .get(
+    "/",
+    async ({ query, user, status }) => {
+      try {
+        return await listAuctioneerLots({
+          auctioneerId: user.id,
+          role: user.role,
+          ...query,
+        });
+      } catch (error) {
+        if (!(error instanceof ListAuctioneerLotsError)) {
+          throw error;
+        }
+
+        return status(listAuctioneerLotsErrorStatus[error.code], {
+          code: error.code,
+          message: error.message,
+        });
+      }
+    },
+    {
+      auth: true,
+      query: listAuctioneerLotsQuerySchema,
+      response: {
+        200: listAuctioneerLotsResponseSchema,
+        403: listAuctioneerLotsErrorSchema,
+      },
     },
   );
 

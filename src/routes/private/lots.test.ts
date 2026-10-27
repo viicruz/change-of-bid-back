@@ -199,16 +199,16 @@ async function cleanup(emails: string[], cardIds: number[]) {
   }
 }
 
+afterAll(async () => {
+  await db.$client.end();
+});
+
 describe("POST /private/lots", () => {
   afterEach(async () => {
     const emails = createdEmails.splice(0, createdEmails.length);
     const cardIds = createdCardIds.splice(0, createdCardIds.length);
 
     await cleanup(emails, cardIds);
-  });
-
-  afterAll(async () => {
-    await db.$client.end();
   });
 
   it("rejects a request with no session", async () => {
@@ -396,5 +396,133 @@ describe("POST /private/lots", () => {
     expect(response.status).toBe(422);
     expect(body.type).toBe("validation");
     expect(body.code).toBeUndefined();
+  });
+});
+
+describe("GET /private/lots", () => {
+  afterEach(async () => {
+    const emails = createdEmails.splice(0, createdEmails.length);
+    const cardIds = createdCardIds.splice(0, createdCardIds.length);
+
+    await cleanup(emails, cardIds);
+  });
+
+  function getLots(token: string | undefined, query = "") {
+    return app.handle(
+      request(
+        `/private/lots${query}`,
+        token === undefined
+          ? undefined
+          : { authorization: `Bearer ${token}` },
+      ),
+    );
+  }
+
+  it("rejects a request with no session", async () => {
+    const response = await getLots(undefined);
+
+    expect(response.status).toBe(401);
+  });
+
+  it("rejects a bidder", async () => {
+    const account = await registerUser();
+    const response = await getLots(account.token);
+    const body = (await response.json()) as { code?: string };
+
+    expect(response.status).toBe(403);
+    expect(body.code).toBe("NOT_AUCTIONEER");
+  });
+
+  it("rejects the stored active status", async () => {
+    const account = await registerAuctioneer();
+    const response = await getLots(account.token, "?status=ACTIVE");
+    const body = (await response.json()) as { type?: string };
+
+    expect(response.status).toBe(422);
+    expect(body.type).toBe("validation");
+  });
+
+  it("returns the auctioneer's lot without personal fields", async () => {
+    const account = await registerAuctioneer();
+    const cardId = await insertCatalogCard(
+      "Panel Dragon",
+      "https://images.example/panel.jpg",
+    );
+    const title = `listing-${crypto.randomUUID()}`;
+    const created = await postLot(account.token, {
+      ...createLotPayload([cardId]),
+      title,
+    });
+    const createdBody = (await created.json()) as {
+      id?: string;
+      startsAt?: string;
+      endsAt?: string;
+    };
+    const response = await getLots(
+      account.token,
+      `?q=${encodeURIComponent(`  ${title}  `)}`,
+    );
+    const body = (await response.json()) as {
+      totalReceived?: string;
+      lots?: Array<{
+        id?: string;
+        items?: Array<{ cardName?: string; imagePath?: string }>;
+      }>;
+    };
+    const listed = body.lots?.[0];
+    const item = listed?.items?.[0];
+
+    expect(created.status).toBe(201);
+    expect(response.status).toBe(200);
+    expect(Object.keys(body).sort()).toEqual(["lots", "totalReceived"]);
+    expect(body.totalReceived).toBe("0.00");
+    expect(body.lots).toEqual([
+      expect.objectContaining({
+        id: createdBody.id,
+        title,
+        description: null,
+        openingBid: "10.00",
+        minIncrement: "0.50",
+        startsAt: createdBody.startsAt,
+        endsAt: createdBody.endsAt,
+        status: "LIVE",
+        currentBid: null,
+        bidCount: 0,
+        sold: false,
+        receivedAmount: null,
+        items: [
+          expect.objectContaining({
+            position: 1,
+            cardId,
+            quantity: 1,
+            cardName: "Panel Dragon",
+            imagePath: "https://images.example/panel.jpg",
+          }),
+        ],
+      }),
+    ]);
+    expect(Object.keys(listed ?? {}).sort()).toEqual([
+      "bidCount",
+      "currentBid",
+      "description",
+      "endsAt",
+      "id",
+      "items",
+      "minIncrement",
+      "openingBid",
+      "receivedAmount",
+      "sold",
+      "startsAt",
+      "status",
+      "title",
+    ]);
+    expect(Object.keys(item ?? {}).sort()).toEqual([
+      "cardId",
+      "cardName",
+      "id",
+      "imagePath",
+      "position",
+      "quantity",
+    ]);
   });
 });
