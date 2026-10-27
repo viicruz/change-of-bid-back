@@ -25,6 +25,9 @@ import { compareMoney, normalizeMoney } from "../../schemas/money";
 //* Local imports
 import { db } from "../../db/index";
 
+//* Services imports
+import { publishPublicLot } from "./public-lot-live";
+
 // 32 bytes in base64url, without padding.
 const SHARE_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 
@@ -73,14 +76,20 @@ export async function settleDueLots(
   const failures: unknown[] = [];
 
   for (const lotId of lotIds) {
+    let settlement: LotSettlement | undefined;
+
     try {
-      results.push(
-        await resolved.runInTransaction((executor) =>
-          settleLockedLot(executor, lotId, now, resolved),
-        ),
+      settlement = await resolved.runInTransaction((executor) =>
+        settleLockedLot(executor, lotId, now, resolved),
       );
+      results.push(settlement);
     } catch (error) {
       failures.push(new LotSettlementError(lotId, error));
+    }
+
+    // Skipped lots were extended, canceled, or already ended.
+    if (settlement?.outcome === "settled") {
+      await publishPublicLot(settlement.lotId);
     }
   }
 

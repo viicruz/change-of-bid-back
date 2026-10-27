@@ -11,6 +11,9 @@ import {
 //* Local imports
 import { db } from "../../db/index";
 
+//* Services imports
+import { publishPublicLot } from "./public-lot-live";
+
 const cancelLotErrorCodes = [
   "NOT_AUCTIONEER",
   "LOT_NOT_OWNED",
@@ -71,7 +74,7 @@ export async function cancelLot(
     );
   }
 
-  return resolved.runInTransaction(async (executor) => {
+  const result = await resolved.runInTransaction(async (executor) => {
     const locked = await resolved.lockLotForUpdate(executor, input.lotId);
 
     if (locked === null) {
@@ -91,9 +94,12 @@ export async function cancelLot(
       }
 
       return {
-        id: locked.id,
-        status: locked.status,
-        canceledAt: locked.canceledAt,
+        changed: false,
+        lot: {
+          id: locked.id,
+          status: locked.status,
+          canceledAt: locked.canceledAt,
+        },
       };
     }
 
@@ -115,8 +121,17 @@ export async function cancelLot(
       );
     }
 
-    return resolved.markLotCanceled(executor, locked.id, now);
+    return {
+      changed: true,
+      lot: await resolved.markLotCanceled(executor, locked.id, now),
+    };
   });
+
+  if (result.changed) {
+    await publishPublicLot(result.lot.id);
+  }
+
+  return result.lot;
 }
 
 async function releaseLeaderReserve(

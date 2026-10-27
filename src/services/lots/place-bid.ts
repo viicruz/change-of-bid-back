@@ -27,6 +27,7 @@ import { env } from "../../env";
 
 //* Services imports
 import { canonicalBidTimestamp, chainBidHash, genesisBidHash } from "./bid-hash";
+import { publishPublicLot } from "./public-lot-live";
 
 // An accepted bid inside the last two minutes extends the current end by two
 // minutes. The window is inclusive, and each later accepted bid can extend again.
@@ -110,7 +111,7 @@ export async function placeBid(
 
   const amount = parseBidAmount(input.amount);
 
-  return resolved.runInTransaction(async (executor) => {
+  const accepted = await resolved.runInTransaction(async (executor) => {
     const locked = await resolved.lockLotForUpdate(executor, input.lotId);
 
     if (locked === null) {
@@ -290,6 +291,12 @@ export async function placeBid(
       extensionCount: marked.extensionCount,
     };
   });
+
+  // The bid is committed. A rejection throws inside the transaction and never
+  // reaches the room.
+  await publishPublicLot(input.lotId);
+
+  return accepted;
 }
 
 function createDefaultDependencies(): PlaceBidDependencies {
