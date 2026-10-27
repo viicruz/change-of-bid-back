@@ -4,6 +4,7 @@ import { and, eq, inArray } from "drizzle-orm";
 //* Local imports
 import { loadDeckFixtures, type DeckLot, type DeckLotCard } from "./deck-fixtures";
 import { db } from "./index";
+import { planSeedLots, type SeedLotPlan } from "./seed-lot-plan";
 import { lot, user } from "./schema";
 
 //* Models imports
@@ -21,33 +22,48 @@ import {
   YGOProDeckApiError,
 } from "../services/yugioh-api/yugioh-api";
 
-const minIncrement = "5.00";
-const openingBidStart = 25;
-const openingBidEnd = 100;
-const firstLotDurationDays = 2;
-const dayMs = 24 * 60 * 60 * 1000;
 const cardPageSize = 32;
 
 type CatalogCard = Awaited<ReturnType<typeof findCardsByIds>>[number];
 
+export type SeededLot = {
+  id: string;
+  title: string;
+  plan: SeedLotPlan;
+};
+
 export async function seedLots(auctioneerEmail: string, now = new Date()) {
   const auctioneerId = await findAuctioneerId(auctioneerEmail);
   const decks = await loadDeckFixtures();
+  const plans = planSeedLots(now);
+
+  if (decks.length !== plans.length) {
+    throw new Error(
+      `Expected ${plans.length} deck fixtures and found ${decks.length}`,
+    );
+  }
+
   const existingTitles = await findExistingLotTitles(
     auctioneerId,
     decks.map((deck) => deck.name),
   );
   const pending = decks.flatMap((deck, index) => {
+    const plan = plans[index];
+
+    if (!plan) {
+      throw new Error(`Missing seed plan for deck ${deck.name}`);
+    }
+
     if (existingTitles.has(deck.name)) {
       console.log(`skipped lot ${deck.name}`);
       return [];
     }
 
-    return [{ deck, index }];
+    return [{ deck, plan }];
   });
 
   if (pending.length === 0) {
-    return;
+    return [];
   }
 
   const cardsById = await ensureCatalogCards(
@@ -55,10 +71,7 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
   );
   const pendingLots = pending.map((entry) => ({
     deck: entry.deck,
-    openingBid: openingBidFor(entry.index, decks.length),
-    endsAt: new Date(
-      now.getTime() + (firstLotDurationDays + entry.index) * dayMs,
-    ),
+    plan: entry.plan,
     items: entry.deck.cards.map((card) => {
       const stored = requireCatalogCard(entry.deck, card, cardsById);
 
@@ -72,6 +85,7 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
       };
     }),
   }));
+  const seededLots: SeededLot[] = [];
 
   for (const pendingLot of pendingLots) {
     const created = await db.transaction(async (tx) => {
@@ -79,11 +93,11 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
         auctioneerId,
         title: pendingLot.deck.name,
         description: pendingLot.deck.description,
-        openingBid: pendingLot.openingBid,
-        minIncrement,
-        startsAt: now,
-        originalEndsAt: pendingLot.endsAt,
-        endsAt: pendingLot.endsAt,
+        openingBid: pendingLot.plan.openingBid,
+        minIncrement: pendingLot.plan.minIncrement,
+        startsAt: pendingLot.plan.insertStartsAt,
+        originalEndsAt: pendingLot.plan.insertEndsAt,
+        endsAt: pendingLot.plan.insertEndsAt,
       });
 
       await insertLotItems(
@@ -97,8 +111,17 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
       return createdLot;
     });
 
-    console.log(`created lot ${created.title} (${created.id})`);
+    seededLots.push({
+      id: created.id,
+      title: created.title,
+      plan: pendingLot.plan,
+    });
+    console.log(
+      `created ${pendingLot.plan.status} lot ${created.title} (${created.id})`,
+    );
   }
+
+  return seededLots;
 }
 
 async function findAuctioneerId(email: string) {
@@ -261,15 +284,4 @@ function requireCatalogCard(
 
 function hasImage(imagePath: string | null): imagePath is string {
   return imagePath !== null && imagePath.trim().length > 0;
-}
-
-function openingBidFor(index: number, count: number) {
-  if (count <= 1) {
-    return openingBidStart.toFixed(2);
-  }
-
-  const amount =
-    openingBidStart + ((openingBidEnd - openingBidStart) * index) / (count - 1);
-
-  return amount.toFixed(2);
 }
