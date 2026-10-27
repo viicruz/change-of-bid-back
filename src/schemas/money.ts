@@ -23,6 +23,25 @@ export function normalizeMoney(value: string): string | null {
   return normalized;
 }
 
+// Public listings show exactly two decimal places. A value that is not a
+// decimal amount, or that has a non-zero digit past the second place, is not
+// listable.
+export function formatListedMoney(value: string): string | null {
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
+
+  if (match === null) {
+    return null;
+  }
+
+  const fraction = match[3] ?? "";
+
+  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
+    return null;
+  }
+
+  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
+}
+
 const CANONICAL_MONEY_PATTERN = /^(?:0|[1-9]\d{0,15})\.\d{2}$/;
 
 export class MoneyRangeError extends Error {

@@ -1,6 +1,9 @@
 //* Libraries imports
 import { asc, eq } from "drizzle-orm";
 
+//* Schemas imports
+import { formatListedMoney } from "../../schemas/money";
+
 //* Local imports
 import { db } from "../../db/index";
 import { lot, lotItem, receipt } from "../../db/schema";
@@ -63,7 +66,7 @@ export async function showPublicReceipt(
       title: row.title,
       description: row.description,
       endedAt: row.endedAt,
-      finalAmount: formatListedMoney(row.finalAmount),
+      finalAmount: listedReceiptAmount(row.finalAmount),
       winnerParticipantNo: row.winnerParticipantNo,
       items: items.map((item) => ({
         ...item,
@@ -112,18 +115,12 @@ async function loadItems(executor: DatabaseExecutor, lotId: string) {
     .orderBy(asc(lotItem.position));
 }
 
-function formatListedMoney(value: string): string {
-  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
+function listedReceiptAmount(value: string): string {
+  const listed = formatListedMoney(value);
 
-  if (match === null) {
+  if (listed === null) {
     throw new Error("Receipt show returned an unexpected amount");
   }
 
-  const fraction = match[3] ?? "";
-
-  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
-    throw new Error("Receipt show returned an unexpected amount");
-  }
-
-  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
+  return listed;
 }
