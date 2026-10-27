@@ -55,6 +55,18 @@ export const OpenAPI = {
     components: getSchema().then(({ components }) => components) as Promise<any>
 } as const
 
+export async function findOptionalUserId(headers: Headers) {
+  const session = await auth.api.getSession({
+    headers,
+  });
+
+  if (!session) {
+    return null;
+  }
+
+  return session.user.id;
+}
+
 export const betterAuthMacro = new Elysia({ name: "better-auth" })
   // .mount(auth.handler)
   .macro({
