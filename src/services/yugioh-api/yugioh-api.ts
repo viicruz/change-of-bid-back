@@ -4,11 +4,13 @@ import {
   cardSearchQuerySchema,
   type CardInfoSuccess,
   type CardSearchQuery,
+  type CardSearchQueryInput,
   type NumericFilter,
 } from "../../schemas/ygo-pro-deck";
 
 export type {
   CardSearchQuery,
+  CardSearchQueryInput,
   ComparisonOperator,
   NumericFilter,
 } from "../../schemas/ygo-pro-deck";
@@ -230,7 +232,7 @@ export class YGOProDeckApiClient {
    * @param query - The query to search for.
    * @returns The cards.
    */
-  async searchCards(query: CardSearchQuery): Promise<CardInfoSuccess> {
+  async searchCards(query: CardSearchQueryInput): Promise<CardInfoSuccess> {
     const parsedQuery = cardSearchQuerySchema.safeParse(query);
 
     if (!parsedQuery.success) {

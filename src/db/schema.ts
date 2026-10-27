@@ -56,7 +56,6 @@ export const lotStatusEnum = pgEnum("lot_status", [
   "ACTIVE",
   "ENDED",
   "CANCELED",
-  "SCHEDULED",
 ]);
 
 //* Auth

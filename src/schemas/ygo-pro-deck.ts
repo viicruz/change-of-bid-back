@@ -1,6 +1,9 @@
 //* Libraries imports
 import { z } from "zod";
 
+const DEFAULT_CARD_SEARCH_NUM = 32
+const DEFAULT_CARD_SEARCH_OFFSET = 0
+
 const binaryFlagSchema = z.union([z.literal(0), z.literal(1)])
 
 export const cardSetSchema = z.object({
@@ -56,32 +59,32 @@ export const miscInfoSchema = z.object({
 export const cardSchema = z.object({
   id: z.coerce.number().int(),
   name: z.string(),
-  type: z.string(),
-  humanReadableCardType: z.string(),
-  frameType: z.string(),
-  desc: z.string(),
-  pend_desc: z.string().optional(),
-  monster_desc: z.string().optional(),
-  race: z.string().optional(),
-  archetype: z.string().optional(),
-  attribute: z.string().optional(),
-  atk: z.coerce.number().optional(),
+  type: z.string().nullable(),
+  humanReadableCardType: z.string().nullable(),
+  frameType: z.string().nullable(),
+  desc: z.string().nullable(),
+  pend_desc: z.string().optional().nullable(),
+  monster_desc: z.string().optional().nullable(),
+  race: z.string().optional().nullable(),
+  archetype: z.string().optional().nullable(),
+  attribute: z.string().optional().nullable(),
+  atk: z.coerce.number().optional().nullable(),
   def: z.coerce.number().nullable().optional(),
   level: z.coerce.number().nullable().optional(),
-  scale: z.coerce.number().optional(),
-  linkval: z.coerce.number().optional(),
-  linkmarkers: z.array(z.string()).optional(),
-  typeline: z.array(z.string()).optional(),
-  ygoprodeck_url: z.string(),
-  banlist_info: banlistInfoSchema.optional(),
-  card_sets: z.array(cardSetSchema).optional(),
-  card_images: z.array(cardImageSchema),
-  card_prices: z.array(cardPriceSchema),
-  misc_info: z.array(miscInfoSchema).optional(),
+  scale: z.coerce.number().optional().nullable(),
+  linkval: z.coerce.number().optional().nullable(),
+  linkmarkers: z.array(z.string()).optional().nullable(),
+  typeline: z.array(z.string()).optional().nullable(),
+  ygoprodeck_url: z.string().nullable(),
+  banlist_info: banlistInfoSchema.optional().nullable(),
+  card_sets: z.array(cardSetSchema).optional().nullable(),
+  card_images: z.array(cardImageSchema).optional().nullable(),
+  card_prices: z.array(cardPriceSchema).optional().nullable(),
+  misc_info: z.array(miscInfoSchema).optional().nullable(),
 })
 
 export const cardInfoMetaSchema = z.object({
-  generated: z.string().optional(),
+  generated: z.string().optional().nullable(),
   current_rows: z.coerce.number(),
   total_rows: z.coerce.number(),
   rows_remaining: z.coerce.number(),
@@ -161,8 +164,8 @@ export const cardSearchQuerySchema = z.object({
   enddate: z.string().optional(),
   dateregion: z.enum(["tcg", "ocg"]).optional(),
   language: z.enum(["fr", "de", "it", "pt"]).optional(),
-  num: z.coerce.number().optional(),
-  offset: z.coerce.number().optional(),
+  num: z.coerce.number().default(DEFAULT_CARD_SEARCH_NUM),
+  offset: z.coerce.number().default(DEFAULT_CARD_SEARCH_OFFSET),
 }).refine(
   (query) => query.name === undefined || query.id === undefined,
   "name and id cannot be used together",
@@ -182,3 +185,4 @@ export type CardInfoResponse = z.infer<typeof cardInfoResponseSchema>
 export type ComparisonOperator = z.infer<typeof comparisonOperatorSchema>
 export type NumericFilter = z.infer<typeof numericFilterSchema>
 export type CardSearchQuery = z.infer<typeof cardSearchQuerySchema>
+export type CardSearchQueryInput = z.input<typeof cardSearchQuerySchema>

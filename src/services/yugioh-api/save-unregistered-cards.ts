@@ -61,8 +61,8 @@ function toCardRow(entry: Card, fetchedAt: Date): CardRow {
   return {
     id: entry.id,
     name: entry.name,
-    type: entry.type,
-    frameType: entry.frameType,
+    type: entry.type ?? "",
+    frameType: entry.frameType ?? "",
     description: entry.desc,
     race: entry.race ?? null,
     attribute: entry.attribute ?? null,
@@ -70,7 +70,7 @@ function toCardRow(entry: Card, fetchedAt: Date): CardRow {
     def: entry.def ?? null,
     level: entry.level ?? null,
     raw: toRawCard(entry),
-    imagePath: entry.card_images[0]?.image_url ?? null,
+    imagePath: entry.card_images?.[0]?.image_url ?? null,
     fetchedAt,
   };
 }

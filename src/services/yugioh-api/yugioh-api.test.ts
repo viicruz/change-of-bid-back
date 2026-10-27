@@ -155,6 +155,18 @@ describe("YGOProDeckApiClient", () => {
       expect(url.searchParams.get("offset")).toBe("10");
     });
 
+    it("sends a page size of 32 and an offset of 0 when they are omitted", async () => {
+      const fetchMock = vi.fn(async (_url: string) => jsonResponse({ data: [tornadoDragon] }));
+      const client = createClient(fetchMock);
+
+      await client.searchCards({ fname: "Dragon" });
+
+      const url = new URL(fetchMock.mock.calls[0][0]);
+
+      expect(url.searchParams.get("num")).toBe("32");
+      expect(url.searchParams.get("offset")).toBe("0");
+    });
+
     it("joins card ids with commas", async () => {
       const fetchMock = vi.fn(async (_url: string) => jsonResponse({ data: [tornadoDragon] }));
       const client = createClient(fetchMock);
