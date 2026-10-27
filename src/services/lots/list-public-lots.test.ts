@@ -952,5 +952,39 @@ describe("listPublicLots", () => {
         },
       ]);
     });
+
+    it("returns at most five items ordered by position", async () => {
+      const token = createToken();
+      const cards = await Promise.all(
+        Array.from({ length: 6 }, (_, index) =>
+          insertCard(`Preview ${index + 1}`),
+        ),
+      );
+
+      await insertLot({
+        title: token,
+        startsAt: hoursFromNow(1),
+        endsAt: hoursFromNow(3),
+        items: cards.map((cardId, index) => ({
+          cardId,
+          cardName: `Preview ${index + 1}`,
+          imagePath: `https://images.example/preview-${index + 1}.jpg`,
+        })),
+      });
+
+      const listed = await listByToken(token);
+
+      expect(listed).toHaveLength(1);
+      expect(listed[0]?.items.map((item) => item.position)).toEqual([
+        1, 2, 3, 4, 5,
+      ]);
+      expect(listed[0]?.items.map((item) => item.cardName)).toEqual([
+        "Preview 1",
+        "Preview 2",
+        "Preview 3",
+        "Preview 4",
+        "Preview 5",
+      ]);
+    });
   });
 });

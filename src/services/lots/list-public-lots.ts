@@ -1,10 +1,11 @@
 //* Libraries imports
-import { and, asc, eq, exists, inArray, ne, or, sql } from "drizzle-orm";
+import { and, asc, eq, exists, inArray, lte, ne, or, sql } from "drizzle-orm";
 
 //* Schemas imports
-import type {
-  ListPublicLotsQuery,
-  PublicLotStatus,
+import {
+  publicLotListingItemLimit,
+  type ListPublicLotsQuery,
+  type PublicLotStatus,
 } from "../../schemas/list-lots";
 
 //* Local imports
@@ -163,7 +164,7 @@ async function loadItems(executor: DatabaseExecutor, lotIds: string[]) {
     return itemsByLotId;
   }
 
-  const items = await executor
+  const rankedItems = executor
     .select({
       id: lotItem.id,
       lotId: lotItem.lotId,
@@ -172,10 +173,27 @@ async function loadItems(executor: DatabaseExecutor, lotIds: string[]) {
       quantity: lotItem.quantity,
       cardName: lotItem.cardName,
       imagePath: lotItem.imagePath,
+      itemRank: sql<number>`row_number() over (partition by ${lotItem.lotId} order by ${lotItem.position} asc)`.as(
+        "item_rank",
+      ),
     })
     .from(lotItem)
     .where(inArray(lotItem.lotId, lotIds))
-    .orderBy(asc(lotItem.lotId), asc(lotItem.position));
+    .as("ranked_lot_items");
+
+  const items = await executor
+    .select({
+      id: rankedItems.id,
+      lotId: rankedItems.lotId,
+      position: rankedItems.position,
+      cardId: rankedItems.cardId,
+      quantity: rankedItems.quantity,
+      cardName: rankedItems.cardName,
+      imagePath: rankedItems.imagePath,
+    })
+    .from(rankedItems)
+    .where(lte(rankedItems.itemRank, publicLotListingItemLimit))
+    .orderBy(asc(rankedItems.lotId), asc(rankedItems.position));
 
   for (const item of items) {
     const grouped = itemsByLotId.get(item.lotId) ?? [];
