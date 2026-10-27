@@ -25,7 +25,8 @@ COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
 # COPY --from=build /app/src/db/migrations ./src/db/migrations
 # COPY --from=build /app/src/db/seed.ts ./src/db/seed.ts
 # COPY --from=build /app/src/db/fresh.ts ./src/db/fresh.ts
-COPY --from=build /app/src/db ./src/db
+# COPY --from=build /app/src/db ./src/db
+COPY --from=build /app/src ./src
 COPY docker-entrypoint.sh ./
 
 RUN chmod +x /app/docker-entrypoint.sh
