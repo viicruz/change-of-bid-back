@@ -1,0 +1,245 @@
+{
+  "name": "Playmaker — Code Talker",
+  "description": "Casual Cyberse Link pile that puts small bodies on board and finishes on Decode Talker or another Code Talker, with Cynet cards keeping zones and resources.",
+  "main": [
+    {
+      "name": "Lady Debug",
+      "passcode": "16188701",
+      "quantity": 3
+    },
+    {
+      "name": "Backup Secretary",
+      "passcode": "63528891",
+      "quantity": 3
+    },
+    {
+      "name": "Balancer Lord",
+      "passcode": "08567955",
+      "quantity": 3
+    },
+    {
+      "name": "Cyberse Converter",
+      "passcode": "14505685",
+      "quantity": 3
+    },
+    {
+      "name": "Cyberse Gadget",
+      "passcode": "00645087",
+      "quantity": 3
+    },
+    {
+      "name": "Clock Wyvern",
+      "passcode": "21830679",
+      "quantity": 2
+    },
+    {
+      "name": "Linkslayer",
+      "passcode": "35595518",
+      "quantity": 2
+    },
+    {
+      "name": "Dotscaper",
+      "passcode": "18789533",
+      "quantity": 2
+    },
+    {
+      "name": "Micro Coder",
+      "passcode": "02347477",
+      "quantity": 1
+    },
+    {
+      "name": "Code Generator",
+      "passcode": "30114823",
+      "quantity": 1
+    },
+    {
+      "name": "Code Exporter",
+      "passcode": "37119142",
+      "quantity": 1
+    },
+    {
+      "name": "Code Radiator",
+      "passcode": "75130221",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Codec",
+      "passcode": "60018643",
+      "quantity": 3
+    },
+    {
+      "name": "Cynet Optimization",
+      "passcode": "34010534",
+      "quantity": 2
+    },
+    {
+      "name": "Cynet Mining",
+      "passcode": "57160136",
+      "quantity": 2
+    },
+    {
+      "name": "Cynet Backdoor",
+      "passcode": "43839002",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Universe",
+      "passcode": "61583217",
+      "quantity": 1
+    },
+    {
+      "name": "Decode Destruction",
+      "passcode": "33062423",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Conflict",
+      "passcode": "07403341",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Refresh",
+      "passcode": "36368606",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Regression",
+      "passcode": "19943114",
+      "quantity": 1
+    },
+    {
+      "name": "Recoded Alive",
+      "passcode": "70238111",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Linkuriboh",
+      "passcode": "41999284",
+      "quantity": 1
+    },
+    {
+      "name": "Link Disciple",
+      "passcode": "32995276",
+      "quantity": 1
+    },
+    {
+      "name": "Link Devotee",
+      "passcode": "48068378",
+      "quantity": 1
+    },
+    {
+      "name": "Talkback Lancer",
+      "passcode": "96380700",
+      "quantity": 1
+    },
+    {
+      "name": "Code Talker",
+      "passcode": "53413628",
+      "quantity": 1
+    },
+    {
+      "name": "Decode Talker",
+      "passcode": "01861629",
+      "quantity": 1
+    },
+    {
+      "name": "Encode Talker",
+      "passcode": "06622715",
+      "quantity": 1
+    },
+    {
+      "name": "Excode Talker",
+      "passcode": "40669071",
+      "quantity": 1
+    },
+    {
+      "name": "Powercode Talker",
+      "passcode": "15844566",
+      "quantity": 1
+    },
+    {
+      "name": "Shootingcode Talker",
+      "passcode": "33897356",
+      "quantity": 1
+    },
+    {
+      "name": "Transcode Talker",
+      "passcode": "46947713",
+      "quantity": 1
+    },
+    {
+      "name": "Decode Talker Extended",
+      "passcode": "30822527",
+      "quantity": 1
+    },
+    {
+      "name": "Cyberse Witch",
+      "passcode": "11674673",
+      "quantity": 1
+    },
+    {
+      "name": "Underclock Taker",
+      "passcode": "77058170",
+      "quantity": 1
+    },
+    {
+      "name": "Security Dragon",
+      "passcode": "99111753",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Cyberse Wizard",
+      "passcode": "36033786",
+      "quantity": 2
+    },
+    {
+      "name": "Code Radiator",
+      "passcode": "75130221",
+      "quantity": 2
+    },
+    {
+      "name": "Code Exporter",
+      "passcode": "37119142",
+      "quantity": 2
+    },
+    {
+      "name": "Code Generator",
+      "passcode": "30114823",
+      "quantity": 2
+    },
+    {
+      "name": "Cynet Backdoor",
+      "passcode": "43839002",
+      "quantity": 2
+    },
+    {
+      "name": "Cynet Universe",
+      "passcode": "61583217",
+      "quantity": 2
+    },
+    {
+      "name": "Cynet Conflict",
+      "passcode": "07403341",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Refresh",
+      "passcode": "36368606",
+      "quantity": 1
+    },
+    {
+      "name": "Cynet Regression",
+      "passcode": "19943114",
+      "quantity": 1
+    }
+  ]
+}

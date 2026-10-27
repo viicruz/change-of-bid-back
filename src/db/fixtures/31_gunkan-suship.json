@@ -1,0 +1,120 @@
+{
+  "name": "Gunkan Suship",
+  "description": "Casual Xyz list built on Gunkan Suship Shari and its toppings, using the field spell and the daily-special cards to put ships on board.",
+  "main": [
+    {
+      "name": "Gunkan Suship Shari",
+      "passcode": "24639891",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Shari Red",
+      "passcode": "63748694",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Ikura",
+      "passcode": "61027400",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Shirauo",
+      "passcode": "78362751",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Uni",
+      "passcode": "42377643",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Catch-of-the-Day",
+      "passcode": "83008724",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Daily Special",
+      "passcode": "24393683",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Sushipyard Seaside Supper Spot",
+      "passcode": "62200831",
+      "quantity": 3
+    },
+    {
+      "name": "Unexpected Dai",
+      "passcode": "00911883",
+      "quantity": 3
+    },
+    {
+      "name": "Painful Decision",
+      "passcode": "01033312",
+      "quantity": 3
+    },
+    {
+      "name": "Rescue Rabbit",
+      "passcode": "85138716",
+      "quantity": 3
+    },
+    {
+      "name": "Xyz Block",
+      "passcode": "44487250",
+      "quantity": 3
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    },
+    {
+      "name": "Metaverse",
+      "passcode": "89208725",
+      "quantity": 3
+    }
+  ],
+  "extra": [
+    {
+      "name": "Gunkan Suship Ikura-class Dreadnought",
+      "passcode": "75215744",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Shirauo-class Carrier",
+      "passcode": "21293424",
+      "quantity": 3
+    },
+    {
+      "name": "Gunkan Suship Uni-class Super-Dreadnought",
+      "passcode": "94798725",
+      "quantity": 3
+    }
+  ],
+  "side": [
+    {
+      "name": "Solemn Wishes",
+      "passcode": "35346968",
+      "quantity": 3
+    },
+    {
+      "name": "Card Advance",
+      "passcode": "52112003",
+      "quantity": 3
+    },
+    {
+      "name": "Mystical Space Typhoon",
+      "passcode": "05318639",
+      "quantity": 3
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 3
+    },
+    {
+      "name": "Enemy Controller",
+      "passcode": "98045062",
+      "quantity": 3
+    }
+  ]
+}

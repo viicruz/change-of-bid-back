@@ -1,0 +1,140 @@
+{
+  "name": "Ojama",
+  "description": "Swarm and Fusion list that searches with Ojama Blue and Ojama Pajama, revives under Ojama Country, and keeps the three Normal Ojamas for Ojama King.",
+  "main": [
+    {
+      "name": "Ojama Blue",
+      "passcode": "64627453",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Red",
+      "passcode": "37132349",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Pink",
+      "passcode": "42517468",
+      "quantity": 2
+    },
+    {
+      "name": "Ojama Green",
+      "passcode": "12482652",
+      "quantity": 2
+    },
+    {
+      "name": "Ojama Yellow",
+      "passcode": "42941100",
+      "quantity": 2
+    },
+    {
+      "name": "Ojama Black",
+      "passcode": "79335209",
+      "quantity": 2
+    },
+    {
+      "name": "Ojama Country",
+      "passcode": "90011152",
+      "quantity": 3
+    },
+    {
+      "name": "Ojamagic",
+      "passcode": "24643836",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Delta Hurricane!!",
+      "passcode": "08251996",
+      "quantity": 3
+    },
+    {
+      "name": "Ojamuscle",
+      "passcode": "98259197",
+      "quantity": 1
+    },
+    {
+      "name": "Polymerization",
+      "passcode": "24094653",
+      "quantity": 3
+    },
+    {
+      "name": "Fusion Deployment",
+      "passcode": "06498706",
+      "quantity": 2
+    },
+    {
+      "name": "Fusion Recovery",
+      "passcode": "18511384",
+      "quantity": 1
+    },
+    {
+      "name": "Ground Collapse",
+      "passcode": "90502999",
+      "quantity": 1
+    },
+    {
+      "name": "The Big March of Animals",
+      "passcode": "01689516",
+      "quantity": 1
+    },
+    {
+      "name": "Ojama Pajama",
+      "passcode": "75884822",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Duo",
+      "passcode": "14470845",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Trio",
+      "passcode": "29843091",
+      "quantity": 2
+    }
+  ],
+  "extra": [
+    {
+      "name": "Ojama King",
+      "passcode": "90140980",
+      "quantity": 2
+    },
+    {
+      "name": "Ojama Knight",
+      "passcode": "40391316",
+      "quantity": 2
+    },
+    {
+      "name": "Ojama Emperor",
+      "passcode": "34031284",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Creature Swap",
+      "passcode": "31036355",
+      "quantity": 3
+    },
+    {
+      "name": "Tri-Wight",
+      "passcode": "96383838",
+      "quantity": 3
+    },
+    {
+      "name": "Dark Factory of Mass Production",
+      "passcode": "90928333",
+      "quantity": 3
+    },
+    {
+      "name": "Fusion Conscription",
+      "passcode": "17194258",
+      "quantity": 3
+    },
+    {
+      "name": "Hand Destruction",
+      "passcode": "74519184",
+      "quantity": 3
+    }
+  ]
+}

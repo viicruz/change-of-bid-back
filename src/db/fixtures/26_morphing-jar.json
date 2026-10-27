@@ -1,0 +1,124 @@
+{
+  "name": "Morphing Jar",
+  "description": "Casual mill list that uses Flip monsters to empty the opponent's Deck, resetting hands with Morphing Jar and reusing those flips with Book cards.",
+  "main": [
+    {
+      "name": "Morphing Jar",
+      "passcode": "33508719",
+      "quantity": 3
+    },
+    {
+      "name": "Morphing Jar #2",
+      "passcode": "79106360",
+      "quantity": 2
+    },
+    {
+      "name": "Needle Worm",
+      "passcode": "81843628",
+      "quantity": 3
+    },
+    {
+      "name": "Tsukuyomi",
+      "passcode": "34853266",
+      "quantity": 2
+    },
+    {
+      "name": "Warm Worm",
+      "passcode": "16751086",
+      "quantity": 3
+    },
+    {
+      "name": "Giant Rat",
+      "passcode": "97017120",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Taiyou",
+      "passcode": "38699854",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 3
+    },
+    {
+      "name": "Desert Sunlight",
+      "passcode": "93747864",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Eclipse",
+      "passcode": "35480699",
+      "quantity": 2
+    },
+    {
+      "name": "Appropriate",
+      "passcode": "48539234",
+      "quantity": 3
+    },
+    {
+      "name": "The Gift of Greed",
+      "passcode": "05915629",
+      "quantity": 3
+    },
+    {
+      "name": "Present Card",
+      "passcode": "56119752",
+      "quantity": 1
+    },
+    {
+      "name": "Card Destruction",
+      "passcode": "72892473",
+      "quantity": 1
+    },
+    {
+      "name": "One Day of Peace",
+      "passcode": "33782437",
+      "quantity": 1
+    },
+    {
+      "name": "Hand Destruction",
+      "passcode": "74519184",
+      "quantity": 2
+    },
+    {
+      "name": "Dark World Dealings",
+      "passcode": "74117290",
+      "quantity": 2
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Book of Lunar Eclipse",
+      "passcode": "31834488",
+      "quantity": 3
+    },
+    {
+      "name": "Flip Flop Frog",
+      "passcode": "81278754",
+      "quantity": 3
+    },
+    {
+      "name": "World Legacy Pawns",
+      "passcode": "89320376",
+      "quantity": 3
+    },
+    {
+      "name": "Gravity Bind",
+      "passcode": "85742772",
+      "quantity": 3
+    },
+    {
+      "name": "Convulsion of Nature",
+      "passcode": "62966332",
+      "quantity": 1
+    },
+    {
+      "name": "Scrap-Iron Scarecrow",
+      "passcode": "98427577",
+      "quantity": 2
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "name": "Huge Revolution",
+  "description": "Slow trap list that gathers Oppressed People, People Running About, and United Resistance so Huge Revolution can wipe the opponent's board.",
+  "main": [
+    {
+      "name": "Oppressed People",
+      "passcode": "58538870",
+      "quantity": 3
+    },
+    {
+      "name": "People Running About",
+      "passcode": "12143771",
+      "quantity": 3
+    },
+    {
+      "name": "United Resistance",
+      "passcode": "85936485",
+      "quantity": 3
+    },
+    {
+      "name": "Rescue Rabbit",
+      "passcode": "85138716",
+      "quantity": 2
+    },
+    {
+      "name": "Emissary of the Oasis",
+      "passcode": "06103294",
+      "quantity": 1
+    },
+    {
+      "name": "Unexpected Dai",
+      "passcode": "00911883",
+      "quantity": 3
+    },
+    {
+      "name": "Painful Decision",
+      "passcode": "01033312",
+      "quantity": 3
+    },
+    {
+      "name": "Tri-Wight",
+      "passcode": "96383838",
+      "quantity": 3
+    },
+    {
+      "name": "Dark Factory of Mass Production",
+      "passcode": "90928333",
+      "quantity": 1
+    },
+    {
+      "name": "White Elephant's Gift",
+      "passcode": "18756904",
+      "quantity": 2
+    },
+    {
+      "name": "Swing of Memories",
+      "passcode": "96765646",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Heart of the Underdog",
+      "passcode": "35762283",
+      "quantity": 1
+    },
+    {
+      "name": "The Dark Door",
+      "passcode": "30606547",
+      "quantity": 1
+    },
+    {
+      "name": "Level Limit - Area B",
+      "passcode": "03136426",
+      "quantity": 2
+    },
+    {
+      "name": "Swords of Revealing Light",
+      "passcode": "72302403",
+      "quantity": 1
+    },
+    {
+      "name": "Birthright",
+      "passcode": "35539880",
+      "quantity": 2
+    },
+    {
+      "name": "Gravity Bind",
+      "passcode": "85742772",
+      "quantity": 2
+    },
+    {
+      "name": "Huge Revolution",
+      "passcode": "65396880",
+      "quantity": 3
+    },
+    {
+      "name": "The League of Uniform Nomenclature",
+      "passcode": "55008284",
+      "quantity": 2
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Common Charity",
+      "passcode": "40465719",
+      "quantity": 3
+    },
+    {
+      "name": "White Elephant's Gift",
+      "passcode": "18756904",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Duality",
+      "passcode": "98645731",
+      "quantity": 1
+    },
+    {
+      "name": "Double Summon",
+      "passcode": "43422537",
+      "quantity": 1
+    },
+    {
+      "name": "Call of the Haunted",
+      "passcode": "97077563",
+      "quantity": 1
+    },
+    {
+      "name": "The League of Uniform Nomenclature",
+      "passcode": "55008284",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Factory of Mass Production",
+      "passcode": "90928333",
+      "quantity": 1
+    },
+    {
+      "name": "Swing of Memories",
+      "passcode": "96765646",
+      "quantity": 1
+    },
+    {
+      "name": "Raregold Armor",
+      "passcode": "07625614",
+      "quantity": 1
+    },
+    {
+      "name": "Ring of Magnetism",
+      "passcode": "20436034",
+      "quantity": 2
+    },
+    {
+      "name": "Order to Charge",
+      "passcode": "78986941",
+      "quantity": 2
+    }
+  ]
+}

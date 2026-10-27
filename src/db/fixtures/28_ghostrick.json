@@ -1,0 +1,185 @@
+{
+  "name": "Ghostrick",
+  "description": "Casual Ghostrick list that keeps monsters face-down under Mansion, Museum, and Parade, then climbs into Ghostrick Angel of Mischief.",
+  "main": [
+    {
+      "name": "Ghostrick Jiangshi",
+      "passcode": "80885284",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Doll",
+      "passcode": "46925518",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Fairy",
+      "passcode": "36239585",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Siren",
+      "passcode": "64804316",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Mary",
+      "passcode": "98707192",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Lantern",
+      "passcode": "54512827",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Jackfrost",
+      "passcode": "61318483",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Mummy",
+      "passcode": "97584500",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick Nekomusume",
+      "passcode": "24101897",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick Specter",
+      "passcode": "81907872",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick Parade",
+      "passcode": "29400787",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Shot",
+      "passcode": "69809989",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Mansion",
+      "passcode": "99795159",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Museum",
+      "passcode": "07617062",
+      "quantity": 2
+    },
+    {
+      "name": "Terraforming",
+      "passcode": "73628505",
+      "quantity": 1
+    },
+    {
+      "name": "Book of Eclipse",
+      "passcode": "35480699",
+      "quantity": 1
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick Renovation",
+      "passcode": "61818176",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Scare",
+      "passcode": "86516889",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick Vanish",
+      "passcode": "50527144",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick-Go-Round",
+      "passcode": "37055344",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Ghostrick Angel of Mischief",
+      "passcode": "53334641",
+      "quantity": 3
+    },
+    {
+      "name": "Ghostrick Alucard",
+      "passcode": "75367227",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Dullahan",
+      "passcode": "46895036",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Socuteboss",
+      "passcode": "32224143",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Festival",
+      "passcode": "35871958",
+      "quantity": 2
+    }
+  ],
+  "side": [
+    {
+      "name": "Ghostrick Ghoul",
+      "passcode": "85463083",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Witch",
+      "passcode": "27491571",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Warwolf",
+      "passcode": "72913666",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Yuki-onna",
+      "passcode": "54490275",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Yeti",
+      "passcode": "84472026",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Skeleton",
+      "passcode": "51196805",
+      "quantity": 2
+    },
+    {
+      "name": "Ghostrick Night",
+      "passcode": "85827713",
+      "quantity": 1
+    },
+    {
+      "name": "Ghostrick or Treat",
+      "passcode": "27170599",
+      "quantity": 1
+    },
+    {
+      "name": "Safe Zone",
+      "passcode": "38296564",
+      "quantity": 1
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "name": "Ancient Rituals",
+  "description": "Sixty-card pile of six old Ritual pairs and Normal tributes, built so hands often hold the monster without the Spell or the Spell without the monster.",
+  "main": [
+    {
+      "name": "Crab Turtle",
+      "passcode": "91782219",
+      "quantity": 2
+    },
+    {
+      "name": "Super War-Lion",
+      "passcode": "33951077",
+      "quantity": 2
+    },
+    {
+      "name": "Garma Sword",
+      "passcode": "90844184",
+      "quantity": 2
+    },
+    {
+      "name": "Zera the Mant",
+      "passcode": "69123138",
+      "quantity": 2
+    },
+    {
+      "name": "Fortress Whale",
+      "passcode": "62337487",
+      "quantity": 2
+    },
+    {
+      "name": "Performance of Sword",
+      "passcode": "04849037",
+      "quantity": 2
+    },
+    {
+      "name": "Turtle Oath",
+      "passcode": "76806714",
+      "quantity": 2
+    },
+    {
+      "name": "War-Lion Ritual",
+      "passcode": "54539105",
+      "quantity": 2
+    },
+    {
+      "name": "Garma Sword Oath",
+      "passcode": "78577570",
+      "quantity": 2
+    },
+    {
+      "name": "Zera Ritual",
+      "passcode": "81756897",
+      "quantity": 2
+    },
+    {
+      "name": "Fortress Whale's Oath",
+      "passcode": "77454922",
+      "quantity": 2
+    },
+    {
+      "name": "Commencement Dance",
+      "passcode": "43417563",
+      "quantity": 2
+    },
+    {
+      "name": "Manju of the Ten Thousand Hands",
+      "passcode": "95492061",
+      "quantity": 3
+    },
+    {
+      "name": "Senju of the Thousand Hands",
+      "passcode": "23401839",
+      "quantity": 3
+    },
+    {
+      "name": "Sonic Bird",
+      "passcode": "57617178",
+      "quantity": 3
+    },
+    {
+      "name": "Mystical Elf",
+      "passcode": "15025844",
+      "quantity": 3
+    },
+    {
+      "name": "Battle Ox",
+      "passcode": "05053103",
+      "quantity": 3
+    },
+    {
+      "name": "Aqua Madoor",
+      "passcode": "85639257",
+      "quantity": 3
+    },
+    {
+      "name": "Giant Soldier of Stone",
+      "passcode": "13039848",
+      "quantity": 3
+    },
+    {
+      "name": "Labyrinth Wall",
+      "passcode": "67284908",
+      "quantity": 3
+    },
+    {
+      "name": "Summoned Skull",
+      "passcode": "70781052",
+      "quantity": 3
+    },
+    {
+      "name": "Gaia The Fierce Knight",
+      "passcode": "06368038",
+      "quantity": 3
+    },
+    {
+      "name": "Hyozanryu",
+      "passcode": "62397231",
+      "quantity": 3
+    },
+    {
+      "name": "Tri-Horned Dragon",
+      "passcode": "39111158",
+      "quantity": 3
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Crab Turtle",
+      "passcode": "91782219",
+      "quantity": 1
+    },
+    {
+      "name": "Super War-Lion",
+      "passcode": "33951077",
+      "quantity": 1
+    },
+    {
+      "name": "Garma Sword",
+      "passcode": "90844184",
+      "quantity": 1
+    },
+    {
+      "name": "Zera the Mant",
+      "passcode": "69123138",
+      "quantity": 1
+    },
+    {
+      "name": "Fortress Whale",
+      "passcode": "62337487",
+      "quantity": 1
+    },
+    {
+      "name": "Performance of Sword",
+      "passcode": "04849037",
+      "quantity": 1
+    },
+    {
+      "name": "Turtle Oath",
+      "passcode": "76806714",
+      "quantity": 1
+    },
+    {
+      "name": "War-Lion Ritual",
+      "passcode": "54539105",
+      "quantity": 1
+    },
+    {
+      "name": "Garma Sword Oath",
+      "passcode": "78577570",
+      "quantity": 1
+    },
+    {
+      "name": "Zera Ritual",
+      "passcode": "81756897",
+      "quantity": 1
+    },
+    {
+      "name": "Fortress Whale's Oath",
+      "passcode": "77454922",
+      "quantity": 1
+    },
+    {
+      "name": "Commencement Dance",
+      "passcode": "43417563",
+      "quantity": 1
+    },
+    {
+      "name": "Ritual Foregone",
+      "passcode": "65450690",
+      "quantity": 3
+    }
+  ]
+}

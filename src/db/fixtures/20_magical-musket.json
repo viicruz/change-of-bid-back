@@ -1,0 +1,145 @@
+{
+  "name": "Magical Musket",
+  "description": "Casual Magical Musket list that puts Caspar, Starfire, and Doc on board so the archetype Spells and Traps can be activated from the hand in the right column.",
+  "main": [
+    {
+      "name": "Magical Musketeer Caspar",
+      "passcode": "32841045",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Musketeer Starfire",
+      "passcode": "31629407",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Musketeer Doc",
+      "passcode": "68246154",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Musketeer Kidbrave",
+      "passcode": "05230799",
+      "quantity": 2
+    },
+    {
+      "name": "Magical Musketeer Wild",
+      "passcode": "94418111",
+      "quantity": 2
+    },
+    {
+      "name": "Magical Musketeer Calamity",
+      "passcode": "68024506",
+      "quantity": 2
+    },
+    {
+      "name": "Magical Musket Mastermind Zakiel",
+      "passcode": "30907810",
+      "quantity": 1
+    },
+    {
+      "name": "Magical Musket - Cross-Domination",
+      "passcode": "93356623",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Musket - Desperado",
+      "passcode": "20745268",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Musket - Dancing Needle",
+      "passcode": "66149377",
+      "quantity": 2
+    },
+    {
+      "name": "Magical Musket - Last Stand",
+      "passcode": "29628180",
+      "quantity": 3
+    },
+    {
+      "name": "Magical Musket - Steady Hands",
+      "passcode": "67901914",
+      "quantity": 2
+    },
+    {
+      "name": "Magical Musket - Crooked Crown",
+      "passcode": "47810543",
+      "quantity": 1
+    },
+    {
+      "name": "Magical Musket - Fiendish Deal",
+      "passcode": "92534075",
+      "quantity": 3
+    },
+    {
+      "name": "Double Summon",
+      "passcode": "43422537",
+      "quantity": 1
+    },
+    {
+      "name": "Ties of the Brethren",
+      "passcode": "40450317",
+      "quantity": 1
+    },
+    {
+      "name": "Pot of Duality",
+      "passcode": "98645731",
+      "quantity": 2
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Upstart Goblin",
+      "passcode": "70368879",
+      "quantity": 1
+    },
+    {
+      "name": "Harpie's Feather Duster",
+      "passcode": "18144507",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Magical Musketeer Max",
+      "passcode": "71791814",
+      "quantity": 2
+    },
+    {
+      "name": "Muckraker From the Underworld",
+      "passcode": "71607202",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Mystical Space Typhoon",
+      "passcode": "05318639",
+      "quantity": 3
+    },
+    {
+      "name": "Cosmic Cyclone",
+      "passcode": "08267140",
+      "quantity": 3
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 3
+    },
+    {
+      "name": "Forbidden Lance",
+      "passcode": "27243130",
+      "quantity": 3
+    },
+    {
+      "name": "Effect Veiler",
+      "passcode": "97268402",
+      "quantity": 3
+    }
+  ]
+}

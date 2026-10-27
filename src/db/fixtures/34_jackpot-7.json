@@ -1,0 +1,174 @@
+{
+  "name": "Jackpot 7",
+  "description": "Alternate-win list that gives the opponent Dark Scorpion Burglars and tries to force them to attack, leaving the three Jackpot 7 copies in the Deck.",
+  "main": [
+    {
+      "name": "Dark Scorpion Burglars",
+      "passcode": "40933924",
+      "quantity": 3
+    },
+    {
+      "name": "Dark Scorpion - Meanae the Thorn",
+      "passcode": "74153887",
+      "quantity": 2
+    },
+    {
+      "name": "Dark Scorpion - Chick the Yellow",
+      "passcode": "61587183",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Scorpion - Cliff the Trap Remover",
+      "passcode": "06967870",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Scorpion - Gorg the Strong",
+      "passcode": "48768179",
+      "quantity": 1
+    },
+    {
+      "name": "Don Zaloog",
+      "passcode": "76922029",
+      "quantity": 1
+    },
+    {
+      "name": "Summoner Monk",
+      "passcode": "00423585",
+      "quantity": 2
+    },
+    {
+      "name": "Mystic Tomato",
+      "passcode": "83011278",
+      "quantity": 2
+    },
+    {
+      "name": "Sangan",
+      "passcode": "26202165",
+      "quantity": 1
+    },
+    {
+      "name": "Jackpot 7",
+      "passcode": "81171949",
+      "quantity": 3
+    },
+    {
+      "name": "Creature Swap",
+      "passcode": "31036355",
+      "quantity": 3
+    },
+    {
+      "name": "Mystic Box",
+      "passcode": "25774450",
+      "quantity": 2
+    },
+    {
+      "name": "Scapegoat",
+      "passcode": "73915051",
+      "quantity": 2
+    },
+    {
+      "name": "Hippo Carnival",
+      "passcode": "18027138",
+      "quantity": 2
+    },
+    {
+      "name": "Reinforcement of the Army",
+      "passcode": "32807846",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "One Day of Peace",
+      "passcode": "33782437",
+      "quantity": 1
+    },
+    {
+      "name": "Swords of Revealing Light",
+      "passcode": "72302403",
+      "quantity": 1
+    },
+    {
+      "name": "Messenger of Peace",
+      "passcode": "44656491",
+      "quantity": 1
+    },
+    {
+      "name": "Foolish Burial",
+      "passcode": "81439173",
+      "quantity": 1
+    },
+    {
+      "name": "Battle Mania",
+      "passcode": "31245780",
+      "quantity": 3
+    },
+    {
+      "name": "Give and Take",
+      "passcode": "55465441",
+      "quantity": 2
+    },
+    {
+      "name": "Savage Colosseum",
+      "passcode": "32391631",
+      "quantity": 1
+    },
+    {
+      "name": "The Eye of Truth",
+      "passcode": "34694160",
+      "quantity": 1
+    },
+    {
+      "name": "Threatening Roar",
+      "passcode": "36361633",
+      "quantity": 1
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Shien's Spy",
+      "passcode": "07672244",
+      "quantity": 2
+    },
+    {
+      "name": "Owner's Seal",
+      "passcode": "09720537",
+      "quantity": 2
+    },
+    {
+      "name": "Remove Brainwashing",
+      "passcode": "94739788",
+      "quantity": 2
+    },
+    {
+      "name": "Change of Heart",
+      "passcode": "04031928",
+      "quantity": 1
+    },
+    {
+      "name": "Enemy Controller",
+      "passcode": "98045062",
+      "quantity": 2
+    },
+    {
+      "name": "Mystical Space Typhoon",
+      "passcode": "05318639",
+      "quantity": 2
+    },
+    {
+      "name": "Dust Tornado",
+      "passcode": "60082869",
+      "quantity": 2
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 2
+    }
+  ]
+}

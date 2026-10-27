@@ -1,0 +1,140 @@
+{
+  "name": "Mokey Mokey",
+  "description": "Swarm list that floods the board with low-Level Normal Fairies and uses Mokey Mokey Smackdown to turn them into 3000 ATK attackers.",
+  "main": [
+    {
+      "name": "Mokey Mokey",
+      "passcode": "27288416",
+      "quantity": 2
+    },
+    {
+      "name": "Mokey Mokey Adrift",
+      "passcode": "99910751",
+      "quantity": 1
+    },
+    {
+      "name": "Cloudian - Smoke Ball",
+      "passcode": "80825553",
+      "quantity": 3
+    },
+    {
+      "name": "Mystical Shine Ball",
+      "passcode": "39552864",
+      "quantity": 3
+    },
+    {
+      "name": "The Agent of Creation - Venus",
+      "passcode": "64734921",
+      "quantity": 3
+    },
+    {
+      "name": "Rescue Rabbit",
+      "passcode": "85138716",
+      "quantity": 3
+    },
+    {
+      "name": "Mokey Mokey Smackdown",
+      "passcode": "01965724",
+      "quantity": 3
+    },
+    {
+      "name": "Tri-Wight",
+      "passcode": "96383838",
+      "quantity": 3
+    },
+    {
+      "name": "The Law of the Normal",
+      "passcode": "66926224",
+      "quantity": 1
+    },
+    {
+      "name": "Unexpected Dai",
+      "passcode": "00911883",
+      "quantity": 3
+    },
+    {
+      "name": "Polymerization",
+      "passcode": "24094653",
+      "quantity": 3
+    },
+    {
+      "name": "Fusion Deployment",
+      "passcode": "06498706",
+      "quantity": 1
+    },
+    {
+      "name": "Inferno Reckless Summon",
+      "passcode": "12247206",
+      "quantity": 2
+    },
+    {
+      "name": "Delta Attacker",
+      "passcode": "39719977",
+      "quantity": 2
+    },
+    {
+      "name": "United We Stand",
+      "passcode": "56747793",
+      "quantity": 2
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Factory of Mass Production",
+      "passcode": "90928333",
+      "quantity": 1
+    },
+    {
+      "name": "Painful Decision",
+      "passcode": "01033312",
+      "quantity": 1
+    },
+    {
+      "name": "Amulet of Ambition",
+      "passcode": "05183693",
+      "quantity": 2
+    }
+  ],
+  "extra": [
+    {
+      "name": "Mokey Mokey King",
+      "passcode": "13803864",
+      "quantity": 3
+    }
+  ],
+  "side": [
+    {
+      "name": "The Law of the Normal",
+      "passcode": "66926224",
+      "quantity": 2
+    },
+    {
+      "name": "Creature Swap",
+      "passcode": "31036355",
+      "quantity": 3
+    },
+    {
+      "name": "Creature Seizure",
+      "passcode": "15305240",
+      "quantity": 3
+    },
+    {
+      "name": "Heart of Clear Water",
+      "passcode": "64801562",
+      "quantity": 3
+    },
+    {
+      "name": "Ojama Trio",
+      "passcode": "29843091",
+      "quantity": 2
+    },
+    {
+      "name": "Supply Squad",
+      "passcode": "17626381",
+      "quantity": 2
+    }
+  ]
+}

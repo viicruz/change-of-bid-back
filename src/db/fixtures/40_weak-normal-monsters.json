@@ -1,0 +1,169 @@
+{
+  "name": "Weak Normal Monsters",
+  "description": "Deliberately weak pile of low-ATK Normal Monsters, with a few walls and conditional draws that never turn them into a real engine.",
+  "main": [
+    {
+      "name": "Mushroom Man",
+      "passcode": "14181608",
+      "quantity": 3
+    },
+    {
+      "name": "Morinphen",
+      "passcode": "55784832",
+      "quantity": 2
+    },
+    {
+      "name": "Silver Fang",
+      "passcode": "90357090",
+      "quantity": 3
+    },
+    {
+      "name": "Battle Warrior",
+      "passcode": "55550921",
+      "quantity": 3
+    },
+    {
+      "name": "Meda Bat",
+      "passcode": "76211194",
+      "quantity": 3
+    },
+    {
+      "name": "Mystical Elf",
+      "passcode": "15025844",
+      "quantity": 2
+    },
+    {
+      "name": "Giant Soldier of Stone",
+      "passcode": "13039848",
+      "quantity": 2
+    },
+    {
+      "name": "Labyrinth Wall",
+      "passcode": "67284908",
+      "quantity": 1
+    },
+    {
+      "name": "7 Colored Fish",
+      "passcode": "23771716",
+      "quantity": 1
+    },
+    {
+      "name": "Skull Red Bird",
+      "passcode": "10202894",
+      "quantity": 1
+    },
+    {
+      "name": "Heart of the Underdog",
+      "passcode": "35762283",
+      "quantity": 2
+    },
+    {
+      "name": "White Elephant's Gift",
+      "passcode": "18756904",
+      "quantity": 2
+    },
+    {
+      "name": "Shield & Sword",
+      "passcode": "52097679",
+      "quantity": 2
+    },
+    {
+      "name": "Fissure",
+      "passcode": "66788016",
+      "quantity": 1
+    },
+    {
+      "name": "Order to Charge",
+      "passcode": "78986941",
+      "quantity": 1
+    },
+    {
+      "name": "Dark Factory of Mass Production",
+      "passcode": "90928333",
+      "quantity": 1
+    },
+    {
+      "name": "Symbols of Duty",
+      "passcode": "78794994",
+      "quantity": 1
+    },
+    {
+      "name": "Castle Walls",
+      "passcode": "44209392",
+      "quantity": 2
+    },
+    {
+      "name": "Justi-Break",
+      "passcode": "62271284",
+      "quantity": 2
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 2
+    },
+    {
+      "name": "Kunai with Chain",
+      "passcode": "37390589",
+      "quantity": 1
+    },
+    {
+      "name": "Staunch Defender",
+      "passcode": "92854392",
+      "quantity": 1
+    },
+    {
+      "name": "Michizure",
+      "passcode": "37580756",
+      "quantity": 1
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Battle Ox",
+      "passcode": "05053103",
+      "quantity": 2
+    },
+    {
+      "name": "Kojikocy",
+      "passcode": "01184620",
+      "quantity": 2
+    },
+    {
+      "name": "Basic Insect",
+      "passcode": "89091579",
+      "quantity": 2
+    },
+    {
+      "name": "Claw Reacher",
+      "passcode": "41218256",
+      "quantity": 2
+    },
+    {
+      "name": "Dark Gray",
+      "passcode": "09159938",
+      "quantity": 2
+    },
+    {
+      "name": "Crawling Dragon",
+      "passcode": "67494157",
+      "quantity": 1
+    },
+    {
+      "name": "Trap Hole",
+      "passcode": "04206964",
+      "quantity": 2
+    },
+    {
+      "name": "Zero Gravity",
+      "passcode": "83133491",
+      "quantity": 1
+    },
+    {
+      "name": "Seven Tools of the Bandit",
+      "passcode": "03819470",
+      "quantity": 1
+    }
+  ]
+}

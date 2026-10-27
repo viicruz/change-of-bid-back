@@ -1,0 +1,260 @@
+{
+  "name": "Jaden Yuki — Elemental HERO",
+  "description": "Classic Elemental HERO list that puts the four Normal heroes on board or in the Graveyard, then uses Polymerization and Miracle Fusion for the two- to four-material Fusions.",
+  "main": [
+    {
+      "name": "Elemental HERO Avian",
+      "passcode": "21844576",
+      "quantity": 3
+    },
+    {
+      "name": "Elemental HERO Burstinatrix",
+      "passcode": "58932615",
+      "quantity": 3
+    },
+    {
+      "name": "Elemental HERO Clayman",
+      "passcode": "84327329",
+      "quantity": 3
+    },
+    {
+      "name": "Elemental HERO Sparkman",
+      "passcode": "20721928",
+      "quantity": 3
+    },
+    {
+      "name": "Elemental HERO Bubbleman",
+      "passcode": "79979666",
+      "quantity": 2
+    },
+    {
+      "name": "Elemental HERO Wildheart",
+      "passcode": "86188410",
+      "quantity": 2
+    },
+    {
+      "name": "Elemental HERO Bladedge",
+      "passcode": "59793705",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Necroshade",
+      "passcode": "89252153",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Captain Gold",
+      "passcode": "80908502",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Stratos",
+      "passcode": "40044918",
+      "quantity": 1
+    },
+    {
+      "name": "Polymerization",
+      "passcode": "24094653",
+      "quantity": 3
+    },
+    {
+      "name": "Miracle Fusion",
+      "passcode": "45906428",
+      "quantity": 3
+    },
+    {
+      "name": "E - Emergency Call",
+      "passcode": "00213326",
+      "quantity": 2
+    },
+    {
+      "name": "Reinforcement of the Army",
+      "passcode": "32807846",
+      "quantity": 1
+    },
+    {
+      "name": "Skyscraper",
+      "passcode": "63035430",
+      "quantity": 2
+    },
+    {
+      "name": "Skyscraper 2 - Hero City",
+      "passcode": "47596607",
+      "quantity": 1
+    },
+    {
+      "name": "H - Heated Heart",
+      "passcode": "74825788",
+      "quantity": 1
+    },
+    {
+      "name": "R - Righteous Justice",
+      "passcode": "37318031",
+      "quantity": 1
+    },
+    {
+      "name": "O - Oversoul",
+      "passcode": "63703130",
+      "quantity": 1
+    },
+    {
+      "name": "Fusion Recovery",
+      "passcode": "18511384",
+      "quantity": 1
+    },
+    {
+      "name": "Hero Flash!!",
+      "passcode": "00191749",
+      "quantity": 1
+    },
+    {
+      "name": "Hero Signal",
+      "passcode": "22020907",
+      "quantity": 2
+    },
+    {
+      "name": "Hero Barrier",
+      "passcode": "44676200",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Elemental HERO Flame Wingman",
+      "passcode": "35809262",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Thunder Giant",
+      "passcode": "61204971",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Steam Healer",
+      "passcode": "81197327",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Rampart Blaster",
+      "passcode": "47737087",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Mudballman",
+      "passcode": "52031567",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Wild Wingman",
+      "passcode": "55615891",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Wildedge",
+      "passcode": "10526791",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Necroid Shaman",
+      "passcode": "81003500",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Darkbright",
+      "passcode": "41517968",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Shining Flare Wingman",
+      "passcode": "25366484",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Phoenix Enforcer",
+      "passcode": "41436536",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Shining Phoenix Enforcer",
+      "passcode": "88820235",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Plasma Vice",
+      "passcode": "60493189",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Tempest",
+      "passcode": "83121692",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Electrum",
+      "passcode": "29343734",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Elemental HERO Blazeman",
+      "passcode": "63060238",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Prisma",
+      "passcode": "89312388",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Woodsman",
+      "passcode": "75434695",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Heat",
+      "passcode": "98266377",
+      "quantity": 1
+    },
+    {
+      "name": "Elemental HERO Ocean",
+      "passcode": "37195861",
+      "quantity": 1
+    },
+    {
+      "name": "H - Heated Heart",
+      "passcode": "74825788",
+      "quantity": 2
+    },
+    {
+      "name": "R - Righteous Justice",
+      "passcode": "37318031",
+      "quantity": 2
+    },
+    {
+      "name": "O - Oversoul",
+      "passcode": "63703130",
+      "quantity": 2
+    },
+    {
+      "name": "A Hero Emerges",
+      "passcode": "21597117",
+      "quantity": 1
+    },
+    {
+      "name": "Clay Charge",
+      "passcode": "22479888",
+      "quantity": 1
+    },
+    {
+      "name": "Bubble Shuffle",
+      "passcode": "61968753",
+      "quantity": 1
+    },
+    {
+      "name": "Feather Shot",
+      "passcode": "19394153",
+      "quantity": 1
+    }
+  ]
+}

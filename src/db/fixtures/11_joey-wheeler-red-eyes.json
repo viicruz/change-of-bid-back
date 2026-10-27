@@ -1,0 +1,270 @@
+{
+  "name": "Joey Wheeler — Red-Eyes",
+  "description": "Casual anime reconstruction that pairs Red-Eyes Black Dragon with classic Warriors, Landstar monsters, luck cards, and Joey's Fusion lines instead of a modern Red-Eyes engine.",
+  "main": [
+    {
+      "name": "Red-Eyes Black Dragon",
+      "passcode": "74677427",
+      "quantity": 2
+    },
+    {
+      "name": "Summoned Skull",
+      "passcode": "70781052",
+      "quantity": 1
+    },
+    {
+      "name": "Baby Dragon",
+      "passcode": "88819587",
+      "quantity": 1
+    },
+    {
+      "name": "Alligator's Sword",
+      "passcode": "64428736",
+      "quantity": 1
+    },
+    {
+      "name": "Flame Manipulator",
+      "passcode": "34460851",
+      "quantity": 1
+    },
+    {
+      "name": "Masaki the Legendary Swordsman",
+      "passcode": "44287299",
+      "quantity": 1
+    },
+    {
+      "name": "Gearfried the Iron Knight",
+      "passcode": "00423705",
+      "quantity": 2
+    },
+    {
+      "name": "Gilford the Lightning",
+      "passcode": "36354007",
+      "quantity": 1
+    },
+    {
+      "name": "Panther Warrior",
+      "passcode": "42035044",
+      "quantity": 2
+    },
+    {
+      "name": "Rocket Warrior",
+      "passcode": "30860696",
+      "quantity": 2
+    },
+    {
+      "name": "Marauding Captain",
+      "passcode": "02460565",
+      "quantity": 2
+    },
+    {
+      "name": "Swordsman of Landstar",
+      "passcode": "03573512",
+      "quantity": 3
+    },
+    {
+      "name": "Little-Winguard",
+      "passcode": "90790253",
+      "quantity": 1
+    },
+    {
+      "name": "Time Wizard",
+      "passcode": "71625222",
+      "quantity": 1
+    },
+    {
+      "name": "Axe Raider",
+      "passcode": "48305365",
+      "quantity": 1
+    },
+    {
+      "name": "Jinzo",
+      "passcode": "77585513",
+      "quantity": 1
+    },
+    {
+      "name": "Polymerization",
+      "passcode": "24094653",
+      "quantity": 2
+    },
+    {
+      "name": "The Claw of Hermos",
+      "passcode": "46232525",
+      "quantity": 1
+    },
+    {
+      "name": "Legendary Sword",
+      "passcode": "61854111",
+      "quantity": 1
+    },
+    {
+      "name": "Salamandra",
+      "passcode": "32268901",
+      "quantity": 1
+    },
+    {
+      "name": "Lightning Blade",
+      "passcode": "55226821",
+      "quantity": 1
+    },
+    {
+      "name": "Foolish Burial",
+      "passcode": "81439173",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "The Warrior Returning Alive",
+      "passcode": "95281259",
+      "quantity": 1
+    },
+    {
+      "name": "Graceful Dice",
+      "passcode": "74137509",
+      "quantity": 1
+    },
+    {
+      "name": "Scapegoat",
+      "passcode": "73915051",
+      "quantity": 1
+    },
+    {
+      "name": "Skull Dice",
+      "passcode": "00126218",
+      "quantity": 1
+    },
+    {
+      "name": "Kunai with Chain",
+      "passcode": "37390589",
+      "quantity": 1
+    },
+    {
+      "name": "Metalmorph",
+      "passcode": "68540059",
+      "quantity": 1
+    },
+    {
+      "name": "Gamble",
+      "passcode": "37313786",
+      "quantity": 1
+    },
+    {
+      "name": "Fairy Box",
+      "passcode": "21598948",
+      "quantity": 1
+    },
+    {
+      "name": "Time Machine",
+      "passcode": "80987696",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Black Skull Dragon",
+      "passcode": "11901678",
+      "quantity": 1
+    },
+    {
+      "name": "Thousand Dragon",
+      "passcode": "41462083",
+      "quantity": 1
+    },
+    {
+      "name": "Alligator's Sword Dragon",
+      "passcode": "03366982",
+      "quantity": 1
+    },
+    {
+      "name": "Flame Swordsman",
+      "passcode": "45231178",
+      "quantity": 1
+    },
+    {
+      "name": "Red-Eyes Black Dragon Sword",
+      "passcode": "19747827",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Red-Eyes Black Dragon",
+      "passcode": "74677427",
+      "quantity": 1
+    },
+    {
+      "name": "Gearfried the Iron Knight",
+      "passcode": "00423705",
+      "quantity": 1
+    },
+    {
+      "name": "Gilford the Lightning",
+      "passcode": "36354007",
+      "quantity": 1
+    },
+    {
+      "name": "Jinzo",
+      "passcode": "77585513",
+      "quantity": 1
+    },
+    {
+      "name": "Time Wizard",
+      "passcode": "71625222",
+      "quantity": 1
+    },
+    {
+      "name": "Alligator's Sword",
+      "passcode": "64428736",
+      "quantity": 1
+    },
+    {
+      "name": "Flame Manipulator",
+      "passcode": "34460851",
+      "quantity": 1
+    },
+    {
+      "name": "Masaki the Legendary Swordsman",
+      "passcode": "44287299",
+      "quantity": 1
+    },
+    {
+      "name": "Polymerization",
+      "passcode": "24094653",
+      "quantity": 1
+    },
+    {
+      "name": "The Claw of Hermos",
+      "passcode": "46232525",
+      "quantity": 1
+    },
+    {
+      "name": "Legendary Sword",
+      "passcode": "61854111",
+      "quantity": 1
+    },
+    {
+      "name": "Skull Dice",
+      "passcode": "00126218",
+      "quantity": 1
+    },
+    {
+      "name": "Kunai with Chain",
+      "passcode": "37390589",
+      "quantity": 1
+    },
+    {
+      "name": "Fairy Box",
+      "passcode": "21598948",
+      "quantity": 1
+    },
+    {
+      "name": "Time Machine",
+      "passcode": "80987696",
+      "quantity": 1
+    }
+  ]
+}

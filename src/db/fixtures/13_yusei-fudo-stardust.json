@@ -1,0 +1,280 @@
+{
+  "name": "Yusei Fudo — Stardust",
+  "description": "Casual Junk and Synchron build that climbs into Yusei's Stardust dragons, using Level 1–5 Tuners and small Warriors and Machines for the Synchro levels.",
+  "main": [
+    {
+      "name": "Junk Synchron",
+      "passcode": "63977008",
+      "quantity": 3
+    },
+    {
+      "name": "Stardust Synchron",
+      "passcode": "37799519",
+      "quantity": 2
+    },
+    {
+      "name": "Satellite Synchron",
+      "passcode": "57458399",
+      "quantity": 2
+    },
+    {
+      "name": "Jet Synchron",
+      "passcode": "09742784",
+      "quantity": 1
+    },
+    {
+      "name": "Quickdraw Synchron",
+      "passcode": "20932152",
+      "quantity": 1
+    },
+    {
+      "name": "Nitro Synchron",
+      "passcode": "96182448",
+      "quantity": 1
+    },
+    {
+      "name": "Turbo Synchron",
+      "passcode": "67270095",
+      "quantity": 1
+    },
+    {
+      "name": "Road Synchron",
+      "passcode": "71971554",
+      "quantity": 1
+    },
+    {
+      "name": "Boost Warrior",
+      "passcode": "80457744",
+      "quantity": 1
+    },
+    {
+      "name": "Doppelwarrior",
+      "passcode": "53855409",
+      "quantity": 1
+    },
+    {
+      "name": "Quillbolt Hedgehog",
+      "passcode": "23571046",
+      "quantity": 2
+    },
+    {
+      "name": "Stardust Trail",
+      "passcode": "63184227",
+      "quantity": 2
+    },
+    {
+      "name": "Stardust Xiaolong",
+      "passcode": "68543408",
+      "quantity": 1
+    },
+    {
+      "name": "Synchron Carrier",
+      "passcode": "62125438",
+      "quantity": 1
+    },
+    {
+      "name": "Synchron Explorer",
+      "passcode": "36643046",
+      "quantity": 1
+    },
+    {
+      "name": "Junk Forward",
+      "passcode": "56410040",
+      "quantity": 1
+    },
+    {
+      "name": "Speed Warrior",
+      "passcode": "09365703",
+      "quantity": 1
+    },
+    {
+      "name": "Shield Wing",
+      "passcode": "28859794",
+      "quantity": 1
+    },
+    {
+      "name": "Tuning",
+      "passcode": "96363153",
+      "quantity": 3
+    },
+    {
+      "name": "One for One",
+      "passcode": "02295440",
+      "quantity": 1
+    },
+    {
+      "name": "Monster Reborn",
+      "passcode": "83764719",
+      "quantity": 1
+    },
+    {
+      "name": "Reinforcement of the Army",
+      "passcode": "32807846",
+      "quantity": 1
+    },
+    {
+      "name": "Synchro Chase",
+      "passcode": "23442438",
+      "quantity": 1
+    },
+    {
+      "name": "Stardust Illumination",
+      "passcode": "37750912",
+      "quantity": 1
+    },
+    {
+      "name": "Synchro Overtake",
+      "passcode": "99243014",
+      "quantity": 1
+    },
+    {
+      "name": "Limit Overdrive",
+      "passcode": "35014241",
+      "quantity": 1
+    },
+    {
+      "name": "Scrap-Iron Scarecrow",
+      "passcode": "98427577",
+      "quantity": 2
+    },
+    {
+      "name": "Starlight Road",
+      "passcode": "58120309",
+      "quantity": 1
+    },
+    {
+      "name": "Urgent Tuning",
+      "passcode": "94634433",
+      "quantity": 1
+    },
+    {
+      "name": "Stardust Flash",
+      "passcode": "27196937",
+      "quantity": 1
+    },
+    {
+      "name": "Synchro Barrier",
+      "passcode": "21879581",
+      "quantity": 1
+    }
+  ],
+  "extra": [
+    {
+      "name": "Junk Warrior",
+      "passcode": "60800381",
+      "quantity": 1
+    },
+    {
+      "name": "Junk Archer",
+      "passcode": "42810973",
+      "quantity": 1
+    },
+    {
+      "name": "Junk Destroyer",
+      "passcode": "74860293",
+      "quantity": 1
+    },
+    {
+      "name": "Junk Berserker",
+      "passcode": "59771339",
+      "quantity": 1
+    },
+    {
+      "name": "Nitro Warrior",
+      "passcode": "18013090",
+      "quantity": 1
+    },
+    {
+      "name": "Turbo Warrior",
+      "passcode": "46195773",
+      "quantity": 1
+    },
+    {
+      "name": "Road Warrior",
+      "passcode": "02322421",
+      "quantity": 1
+    },
+    {
+      "name": "Stardust Charge Warrior",
+      "passcode": "64880894",
+      "quantity": 1
+    },
+    {
+      "name": "Formula Synchron",
+      "passcode": "50091196",
+      "quantity": 1
+    },
+    {
+      "name": "Stardust Dragon",
+      "passcode": "44508094",
+      "quantity": 1
+    },
+    {
+      "name": "Shooting Star Dragon",
+      "passcode": "24696097",
+      "quantity": 1
+    },
+    {
+      "name": "Armory Arm",
+      "passcode": "29071332",
+      "quantity": 1
+    },
+    {
+      "name": "Cosmic Blazar Dragon",
+      "passcode": "21123811",
+      "quantity": 1
+    }
+  ],
+  "side": [
+    {
+      "name": "Harpie's Feather Duster",
+      "passcode": "18144507",
+      "quantity": 1
+    },
+    {
+      "name": "Mystical Space Typhoon",
+      "passcode": "05318639",
+      "quantity": 2
+    },
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 2
+    },
+    {
+      "name": "Mirror Force",
+      "passcode": "44095762",
+      "quantity": 2
+    },
+    {
+      "name": "Torrential Tribute",
+      "passcode": "53582587",
+      "quantity": 1
+    },
+    {
+      "name": "Solemn Judgment",
+      "passcode": "41420027",
+      "quantity": 1
+    },
+    {
+      "name": "Double Summon",
+      "passcode": "43422537",
+      "quantity": 2
+    },
+    {
+      "name": "Synchro Strike",
+      "passcode": "30123142",
+      "quantity": 2
+    },
+    {
+      "name": "Half Shut",
+      "passcode": "73048641",
+      "quantity": 1
+    },
+    {
+      "name": "Scrap-Iron Scarecrow",
+      "passcode": "98427577",
+      "quantity": 1
+    }
+  ]
+}

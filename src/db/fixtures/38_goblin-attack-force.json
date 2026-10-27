@@ -1,0 +1,149 @@
+{
+  "name": "Goblin Attack Force",
+  "description": "Old beatdown list of high-ATK Level 4 monsters that attack once and fall into Defense, with position tricks instead of a modern engine.",
+  "main": [
+    {
+      "name": "Goblin Attack Force",
+      "passcode": "78658564",
+      "quantity": 3
+    },
+    {
+      "name": "Giant Orc",
+      "passcode": "73698349",
+      "quantity": 3
+    },
+    {
+      "name": "Goblin Elite Attack Force",
+      "passcode": "85306040",
+      "quantity": 3
+    },
+    {
+      "name": "Indomitable Fighter Lei Lei",
+      "passcode": "84173492",
+      "quantity": 3
+    },
+    {
+      "name": "Goblin Black Ops",
+      "passcode": "66707058",
+      "quantity": 2
+    },
+    {
+      "name": "Berserk Gorilla",
+      "passcode": "39168895",
+      "quantity": 2
+    },
+    {
+      "name": "Spear Dragon",
+      "passcode": "31553716",
+      "quantity": 2
+    },
+    {
+      "name": "Mad Dog of Darkness",
+      "passcode": "79182538",
+      "quantity": 2
+    },
+    {
+      "name": "Shield & Sword",
+      "passcode": "52097679",
+      "quantity": 3
+    },
+    {
+      "name": "Stop Defense",
+      "passcode": "63102017",
+      "quantity": 2
+    },
+    {
+      "name": "Book of Taiyou",
+      "passcode": "38699854",
+      "quantity": 2
+    },
+    {
+      "name": "Stumbling",
+      "passcode": "34646691",
+      "quantity": 2
+    },
+    {
+      "name": "Earthquake",
+      "passcode": "82828051",
+      "quantity": 1
+    },
+    {
+      "name": "Block Attack",
+      "passcode": "25880422",
+      "quantity": 1
+    },
+    {
+      "name": "Ego Boost",
+      "passcode": "73178098",
+      "quantity": 1
+    },
+    {
+      "name": "Final Attack Orders",
+      "passcode": "52503575",
+      "quantity": 2
+    },
+    {
+      "name": "Windstorm of Etaqua",
+      "passcode": "59744639",
+      "quantity": 2
+    },
+    {
+      "name": "Zero Gravity",
+      "passcode": "83133491",
+      "quantity": 1
+    },
+    {
+      "name": "Battle Mania",
+      "passcode": "31245780",
+      "quantity": 1
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 1
+    },
+    {
+      "name": "Sakuretsu Armor",
+      "passcode": "56120475",
+      "quantity": 1
+    }
+  ],
+  "extra": [],
+  "side": [
+    {
+      "name": "Book of Moon",
+      "passcode": "14087893",
+      "quantity": 3
+    },
+    {
+      "name": "Dust Tornado",
+      "passcode": "60082869",
+      "quantity": 3
+    },
+    {
+      "name": "Compulsory Evacuation Device",
+      "passcode": "94192409",
+      "quantity": 3
+    },
+    {
+      "name": "Waboku",
+      "passcode": "12607053",
+      "quantity": 2
+    },
+    {
+      "name": "Reverse Trap",
+      "passcode": "77622396",
+      "quantity": 2
+    },
+    {
+      "name": "Windstorm of Etaqua",
+      "passcode": "59744639",
+      "quantity": 1
+    },
+    {
+      "name": "Ego Boost",
+      "passcode": "73178098",
+      "quantity": 1
+    }
+  ]
+}
