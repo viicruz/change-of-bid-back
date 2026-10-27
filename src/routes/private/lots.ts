@@ -3,6 +3,13 @@ import { Elysia } from "elysia";
 import { z } from "zod";
 
 //* Schemas imports
+import {
+  cancelLotConflictSchema,
+  cancelLotForbiddenSchema,
+  cancelLotNotFoundSchema,
+  cancelLotParamsSchema,
+  cancelLotResponseSchema,
+} from "../../schemas/cancel-lot";
 import { createLotBodySchema } from "../../schemas/create-lot";
 import {
   listAuctioneerLotsQuerySchema,
@@ -13,6 +20,11 @@ import {
 import { betterAuthMacro } from "../../lib/auth";
 
 //* Services imports
+import {
+  cancelLot,
+  CancelLotError,
+  type CancelLotErrorCode,
+} from "../../services/lots/cancel-lot";
 import {
   createLot,
   CreateLotError,
@@ -40,6 +52,14 @@ const createLotErrorStatus = {
   UNKNOWN_CARDS: 422,
   CARD_WITHOUT_IMAGE: 422,
 } as const satisfies Record<CreateLotErrorCode, 403 | 422>;
+
+const cancelLotErrorStatus = {
+  NOT_AUCTIONEER: 403,
+  LOT_NOT_OWNED: 403,
+  LOT_NOT_FOUND: 404,
+  LOT_NOT_CANCELABLE: 409,
+} as const satisfies Record<CancelLotErrorCode, 403 | 404 | 409>;
+
 
 const lotRoutes = new Elysia({ prefix: "/lots" })
   .use(betterAuthMacro)
@@ -103,6 +123,51 @@ const lotRoutes = new Elysia({ prefix: "/lots" })
       response: {
         200: listAuctioneerLotsResponseSchema,
         403: listAuctioneerLotsErrorSchema,
+      },
+    },
+  )
+  .post(
+    "/:id/cancel",
+    async ({ params, user, status }) => {
+      try {
+        return await cancelLot({
+          lotId: params.id,
+          auctioneerId: user.id,
+          role: user.role,
+        });
+      } catch (error) {
+        if (!(error instanceof CancelLotError)) {
+          throw error;
+        }
+
+        if (error.code === "LOT_NOT_FOUND") {
+          return status(cancelLotErrorStatus.LOT_NOT_FOUND, {
+            code: error.code,
+            message: error.message,
+          });
+        }
+
+        if (error.code === "LOT_NOT_CANCELABLE") {
+          return status(cancelLotErrorStatus.LOT_NOT_CANCELABLE, {
+            code: error.code,
+            message: error.message,
+          });
+        }
+
+        return status(cancelLotErrorStatus[error.code], {
+          code: error.code,
+          message: error.message,
+        });
+      }
+    },
+    {
+      auth: true,
+      params: cancelLotParamsSchema,
+      response: {
+        200: cancelLotResponseSchema,
+        403: cancelLotForbiddenSchema,
+        404: cancelLotNotFoundSchema,
+        409: cancelLotConflictSchema,
       },
     },
   );

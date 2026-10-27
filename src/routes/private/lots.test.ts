@@ -526,3 +526,191 @@ describe("GET /private/lots", () => {
     ]);
   });
 });
+
+describe("POST /private/lots/:id/cancel", () => {
+  afterEach(async () => {
+    const emails = createdEmails.splice(0, createdEmails.length);
+    const cardIds = createdCardIds.splice(0, createdCardIds.length);
+
+    await cleanup(emails, cardIds);
+  });
+
+  function cancelLotRequest(token: string | undefined, lotId: string) {
+    return app.handle(
+      request(
+        `/private/lots/${lotId}/cancel`,
+        token === undefined
+          ? undefined
+          : { authorization: `Bearer ${token}` },
+        "POST",
+      ),
+    );
+  }
+
+  async function insertStoredLot(
+    auctioneerId: string,
+    values: {
+      startsAt: Date;
+      endsAt: Date;
+      status?: "ACTIVE" | "ENDED";
+    },
+  ) {
+    const status = values.status ?? "ACTIVE";
+    const rows = await db
+      .insert(lot)
+      .values({
+        auctioneerId,
+        title: "Stored lot",
+        openingBid: "10.00",
+        minIncrement: "1.00",
+        startsAt: values.startsAt,
+        originalEndsAt: values.endsAt,
+        endsAt: values.endsAt,
+        status,
+        endedAt: status === "ENDED" ? values.endsAt : null,
+      })
+      .returning({ id: lot.id });
+    const row = rows[0];
+
+    if (!row) {
+      throw new Error("Insert lot did not return a row");
+    }
+
+    return row.id;
+  }
+
+  it("rejects a request with no session", async () => {
+    const response = await cancelLotRequest(undefined, crypto.randomUUID());
+
+    expect(response.status).toBe(401);
+  });
+
+  it("rejects a bidder", async () => {
+    const account = await registerUser();
+    const response = await cancelLotRequest(account.token, crypto.randomUUID());
+    const body = (await response.json()) as { code?: string };
+
+    expect(response.status).toBe(403);
+    expect(body.code).toBe("NOT_AUCTIONEER");
+  });
+
+  it("rejects a lot owned by another auctioneer", async () => {
+    const owner = await registerAuctioneer();
+    const other = await registerAuctioneer();
+    const startsAt = new Date(Date.now() + 60 * 60 * 1000);
+    const lotId = await insertStoredLot(owner.userId, {
+      startsAt,
+      endsAt: new Date(startsAt.getTime() + minimumLotDurationMs),
+    });
+    const response = await cancelLotRequest(other.token, lotId);
+    const body = (await response.json()) as { code?: string };
+    const [stored] = await db
+      .select({ status: lot.status })
+      .from(lot)
+      .where(eq(lot.id, lotId));
+
+    expect(response.status).toBe(403);
+    expect(body.code).toBe("LOT_NOT_OWNED");
+    expect(stored?.status).toBe("ACTIVE");
+  });
+
+  it("rejects an unknown lot", async () => {
+    const account = await registerAuctioneer();
+    const response = await cancelLotRequest(account.token, crypto.randomUUID());
+    const body = (await response.json()) as { code?: string };
+
+    expect(response.status).toBe(404);
+    expect(body.code).toBe("LOT_NOT_FOUND");
+  });
+
+  it("rejects an ended lot", async () => {
+    const account = await registerAuctioneer();
+    const endsAt = new Date(Date.now() - 60 * 60 * 1000);
+    const lotId = await insertStoredLot(account.userId, {
+      startsAt: new Date(endsAt.getTime() - minimumLotDurationMs),
+      endsAt,
+      status: "ENDED",
+    });
+    const response = await cancelLotRequest(account.token, lotId);
+    const body = (await response.json()) as { code?: string };
+    const [stored] = await db
+      .select({ status: lot.status, canceledAt: lot.canceledAt })
+      .from(lot)
+      .where(eq(lot.id, lotId));
+
+    expect(response.status).toBe(409);
+    expect(body.code).toBe("LOT_NOT_CANCELABLE");
+    expect(stored).toMatchObject({
+      status: "ENDED",
+      canceledAt: null,
+    });
+  });
+
+  it("rejects an active lot whose end has already passed", async () => {
+    const account = await registerAuctioneer();
+    const endsAt = new Date(Date.now() - 60 * 60 * 1000);
+    const lotId = await insertStoredLot(account.userId, {
+      startsAt: new Date(endsAt.getTime() - minimumLotDurationMs),
+      endsAt,
+    });
+    const response = await cancelLotRequest(account.token, lotId);
+    const body = (await response.json()) as { code?: string };
+    const [stored] = await db
+      .select({ status: lot.status, canceledAt: lot.canceledAt })
+      .from(lot)
+      .where(eq(lot.id, lotId));
+
+    expect(response.status).toBe(409);
+    expect(body.code).toBe("LOT_NOT_CANCELABLE");
+    expect(stored).toMatchObject({
+      status: "ACTIVE",
+      canceledAt: null,
+    });
+  });
+
+  it("cancels the auctioneer's lot and returns the same result when repeated", async () => {
+    const account = await registerAuctioneer();
+    const cardId = await insertCatalogCard(
+      "Cancel Dragon",
+      "https://images.example/cancel.jpg",
+    );
+    const created = await postLot(account.token, createLotPayload([cardId]));
+    const createdBody = (await created.json()) as { id?: string };
+    const lotId = createdBody.id ?? "";
+    const response = await cancelLotRequest(account.token, lotId);
+    const body = (await response.json()) as {
+      id?: string;
+      status?: string;
+      canceledAt?: string;
+    };
+    const repeated = await cancelLotRequest(account.token, lotId);
+    const repeatedBody = (await repeated.json()) as {
+      id?: string;
+      status?: string;
+      canceledAt?: string;
+    };
+    const [stored] = await db
+      .select({
+        status: lot.status,
+        canceledAt: lot.canceledAt,
+        bidCount: lot.bidCount,
+      })
+      .from(lot)
+      .where(eq(lot.id, lotId));
+
+    expect(created.status).toBe(201);
+    expect(response.status).toBe(200);
+    expect(Object.keys(body).sort()).toEqual(["canceledAt", "id", "status"]);
+    expect(body).toMatchObject({
+      id: lotId,
+      status: "CANCELED",
+    });
+    expect(repeated.status).toBe(200);
+    expect(repeatedBody).toEqual(body);
+    expect(stored).toMatchObject({
+      status: "CANCELED",
+      bidCount: 0,
+    });
+    expect(stored?.canceledAt?.toISOString()).toBe(body.canceledAt);
+  });
+});
