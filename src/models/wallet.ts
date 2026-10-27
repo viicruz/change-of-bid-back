@@ -392,3 +392,98 @@ export async function decreaseCommittedBalance(
 
   return row;
 }
+
+// Settlement spends the reserve in one statement: committed and total both
+// fall by the winning amount. The HOLD row stays in the ledger, so committed
+// falls only here.
+export async function decreaseTotalAndCommittedBalance(
+  executor: DatabaseExecutor,
+  walletId: string,
+  amount: string,
+) {
+  const rows = await executor
+    .update(wallet)
+    .set({
+      totalBalance: sql`${wallet.totalBalance} - ${amount}::numeric(18,2)`,
+      committedBalance: sql`${wallet.committedBalance} - ${amount}::numeric(18,2)`,
+    })
+    .where(eq(wallet.id, walletId))
+    .returning({
+      id: wallet.id,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    });
+  const row = rows[0];
+
+  if (!row) {
+    throw new Error("Wallet balance update did not return a row");
+  }
+
+  return row;
+}
+
+// A winning bid still has its HOLD and no RELEASE. Another lot's reserve must
+// not be spent when this hold is already closed.
+export async function findOpenHoldForBid(
+  executor: DatabaseExecutor,
+  values: {
+    lotId: string;
+    bidId: string;
+    walletId: string;
+  },
+) {
+  const rows = await executor
+    .select({
+      type: walletMovement.type,
+      amount: walletMovement.amount,
+      walletId: walletMovement.walletId,
+    })
+    .from(walletMovement)
+    .where(
+      and(
+        eq(walletMovement.lotId, values.lotId),
+        eq(walletMovement.bidId, values.bidId),
+        inArray(walletMovement.type, ["HOLD", "RELEASE"]),
+      ),
+    );
+  const hold = rows.find((row) => row.type === "HOLD");
+  const released = rows.some((row) => row.type === "RELEASE");
+
+  if (hold === undefined || released || hold.walletId !== values.walletId) {
+    return null;
+  }
+
+  return {
+    amount: hold.amount,
+  };
+}
+
+// bid_id stays null. HOLD and RELEASE are unique per bid; a settlement is
+// unique per lot and type.
+export async function insertSettlementMovement(
+  executor: DatabaseExecutor,
+  values: {
+    walletId: string;
+    type: "SETTLEMENT_DEBIT" | "SETTLEMENT_CREDIT";
+    amount: string;
+    lotId: string;
+  },
+) {
+  const rows = await executor
+    .insert(walletMovement)
+    .values({
+      walletId: values.walletId,
+      type: values.type,
+      amount: values.amount,
+      lotId: values.lotId,
+      bidId: null,
+    })
+    .returning({ id: walletMovement.id });
+  const row = rows[0];
+
+  if (!row) {
+    throw new Error("Insert wallet movement did not return a row");
+  }
+
+  return row;
+}

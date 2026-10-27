@@ -1,9 +1,22 @@
 //* Libraries imports
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 //* Local imports
 import { lot } from "../db/schema";
 import type { DatabaseExecutor } from "./executor";
+
+//* Services imports
+import { isDueForSettlement } from "../services/lots/effective-lot-status";
+
+export async function listDueLotIds(executor: DatabaseExecutor, now: Date) {
+  const rows = await executor
+    .select({ id: lot.id })
+    .from(lot)
+    .where(isDueForSettlement(now))
+    .orderBy(asc(lot.endsAt), asc(lot.id));
+
+  return rows.map((row) => row.id);
+}
 
 export async function insertLot(
   executor: DatabaseExecutor,
@@ -114,5 +127,51 @@ export async function markLotLeadingBid(
     headHash: row.headHash,
     endsAt: row.endsAt,
     extensionCount: row.extensionCount,
+  };
+}
+
+export async function markLotEnded(
+  executor: DatabaseExecutor,
+  lotId: string,
+  values: {
+    winnerId: string | null;
+    endedAt: Date;
+    settledAt: Date;
+  },
+) {
+  const rows = await executor
+    .update(lot)
+    .set({
+      status: "ENDED",
+      winnerId: values.winnerId,
+      endedAt: values.endedAt,
+      settledAt: values.settledAt,
+    })
+    .where(and(eq(lot.id, lotId), eq(lot.status, "ACTIVE")))
+    .returning({
+      id: lot.id,
+      status: lot.status,
+      winnerId: lot.winnerId,
+      endedAt: lot.endedAt,
+      settledAt: lot.settledAt,
+    });
+  const row = rows[0];
+
+  if (
+    !row ||
+    row.status !== "ENDED" ||
+    row.winnerId !== values.winnerId ||
+    row.endedAt === null ||
+    row.settledAt === null
+  ) {
+    throw new Error("End lot did not return a row");
+  }
+
+  return {
+    id: row.id,
+    status: row.status,
+    winnerId: row.winnerId,
+    endedAt: row.endedAt,
+    settledAt: row.settledAt,
   };
 }
