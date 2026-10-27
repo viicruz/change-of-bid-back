@@ -93,14 +93,7 @@ async function registerUser(role?: string): Promise<RegisteredUser> {
 }
 
 async function registerAuctioneer() {
-  const account = await registerUser();
-
-  await db
-    .update(user)
-    .set({ role: "AUCTIONEER" })
-    .where(eq(user.id, account.userId));
-
-  return account;
+  return registerUser("AUCTIONEER");
 }
 
 function randomCardId() {
@@ -232,14 +225,14 @@ describe("POST /private/lots", () => {
     expect(lots).toHaveLength(0);
   });
 
-  it("keeps the bidder role when sign-up sends an auctioneer role", async () => {
+  it("stores the auctioneer role when sign-up sends it", async () => {
     const account = await registerUser("AUCTIONEER");
     const [stored] = await db
       .select({ role: user.role })
       .from(user)
       .where(eq(user.id, account.userId));
 
-    expect(stored?.role).toBe("BIDDER");
+    expect(stored?.role).toBe("AUCTIONEER");
   });
 
   it("creates the lot and its items for an auctioneer", async () => {

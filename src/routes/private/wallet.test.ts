@@ -77,7 +77,9 @@ function request(
   });
 }
 
-async function registerUser(): Promise<RegisteredUser> {
+async function registerUser(
+  role?: "BIDDER" | "AUCTIONEER",
+): Promise<RegisteredUser> {
   const email = `wallet-${crypto.randomUUID()}@example.com`;
   const signUp = new Request(`${baseUrl}/api/auth/sign-up/email`, {
     method: "POST",
@@ -89,6 +91,7 @@ async function registerUser(): Promise<RegisteredUser> {
       name: "Wallet Tester",
       email,
       password,
+      ...(role === undefined ? {} : { role }),
     }),
   });
   const signUpResponse = await app.handle(signUp);
@@ -126,14 +129,7 @@ async function registerUser(): Promise<RegisteredUser> {
 }
 
 async function registerAuctioneer() {
-  const account = await registerUser();
-
-  await db
-    .update(user)
-    .set({ role: "AUCTIONEER" })
-    .where(eq(user.id, account.userId));
-
-  return account;
+  return registerUser("AUCTIONEER");
 }
 
 async function setBalances(
