@@ -5,7 +5,7 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 //* Local imports
 import { app } from "./app";
 import { db } from "./db/index";
-import { user } from "./db/schema";
+import { user, wallet } from "./db/schema";
 
 const password = "Correct-horse-battery-1";
 const createdEmails: string[] = [];
@@ -148,6 +148,16 @@ async function registerUser(): Promise<RegisteredUser> {
 }
 
 async function deleteUserByEmail(email: string) {
+  const rows = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.email, email));
+  const userId = rows[0]?.id;
+
+  if (userId) {
+    await db.delete(wallet).where(eq(wallet.userId, userId));
+  }
+
   await db.delete(user).where(eq(user.email, email));
 }
 

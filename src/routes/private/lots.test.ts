@@ -5,7 +5,7 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 //* Local imports
 import { app } from "../../app";
 import { db } from "../../db/index";
-import { card, lot, lotItem, user } from "../../db/schema";
+import { card, lot, lotItem, user, wallet } from "../../db/schema";
 
 const password = "Correct-horse-battery-1";
 const createdEmails: string[] = [];
@@ -190,6 +190,7 @@ async function cleanup(emails: string[], cardIds: number[]) {
         await db.delete(lot).where(inArray(lot.id, lotIds));
       }
 
+      await db.delete(wallet).where(inArray(wallet.userId, userIds));
       await db.delete(user).where(inArray(user.id, userIds));
     }
   }

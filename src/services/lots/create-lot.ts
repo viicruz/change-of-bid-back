@@ -1,5 +1,5 @@
 //* Schemas imports
-import { normalizeMoney } from "../../schemas/create-lot";
+import { moneyValidationMessage, normalizeMoney } from "../../schemas/money";
 
 //* Models imports
 import type { DatabaseExecutor } from "../../models/executor";
@@ -220,7 +220,7 @@ function requireMoney(value: string): string {
   if (normalized === null) {
     throw new CreateLotError(
       "INVALID_MONEY",
-      "Money values must be greater than zero and have at most 2 decimal places.",
+      moneyValidationMessage,
     );
   }
 
