@@ -1,5 +1,5 @@
 //* Libraries imports
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 
 //* Local imports
 import { wallet, walletMovement } from "../db/schema";
@@ -229,6 +229,129 @@ export async function increaseTotalBalance(
     .update(wallet)
     .set({
       totalBalance: sql`${wallet.totalBalance} + ${amount}::numeric(18,2)`,
+    })
+    .where(eq(wallet.id, walletId))
+    .returning({
+      id: wallet.id,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    });
+  const row = rows[0];
+
+  if (!row) {
+    throw new Error("Wallet balance update did not return a row");
+  }
+
+  return row;
+}
+
+export async function lockWalletsByUserIds(
+  executor: DatabaseExecutor,
+  userIds: string[],
+) {
+  const uniqueUserIds = [...new Set(userIds)];
+
+  if (uniqueUserIds.length === 0) {
+    throw new Error("At least one wallet is required");
+  }
+
+  const idRows = await executor
+    .select({
+      id: wallet.id,
+    })
+    .from(wallet)
+    .where(inArray(wallet.userId, uniqueUserIds));
+
+  if (idRows.length !== uniqueUserIds.length) {
+    throw new Error("Wallet was not found");
+  }
+
+  // Lock one row at a time in id order. PostgreSQL can lock a sorted
+  // SELECT before it applies ORDER BY, which reintroduces deadlocks.
+  const sortedIds = idRows
+    .map((row) => row.id)
+    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  const locked = [];
+
+  for (const walletId of sortedIds) {
+    const rows = await executor
+      .select({
+        id: wallet.id,
+        userId: wallet.userId,
+        totalBalance: wallet.totalBalance,
+        committedBalance: wallet.committedBalance,
+      })
+      .from(wallet)
+      .where(eq(wallet.id, walletId))
+      .for("update");
+    const row = rows[0];
+
+    if (!row) {
+      throw new Error("Wallet was not found");
+    }
+
+    locked.push(row);
+  }
+
+  return locked;
+}
+
+export async function walletCoversAmount(
+  executor: DatabaseExecutor,
+  walletId: string,
+  amount: string,
+) {
+  const rows = await executor
+    .select({ id: wallet.id })
+    .from(wallet)
+    .where(
+      and(
+        eq(wallet.id, walletId),
+        sql`(${wallet.totalBalance} - ${wallet.committedBalance}) >= ${amount}::numeric(18,2)`,
+      ),
+    )
+    .limit(1);
+
+  return rows.length === 1;
+}
+
+export async function insertHoldMovement(
+  executor: DatabaseExecutor,
+  values: {
+    walletId: string;
+    amount: string;
+    lotId: string;
+    bidId: string;
+  },
+) {
+  const rows = await executor
+    .insert(walletMovement)
+    .values({
+      walletId: values.walletId,
+      type: "HOLD",
+      amount: values.amount,
+      lotId: values.lotId,
+      bidId: values.bidId,
+    })
+    .returning({ id: walletMovement.id });
+  const row = rows[0];
+
+  if (!row) {
+    throw new Error("Insert wallet movement did not return a row");
+  }
+
+  return row;
+}
+
+export async function increaseCommittedBalance(
+  executor: DatabaseExecutor,
+  walletId: string,
+  amount: string,
+) {
+  const rows = await executor
+    .update(wallet)
+    .set({
+      committedBalance: sql`${wallet.committedBalance} + ${amount}::numeric(18,2)`,
     })
     .where(eq(wallet.id, walletId))
     .returning({

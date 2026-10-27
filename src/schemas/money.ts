@@ -23,6 +23,53 @@ export function normalizeMoney(value: string): string | null {
   return normalized;
 }
 
+const CANONICAL_MONEY_PATTERN = /^(?:0|[1-9]\d{0,15})\.\d{2}$/;
+
+export class MoneyRangeError extends Error {
+  constructor() {
+    super("Money value is outside the supported range");
+    this.name = "MoneyRangeError";
+  }
+}
+
+function toCents(value: string): bigint {
+  if (!CANONICAL_MONEY_PATTERN.test(value)) {
+    throw new Error("Money value is not canonical");
+  }
+
+  const [whole, fraction] = value.split(".");
+
+  return BigInt(whole) * 100n + BigInt(fraction);
+}
+
+export function compareMoney(left: string, right: string): -1 | 0 | 1 {
+  const leftCents = toCents(left);
+  const rightCents = toCents(right);
+
+  if (leftCents < rightCents) {
+    return -1;
+  }
+
+  if (leftCents > rightCents) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function addMoney(left: string, right: string): string {
+  const sum = toCents(left) + toCents(right);
+  const whole = sum / 100n;
+  const fraction = (sum % 100n).toString().padStart(2, "0");
+  const result = `${whole.toString()}.${fraction}`;
+
+  if (!CANONICAL_MONEY_PATTERN.test(result)) {
+    throw new MoneyRangeError();
+  }
+
+  return result;
+}
+
 export const moneySchema = z.string().transform((value, context) => {
   const normalized = normalizeMoney(value);
 

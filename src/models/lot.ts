@@ -61,3 +61,58 @@ export async function markLotCanceled(
     canceledAt: row.canceledAt,
   };
 }
+
+export async function markLotLeadingBid(
+  executor: DatabaseExecutor,
+  lotId: string,
+  values: {
+    currentBidId: string;
+    bidCount: number;
+    headHash: string;
+    schedule?: {
+      endsAt: Date;
+      extensionCount: number;
+    };
+  },
+) {
+  const rows = await executor
+    .update(lot)
+    .set({
+      currentBidId: values.currentBidId,
+      bidCount: values.bidCount,
+      headHash: values.headHash,
+      ...(values.schedule === undefined
+        ? {}
+        : {
+            endsAt: values.schedule.endsAt,
+            extensionCount: values.schedule.extensionCount,
+          }),
+    })
+    .where(and(eq(lot.id, lotId), eq(lot.status, "ACTIVE")))
+    .returning({
+      id: lot.id,
+      currentBidId: lot.currentBidId,
+      bidCount: lot.bidCount,
+      headHash: lot.headHash,
+      endsAt: lot.endsAt,
+      extensionCount: lot.extensionCount,
+    });
+  const row = rows[0];
+
+  if (
+    !row ||
+    row.currentBidId === null ||
+    row.headHash === null
+  ) {
+    throw new Error("Leading bid update did not return a row");
+  }
+
+  return {
+    id: row.id,
+    currentBidId: row.currentBidId,
+    bidCount: row.bidCount,
+    headHash: row.headHash,
+    endsAt: row.endsAt,
+    extensionCount: row.extensionCount,
+  };
+}

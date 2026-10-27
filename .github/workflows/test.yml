@@ -31,6 +31,7 @@ jobs:
       BETTER_AUTH_SECRET: ci-only-better-auth-secret-32chars
       BETTER_AUTH_URL: http://localhost:3001
       PAGE_ORIGIN: http://localhost:3000
+      BID_HASH_SECRET: ci-only-bid-hash-secret-32characters
 
     steps:
       - name: Checkout
