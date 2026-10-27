@@ -5,6 +5,45 @@ import { eq, sql } from "drizzle-orm";
 import { wallet, walletMovement } from "../db/schema";
 import type { DatabaseExecutor } from "./executor";
 
+export async function createWallet(
+  executor: DatabaseExecutor,
+  userId: string,
+) {
+  const inserted = await executor
+    .insert(wallet)
+    .values({ userId })
+    .onConflictDoNothing({ target: wallet.userId })
+    .returning({
+      id: wallet.id,
+      userId: wallet.userId,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    });
+  const created = inserted[0];
+
+  if (created) {
+    return created;
+  }
+
+  const rows = await executor
+    .select({
+      id: wallet.id,
+      userId: wallet.userId,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    })
+    .from(wallet)
+    .where(eq(wallet.userId, userId))
+    .limit(1);
+  const existing = rows[0];
+
+  if (!existing) {
+    throw new Error("Wallet was not created");
+  }
+
+  return existing;
+}
+
 export async function lockWalletByUserId(
   executor: DatabaseExecutor,
   userId: string,

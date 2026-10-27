@@ -7,6 +7,9 @@ import { and, eq } from "drizzle-orm";
 import { db } from "./index";
 import { account, user } from "./schema";
 
+//* Models imports
+import { createWallet } from "../models/wallet";
+
 const testPassword = "123123123";
 
 const seedUsers = [
@@ -57,6 +60,8 @@ async function upsertSeedUser(
         role: seedUser.role,
       });
     }
+
+    await createWallet(tx, userId);
 
     const [credentialAccount] = await tx
       .select({ id: account.id })

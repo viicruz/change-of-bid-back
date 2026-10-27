@@ -2,12 +2,25 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { betterAuth } from "better-auth";
 import { bearer, openAPI } from "better-auth/plugins";
+import { eq } from "drizzle-orm";
 import { Elysia } from "elysia";
 
 //* Local imports
 import { db } from "../db/index";
 import { env } from "../env";
 import * as schema from "../db/schema";
+
+//* Models imports
+import { createWallet } from "../models/wallet";
+
+async function removeUserCreatedWithoutWallet(userId: string) {
+  try {
+    await db.delete(schema.wallet).where(eq(schema.wallet.userId, userId));
+    await db.delete(schema.user).where(eq(schema.user.id, userId));
+  } catch {
+    // Sign-up reports the wallet failure. Cleanup must not replace that error.
+  }
+}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -21,6 +34,20 @@ export const auth = betterAuth({
         required: true,
         defaultValue: "BIDDER",
         input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (createdUser) => {
+          try {
+            await createWallet(db, createdUser.id);
+          } catch (error) {
+            await removeUserCreatedWithoutWallet(createdUser.id);
+            throw error;
+          }
+        },
       },
     },
   },
