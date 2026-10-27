@@ -1,33 +1,27 @@
 //* Libraries imports
-import { asc, eq, inArray } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-
-//* Schemas imports
-import { addMoney } from "../../schemas/money";
 
 //* Local imports
 import { app } from "../../app";
 import { db } from "../../db/index";
-import {
-  bid,
-  lot,
-  lotParticipant,
-  user,
-  wallet,
-  walletMovement,
-} from "../../db/schema";
+import { bid, lot, lotParticipant } from "../../db/schema";
 import { env } from "../../env";
-import { placeBid, type AcceptedBid } from "../../services/lots/place-bid";
 
-const now = new Date("2026-10-26T15:00:00.000Z");
-const createdUserIds: string[] = [];
-const createdLotIds: string[] = [];
+//* Services imports
+import {
+  createPublicLotAuditFixtures,
+  expectTextOmitsPrivateAuditData,
+} from "../../services/lots/public-lot-audit-fixtures";
 
-type Account = {
-  id: string;
-  email: string;
-  name: string;
-};
+const {
+  hoursFromNow,
+  insertUser,
+  insertBidder,
+  insertLot,
+  placeAcceptedBids,
+  cleanup,
+} = createPublicLotAuditFixtures("audit-route");
 
 function requiredEnv(name: string, value: string | undefined) {
   if (!value) {
@@ -39,110 +33,10 @@ function requiredEnv(name: string, value: string | undefined) {
 
 const baseUrl = requiredEnv("BETTER_AUTH_URL", process.env.BETTER_AUTH_URL);
 
-function hoursFromNow(hours: number) {
-  return new Date(now.getTime() + hours * 60 * 60 * 1000);
-}
-
-function minutesFromNow(minutes: number) {
-  return new Date(now.getTime() + minutes * 60 * 1000);
-}
-
 function request(path: string) {
   return new Request(`${baseUrl}${path}`, {
     method: "GET",
   });
-}
-
-function placeFor(userId: string, lotId: string, amount: string, at: Date) {
-  return placeBid(
-    {
-      lotId,
-      userId,
-      role: "BIDDER",
-      amount,
-    },
-    { now: () => at },
-  );
-}
-
-async function insertUser(
-  role: "AUCTIONEER" | "BIDDER",
-  name: string,
-): Promise<Account> {
-  const id = crypto.randomUUID();
-  const email = `audit-route-${role.toLowerCase()}-${id}@example.com`;
-
-  await db.insert(user).values({
-    id,
-    name,
-    email,
-    role,
-  });
-  createdUserIds.push(id);
-
-  return { id, email, name };
-}
-
-async function insertBidder(name: string) {
-  const account = await insertUser("BIDDER", name);
-
-  await db.insert(wallet).values({
-    userId: account.id,
-    totalBalance: "100.00",
-    committedBalance: "0.00",
-  });
-
-  return account;
-}
-
-async function insertLiveLot(auctioneerId: string) {
-  const endsAt = hoursFromNow(2);
-  const rows = await db
-    .insert(lot)
-    .values({
-      auctioneerId,
-      title: "Audited lot",
-      description: null,
-      openingBid: "10.00",
-      minIncrement: "0.50",
-      startsAt: hoursFromNow(-1),
-      originalEndsAt: endsAt,
-      endsAt,
-    })
-    .returning({ id: lot.id });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Insert lot did not return a row");
-  }
-
-  createdLotIds.push(row.id);
-
-  return row.id;
-}
-
-async function placeAcceptedBids(
-  lotId: string,
-  bidders: Account[],
-  count: number,
-) {
-  const accepted: AcceptedBid[] = [];
-  let amount = "10.00";
-
-  for (let index = 0; index < count; index += 1) {
-    const bidder = bidders[index % bidders.length];
-
-    if (bidder === undefined) {
-      throw new Error("Bidder was not found");
-    }
-
-    accepted.push(
-      await placeFor(bidder.id, lotId, amount, minutesFromNow(index)),
-    );
-    amount = addMoney(amount, "0.50");
-  }
-
-  return accepted;
 }
 
 async function readStoredSecrets(lotId: string) {
@@ -176,49 +70,6 @@ async function readStoredSecrets(lotId: string) {
   };
 }
 
-async function cleanup() {
-  const wallets =
-    createdUserIds.length === 0
-      ? []
-      : await db
-          .select({ id: wallet.id })
-          .from(wallet)
-          .where(inArray(wallet.userId, createdUserIds));
-  const walletIds = wallets.map((entry) => entry.id);
-
-  if (walletIds.length > 0) {
-    await db
-      .delete(walletMovement)
-      .where(inArray(walletMovement.walletId, walletIds));
-  }
-
-  if (createdLotIds.length > 0) {
-    await db
-      .update(lot)
-      .set({ currentBidId: null, winnerId: null })
-      .where(inArray(lot.id, createdLotIds));
-    await db
-      .delete(walletMovement)
-      .where(inArray(walletMovement.lotId, createdLotIds));
-    await db.delete(bid).where(inArray(bid.lotId, createdLotIds));
-    await db
-      .delete(lotParticipant)
-      .where(inArray(lotParticipant.lotId, createdLotIds));
-    await db.delete(lot).where(inArray(lot.id, createdLotIds));
-  }
-
-  if (walletIds.length > 0) {
-    await db.delete(wallet).where(inArray(wallet.id, walletIds));
-  }
-
-  if (createdUserIds.length > 0) {
-    await db.delete(user).where(inArray(user.id, createdUserIds));
-  }
-
-  createdLotIds.length = 0;
-  createdUserIds.length = 0;
-}
-
 describe("GET /public/lots/:id/audit", () => {
   afterEach(async () => {
     await cleanup();
@@ -233,7 +84,10 @@ describe("GET /public/lots/:id/audit", () => {
       const auctioneer = await insertUser("AUCTIONEER", "Hidden Auctioneer");
       const firstBidder = await insertBidder("Hidden First Bidder");
       const secondBidder = await insertBidder("Hidden Second Bidder");
-      const lotId = await insertLiveLot(auctioneer.id);
+      const lotId = await insertLot(auctioneer.id, {
+        startsAt: hoursFromNow(-1),
+        endsAt: hoursFromNow(2),
+      });
       const accepted = await placeAcceptedBids(
         lotId,
         [firstBidder, secondBidder],
@@ -280,23 +134,12 @@ describe("GET /public/lots/:id/audit", () => {
         ]);
       }
 
-      for (const account of [auctioneer, firstBidder, secondBidder]) {
-        expect(raw).not.toContain(account.id);
-        expect(raw).not.toContain(account.email);
-        expect(raw).not.toContain(account.name);
-      }
-
-      for (const row of stored.rows) {
-        expect(raw).not.toContain(row.id);
-        expect(raw).not.toContain(row.bidderId);
-        expect(raw).not.toContain(row.participantId);
-        expect(raw).not.toContain(row.previousHash);
-        expect(raw).not.toContain(row.hash);
-      }
-
-      expect(stored.headHash).toEqual(expect.any(String));
-      expect(raw).not.toContain(stored.headHash as string);
-      expect(raw).not.toContain(env.BID_HASH_SECRET);
+      expectTextOmitsPrivateAuditData(raw, {
+        accounts: [auctioneer, firstBidder, secondBidder],
+        rows: stored.rows,
+        headHash: stored.headHash,
+        hashSecret: env.BID_HASH_SECRET,
+      });
     });
   });
 
@@ -334,7 +177,10 @@ describe("GET /public/lots/:id/audit", () => {
     it("returns tampered instead of an error", async () => {
       const auctioneer = await insertUser("AUCTIONEER", "Hidden Auctioneer");
       const bidder = await insertBidder("Hidden First Bidder");
-      const lotId = await insertLiveLot(auctioneer.id);
+      const lotId = await insertLot(auctioneer.id, {
+        startsAt: hoursFromNow(-1),
+        endsAt: hoursFromNow(2),
+      });
       const accepted = await placeAcceptedBids(lotId, [bidder], 1);
       const placed = accepted[0];
 

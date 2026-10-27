@@ -2,7 +2,7 @@
 import { asc, eq } from "drizzle-orm";
 
 //* Schemas imports
-import { normalizeMoney } from "../../schemas/money";
+import { formatListedMoney, normalizeMoney } from "../../schemas/money";
 import type { ShowPublicLotAuditStatus } from "../../schemas/show-lot-audit";
 
 //* Local imports
@@ -210,10 +210,12 @@ function verifyChain(
   }
 }
 
+// A stored amount that cannot be listed stays in the response.
+// It does not fail the request.
 function toPublicBid(row: StoredAuditBid): ShownPublicLotAuditBid {
   return {
     sequence: row.sequence,
-    amount: formatAuditedAmount(row.amount),
+    amount: formatListedMoney(row.amount) ?? row.amount,
     createdAt: row.createdAt,
     participantNo: row.participantNo,
   };
@@ -249,22 +251,4 @@ async function loadBids(
     .innerJoin(lotParticipant, eq(lotParticipant.id, bid.participantId))
     .where(eq(bid.lotId, lotId))
     .orderBy(asc(bid.sequence));
-}
-
-// Same two-decimal listing format as the public receipt. A stored amount that
-// cannot be listed stays in the response; it does not fail the request.
-function formatAuditedAmount(value: string): string {
-  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
-
-  if (match === null) {
-    return value;
-  }
-
-  const fraction = match[3] ?? "";
-
-  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
-    return value;
-  }
-
-  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
 }
