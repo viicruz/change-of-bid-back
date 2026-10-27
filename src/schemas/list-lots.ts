@@ -3,6 +3,8 @@ import { z } from "zod";
 
 export const publicLotStatusSchema = z.enum(["SCHEDULED", "LIVE", "ENDED"]);
 
+export const publicLotListingItemLimit = 5;
+
 export const auctioneerLotStatusSchema = z.enum([
   "SCHEDULED",
   "LIVE",
@@ -53,7 +55,7 @@ const publicLotSchema = z.object({
   currentBid: z.string().nullable(),
   bidCount: z.number().int(),
   sold: z.boolean(),
-  items: z.array(listedLotItemSchema),
+  items: z.array(listedLotItemSchema).max(publicLotListingItemLimit),
 });
 
 const auctioneerLotSchema = z.object({
