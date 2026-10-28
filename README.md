@@ -3,6 +3,9 @@
 Database migration, Docker startup, and development reset instructions:
 [Deployment and database operations](docs/deploy.md).
 
+Analysis scope, verified Fallow candidates, and isolated test coverage:
+[Fallow workflow](docs/fallow.md).
+
 ## Getting Started
 To get started with this template, simply paste this command into your terminal:
 ```bash
