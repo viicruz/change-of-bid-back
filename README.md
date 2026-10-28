@@ -1,5 +1,8 @@
 # Elysia with Bun runtime
 
+Database migration, Docker startup, and development reset instructions:
+[Deployment and database operations](docs/deploy.md).
+
 ## Getting Started
 To get started with this template, simply paste this command into your terminal:
 ```bash

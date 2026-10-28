@@ -2,6 +2,10 @@
 
 `npm run db:seed` fills a development database with users, lots, deposits, and bids. The entry point is [`src/db/seed.ts`](../src/db/seed.ts). It needs `DATABASE_URL` and `BID_HASH_SECRET`.
 
+Run it explicitly against a development database. Container startup does not run
+the seed or reset the database. See [Deployment and database operations](deploy.md)
+for migration and reset commands.
+
 The run has three steps, all using the same `now`:
 
 1. Upsert the seed users and their wallets.
