@@ -26,7 +26,7 @@ type InsertedLotItem = Awaited<
 const tornadoDragon = catalogCard({
   id: 10,
   name: "Tornado Dragon",
-  imagePath: "https://images.example/tornado.jpg",
+  imagePath: "/card-images/10.jpg",
 });
 
 const decodeTalker = catalogCard({
@@ -149,7 +149,7 @@ describe("createLot", () => {
             quantity: 1,
             cardName: "Tornado Dragon",
             cardSnapshot: tornadoDragon.raw,
-            imagePath: "https://images.example/tornado.jpg",
+            imagePath: "/card-images/10.jpg",
           }),
         ],
       );

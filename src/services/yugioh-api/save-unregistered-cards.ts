@@ -7,6 +7,11 @@ import type { Card } from "../../schemas/ygo-pro-deck";
 //* Local imports
 import { db } from "../../db/index";
 import { card } from "../../db/schema";
+import {
+  downloadCardImage,
+  saveCardImage,
+  type ImageDownload,
+} from "./save-card-image";
 
 type CardRow = InferInsertModel<typeof card>;
 
@@ -22,6 +27,7 @@ export type CardCatalog = {
 export async function saveUnregisteredCards(
   cards: readonly Card[],
   catalog: CardCatalog = createCardCatalog(),
+  download: ImageDownload = downloadCardImage,
 ): Promise<void> {
   const unique = uniqueCards(cards);
 
@@ -37,8 +43,27 @@ export async function saveUnregisteredCards(
   }
 
   const fetchedAt = new Date();
+  const rows: CardRow[] = [];
 
-  await catalog.insertCards(missing.map((entry) => toCardRow(entry, fetchedAt)));
+  for (const entry of missing) {
+    const imageUrl = entry.card_images?.[0]?.image_url;
+
+    if (!imageUrl) {
+      continue;
+    }
+
+    try {
+      const imagePath = await saveCardImage(entry.id, imageUrl, download);
+      rows.push(toCardRow(entry, fetchedAt, imagePath));
+    } catch {
+      // Leave the card unregistered so a later search can try again.
+      continue;
+    }
+  }
+
+  if (rows.length > 0) {
+    await catalog.insertCards(rows);
+  }
 }
 
 function uniqueCards(cards: readonly Card[]): Card[] {
@@ -57,7 +82,7 @@ function uniqueCards(cards: readonly Card[]): Card[] {
   return unique;
 }
 
-function toCardRow(entry: Card, fetchedAt: Date): CardRow {
+function toCardRow(entry: Card, fetchedAt: Date, imagePath: string): CardRow {
   return {
     id: entry.id,
     name: entry.name,
@@ -70,7 +95,7 @@ function toCardRow(entry: Card, fetchedAt: Date): CardRow {
     def: entry.def ?? null,
     level: entry.level ?? null,
     raw: toRawCard(entry),
-    imagePath: entry.card_images?.[0]?.image_url ?? null,
+    imagePath,
     fetchedAt,
   };
 }
