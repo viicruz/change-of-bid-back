@@ -93,6 +93,14 @@ export type PlaceBidDependencies = {
   markLotLeadingBid: typeof markLotLeadingBid;
 };
 
+type LockedLot = NonNullable<Awaited<ReturnType<typeof lockLotForUpdate>>>;
+type CurrentBid = NonNullable<Awaited<ReturnType<typeof findBidById>>>;
+type LockedWallet = Awaited<ReturnType<typeof lockWalletsByUserIds>>[number];
+type BidFunding = {
+  bidderWallet: LockedWallet;
+  lockedWallets: LockedWallet[];
+};
+
 export async function placeBid(
   input: PlaceBidInput,
   dependencies: Partial<PlaceBidDependencies> = {},
@@ -112,172 +120,56 @@ export async function placeBid(
   const amount = parseBidAmount(input.amount);
 
   const accepted = await resolved.runInTransaction(async (executor) => {
-    const locked = await resolved.lockLotForUpdate(executor, input.lotId);
-
-    if (locked === null) {
-      throw new PlaceBidError("LOT_NOT_FOUND", "Lot was not found.");
-    }
-
-    const now = resolved.now();
-
-    if (locked.status === "CANCELED") {
-      throw new PlaceBidError(
-        "LOT_CANCELED",
-        "Bids are not accepted on a canceled lot.",
-      );
-    }
-
-    if (locked.status === "ENDED" || locked.endsAt.getTime() <= now.getTime()) {
-      throw new PlaceBidError(
-        "LOT_ENDED",
-        "Bids are not accepted after the lot ends.",
-      );
-    }
-
-    if (locked.startsAt.getTime() > now.getTime()) {
-      throw new PlaceBidError(
-        "LOT_NOT_STARTED",
-        "Bids are not accepted before the lot starts.",
-      );
-    }
-
-    const currentBid =
-      locked.currentBidId === null
-        ? null
-        : await resolved.findBidById(executor, locked.currentBidId);
-
-    if (locked.currentBidId !== null) {
-      if (currentBid === null || currentBid.lotId !== locked.id) {
-        throw new Error("Current bid was not found");
-      }
-
-      if (
-        currentBid.sequence !== locked.bidCount ||
-        locked.headHash !== currentBid.hash
-      ) {
-        throw new Error("Current bid does not match the lot head");
-      }
-
-      if (currentBid.bidderId === input.userId) {
-        throw new PlaceBidError(
-          "ALREADY_LEADER",
-          "The current leader cannot outbid themselves.",
-        );
-      }
-    }
-
-    const minimum = minimumAcceptedAmount(
-      storedMoney(locked.openingBid),
-      currentBid === null ? null : storedMoney(currentBid.amount),
-      storedMoney(locked.minIncrement),
-    );
-
-    if (compareMoney(amount, minimum) < 0) {
-      throw new PlaceBidError(
-        "BID_BELOW_MINIMUM",
-        "The bid is below the minimum accepted amount.",
-      );
-    }
-
-    const lockedWallets = await resolved.lockWalletsByUserIds(
+    const { locked, now } = await lockBiddableLot(executor, input.lotId, resolved);
+    const currentBid = await findValidatedLeader(
       executor,
-      currentBid === null
-        ? [input.userId]
-        : [input.userId, currentBid.bidderId],
+      locked,
+      input.userId,
+      resolved,
     );
-    const bidderWallet = lockedWallets.find(
-      (entry) => entry.userId === input.userId,
-    );
+    assertMinimumBid(locked, currentBid, amount);
 
-    if (!bidderWallet) {
-      throw new Error("Bidder wallet was not found");
-    }
-
-    const covers = await resolved.walletCoversAmount(
+    const funding = await lockBidFunding(
       executor,
-      bidderWallet.id,
+      input.userId,
+      currentBid,
       amount,
+      resolved,
     );
-
-    if (!covers) {
-      throw new PlaceBidError(
-        "INSUFFICIENT_BALANCE",
-        "The available balance does not cover this bid.",
-      );
-    }
-
     const participant = await resolved.findOrCreateLotParticipant(
       executor,
       locked.id,
       input.userId,
     );
-    const createdAtCanonical = canonicalBidTimestamp(now);
-    const createdAt = new Date(createdAtCanonical);
-    const sequence = locked.bidCount + 1;
-    const previousHash =
-      currentBid === null
-        ? genesisBidHash(resolved.hashSecret, locked.id)
-        : currentBid.hash;
-    const hash = chainBidHash(resolved.hashSecret, {
-      previousHash,
-      lotId: locked.id,
-      sequence,
-      participantNo: participant.participantNo,
-      amount,
-      createdAt: createdAtCanonical,
-    });
-    const inserted = await resolved.insertBid(executor, {
-      lotId: locked.id,
-      participantId: participant.id,
+    const canonical = prepareCanonicalBid({
+      locked,
+      currentBid,
+      participant,
       bidderId: input.userId,
-      sequence,
       amount,
-      createdAt,
-      previousHash,
-      hash,
+      now,
+      hashSecret: resolved.hashSecret,
     });
+    const createdAtCanonical = canonicalBidTimestamp(canonical.createdAt);
+    const inserted = await resolved.insertBid(executor, canonical);
 
     if (canonicalBidTimestamp(asDate(inserted.createdAt)) !== createdAtCanonical) {
       throw new Error("Persisted bid timestamp does not match the hashed instant");
     }
 
-    await resolved.insertHoldMovement(executor, {
-      walletId: bidderWallet.id,
-      amount,
-      lotId: locked.id,
-      bidId: inserted.id,
-    });
-    await resolved.increaseCommittedBalance(executor, bidderWallet.id, amount);
-
-    if (currentBid !== null) {
-      const leaderWallet = lockedWallets.find(
-        (entry) => entry.userId === currentBid.bidderId,
-      );
-
-      if (!leaderWallet) {
-        throw new Error("Leader wallet was not found");
-      }
-
-      const releasedAmount = storedMoney(currentBid.amount);
-
-      await resolved.insertReleaseMovement(executor, {
-        walletId: leaderWallet.id,
-        amount: releasedAmount,
-        lotId: locked.id,
-        bidId: currentBid.id,
-      });
-      await resolved.decreaseCommittedBalance(
-        executor,
-        leaderWallet.id,
-        releasedAmount,
-      );
-    }
+    await transitionBidReserves(
+      executor,
+      { lotId: locked.id, bidId: inserted.id, amount },
+      currentBid,
+      funding,
+      resolved,
+    );
 
     const schedule = antiSnipeExtension(locked.endsAt, locked.extensionCount, now);
     const marked = await resolved.markLotLeadingBid(executor, locked.id, {
       currentBidId: inserted.id,
-      bidCount: sequence,
-      headHash: hash,
+      bidCount: canonical.sequence,
+      headHash: canonical.hash,
       ...(schedule === null ? {} : { schedule }),
     });
 
@@ -297,6 +189,220 @@ export async function placeBid(
   await publishPublicLot(input.lotId);
 
   return accepted;
+}
+
+// All database steps below receive the transaction's executor. Lock the lot
+// first, then the wallets (in the model's stable id order), before writing.
+async function lockBiddableLot(
+  executor: DatabaseExecutor,
+  lotId: string,
+  dependencies: PlaceBidDependencies,
+) {
+  const locked = await dependencies.lockLotForUpdate(executor, lotId);
+
+  if (locked === null) {
+    throw new PlaceBidError("LOT_NOT_FOUND", "Lot was not found.");
+  }
+
+  const now = dependencies.now();
+
+  if (locked.status === "CANCELED") {
+    throw new PlaceBidError(
+      "LOT_CANCELED",
+      "Bids are not accepted on a canceled lot.",
+    );
+  }
+
+  if (locked.status === "ENDED" || locked.endsAt.getTime() <= now.getTime()) {
+    throw new PlaceBidError(
+      "LOT_ENDED",
+      "Bids are not accepted after the lot ends.",
+    );
+  }
+
+  if (locked.startsAt.getTime() > now.getTime()) {
+    throw new PlaceBidError(
+      "LOT_NOT_STARTED",
+      "Bids are not accepted before the lot starts.",
+    );
+  }
+
+  return { locked, now };
+}
+
+async function findValidatedLeader(
+  executor: DatabaseExecutor,
+  locked: LockedLot,
+  bidderId: string,
+  dependencies: PlaceBidDependencies,
+): Promise<CurrentBid | null> {
+  const currentBid =
+    locked.currentBidId === null
+      ? null
+      : await dependencies.findBidById(executor, locked.currentBidId);
+
+  if (locked.currentBidId !== null) {
+    if (currentBid === null || currentBid.lotId !== locked.id) {
+      throw new Error("Current bid was not found");
+    }
+
+    if (
+      currentBid.sequence !== locked.bidCount ||
+      locked.headHash !== currentBid.hash
+    ) {
+      throw new Error("Current bid does not match the lot head");
+    }
+
+    if (currentBid.bidderId === bidderId) {
+      throw new PlaceBidError(
+        "ALREADY_LEADER",
+        "The current leader cannot outbid themselves.",
+      );
+    }
+  }
+
+  return currentBid;
+}
+
+function assertMinimumBid(
+  locked: LockedLot,
+  currentBid: CurrentBid | null,
+  amount: string,
+) {
+  const minimum = minimumAcceptedAmount(
+    storedMoney(locked.openingBid),
+    currentBid === null ? null : storedMoney(currentBid.amount),
+    storedMoney(locked.minIncrement),
+  );
+
+  if (compareMoney(amount, minimum) < 0) {
+    throw new PlaceBidError(
+      "BID_BELOW_MINIMUM",
+      "The bid is below the minimum accepted amount.",
+    );
+  }
+}
+
+async function lockBidFunding(
+  executor: DatabaseExecutor,
+  bidderId: string,
+  currentBid: CurrentBid | null,
+  amount: string,
+  dependencies: PlaceBidDependencies,
+): Promise<BidFunding> {
+  const lockedWallets = await dependencies.lockWalletsByUserIds(
+    executor,
+    currentBid === null ? [bidderId] : [bidderId, currentBid.bidderId],
+  );
+  const bidderWallet = lockedWallets.find((entry) => entry.userId === bidderId);
+
+  if (!bidderWallet) {
+    throw new Error("Bidder wallet was not found");
+  }
+
+  const covers = await dependencies.walletCoversAmount(
+    executor,
+    bidderWallet.id,
+    amount,
+  );
+
+  if (!covers) {
+    throw new PlaceBidError(
+      "INSUFFICIENT_BALANCE",
+      "The available balance does not cover this bid.",
+    );
+  }
+
+  return { bidderWallet, lockedWallets };
+}
+
+function prepareCanonicalBid({
+  locked,
+  currentBid,
+  participant,
+  bidderId,
+  amount,
+  now,
+  hashSecret,
+}: {
+  locked: LockedLot;
+  currentBid: CurrentBid | null;
+  participant: Awaited<ReturnType<typeof findOrCreateLotParticipant>>;
+  bidderId: string;
+  amount: string;
+  now: Date;
+  hashSecret: string;
+}): Parameters<typeof insertBid>[1] {
+  const createdAtCanonical = canonicalBidTimestamp(now);
+  const createdAt = new Date(createdAtCanonical);
+  const sequence = locked.bidCount + 1;
+  const previousHash =
+    currentBid === null
+      ? genesisBidHash(hashSecret, locked.id)
+      : currentBid.hash;
+  const hash = chainBidHash(hashSecret, {
+    previousHash,
+    lotId: locked.id,
+    sequence,
+    participantNo: participant.participantNo,
+    amount,
+    createdAt: createdAtCanonical,
+  });
+
+  return {
+    lotId: locked.id,
+    participantId: participant.id,
+    bidderId,
+    sequence,
+    amount,
+    createdAt,
+    previousHash,
+    hash,
+  };
+}
+
+async function transitionBidReserves(
+  executor: DatabaseExecutor,
+  accepted: { lotId: string; bidId: string; amount: string },
+  currentBid: CurrentBid | null,
+  { bidderWallet, lockedWallets }: BidFunding,
+  dependencies: PlaceBidDependencies,
+) {
+  await dependencies.insertHoldMovement(executor, {
+    walletId: bidderWallet.id,
+    amount: accepted.amount,
+    lotId: accepted.lotId,
+    bidId: accepted.bidId,
+  });
+  await dependencies.increaseCommittedBalance(
+    executor,
+    bidderWallet.id,
+    accepted.amount,
+  );
+
+  if (currentBid !== null) {
+    const leaderWallet = lockedWallets.find(
+      (entry) => entry.userId === currentBid.bidderId,
+    );
+
+    if (!leaderWallet) {
+      throw new Error("Leader wallet was not found");
+    }
+
+    const releasedAmount = storedMoney(currentBid.amount);
+
+    await dependencies.insertReleaseMovement(executor, {
+      walletId: leaderWallet.id,
+      amount: releasedAmount,
+      lotId: accepted.lotId,
+      bidId: currentBid.id,
+    });
+    await dependencies.decreaseCommittedBalance(
+      executor,
+      leaderWallet.id,
+      releasedAmount,
+    );
+  }
 }
 
 function createDefaultDependencies(): PlaceBidDependencies {
