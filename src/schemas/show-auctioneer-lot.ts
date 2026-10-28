@@ -1,7 +1,7 @@
 //* Libraries imports
 import { z } from "zod";
 
-export const showAuctioneerLotStatusSchema = z.enum([
+const showAuctioneerLotStatusSchema = z.enum([
   "SCHEDULED",
   "LIVE",
   "ENDED",

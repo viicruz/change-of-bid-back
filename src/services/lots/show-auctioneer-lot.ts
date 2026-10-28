@@ -94,7 +94,7 @@ export type ShowAuctioneerLotDependencies = {
   ) => Promise<Result>;
 };
 
-export function runShowAuctioneerLotRead<Result>(
+function runShowAuctioneerLotRead<Result>(
   work: (executor: DatabaseExecutor) => Promise<Result>,
 ): Promise<Result> {
   return db.transaction((executor) => work(executor), {

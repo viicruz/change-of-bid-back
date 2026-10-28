@@ -2,8 +2,8 @@
 import { z } from "zod";
 
 const MONEY_PATTERN = /^(?:0|[1-9]\d{0,15})(?:\.\d{1,2})?$/;
-export const MONEY_CURRENCY_CODE = "BRL";
-export const MAX_MONEY_AMOUNT = "1000000.00";
+const MONEY_CURRENCY_CODE = "BRL";
+const MAX_MONEY_AMOUNT = "1000000.00";
 
 export const moneyValidationMessage =
   `Money values must be greater than zero, have at most 2 decimal places, and not exceed ${MONEY_CURRENCY_CODE} ${MAX_MONEY_AMOUNT}.`;

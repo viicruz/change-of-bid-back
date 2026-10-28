@@ -6,7 +6,7 @@ const DEFAULT_MOVEMENT_LIMIT = 20;
 const MAX_MOVEMENT_LIMIT = 50;
 const MAX_MOVEMENT_PAGE = 1_000;
 
-export const walletMovementTypeSchema = z.enum([
+const walletMovementTypeSchema = z.enum([
   "DEPOSIT",
   "HOLD",
   "RELEASE",
@@ -56,7 +56,7 @@ export const listWalletMovementsQuerySchema = z.object({
     .default(DEFAULT_MOVEMENT_LIMIT),
 });
 
-export const walletMovementSchema = z.object({
+const walletMovementSchema = z.object({
   id: z.uuid(),
   type: walletMovementTypeSchema,
   amount: z.string(),
@@ -75,7 +75,6 @@ export const listWalletMovementsResponseSchema = z.object({
 export { MAX_MOVEMENT_PAGE };
 
 export type WalletResponse = z.infer<typeof walletResponseSchema>;
-export type DepositBody = z.infer<typeof depositBodySchema>;
 export type ListWalletMovementsQuery = z.infer<
   typeof listWalletMovementsQuerySchema
 >;

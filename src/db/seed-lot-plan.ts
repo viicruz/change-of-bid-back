@@ -20,7 +20,7 @@ export const seedDepositAmounts = [
 
 const depositDaysAgo = [40, 36, 32, 28, 24] as const;
 
-export const seedLotStatuses = [
+const seedLotStatuses = [
   "scheduled",
   "live",
   "ended",

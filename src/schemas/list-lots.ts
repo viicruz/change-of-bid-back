@@ -1,11 +1,11 @@
 //* Libraries imports
 import { z } from "zod";
 
-export const publicLotStatusSchema = z.enum(["SCHEDULED", "LIVE", "ENDED"]);
+const publicLotStatusSchema = z.enum(["SCHEDULED", "LIVE", "ENDED"]);
 
 export const publicLotListingItemLimit = 5;
 
-export const auctioneerLotStatusSchema = z.enum([
+const auctioneerLotStatusSchema = z.enum([
   "SCHEDULED",
   "LIVE",
   "ENDED",

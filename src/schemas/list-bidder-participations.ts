@@ -4,7 +4,7 @@ import { z } from "zod";
 //* Schemas imports
 import { shareTokenSchema } from "./show-receipt";
 
-export const bidderParticipationStatusSchema = z.enum([
+const bidderParticipationStatusSchema = z.enum([
   "SCHEDULED",
   "LIVE",
   "ENDED",

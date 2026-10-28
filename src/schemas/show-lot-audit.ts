@@ -5,7 +5,7 @@ export const showPublicLotAuditParamsSchema = z.object({
   id: z.uuid(),
 });
 
-export const showPublicLotAuditStatusSchema = z.enum([
+const showPublicLotAuditStatusSchema = z.enum([
   "INTACT",
   "TAMPERED",
   "VERIFICATION_FAILED",
