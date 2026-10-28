@@ -220,6 +220,24 @@ describe("saveUnregisteredCards", () => {
     expect(download).toHaveBeenCalledTimes(2);
   });
 
+  it("skips an untrusted image URL before downloading and continues with the next card", async () => {
+    const catalog = createCatalog();
+    const untrusted = {
+      ...tornadoDragon,
+      card_images: [{
+        ...tornadoDragon.card_images[0],
+        image_url: "https://127.0.0.1/card.jpg",
+      }],
+    };
+
+    await saveUnregisteredCards([untrusted, decodeTalker], catalog, download);
+
+    expect(download).toHaveBeenCalledExactlyOnceWith(decodeTalker.card_images[0].image_url);
+    expect(catalog.insertCards).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ id: decodeTalker.id, imagePath: "/card-images/1861629.jpg" }),
+    ]);
+  });
+
   it.each([undefined, null, []])("does not download or insert a card without images (%s)", async (cardImages) => {
     const catalog = createCatalog();
 

@@ -11,6 +11,9 @@ export type ImageDownload = (url: string) => Promise<Response>;
 export const downloadCardImage: ImageDownload = (url) =>
   fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000) });
 
+// Image origin documented at https://ygoprodeck.com/api-guide/#card-images.
+const CARD_IMAGE_ORIGIN = "https://images.ygoprodeck.com";
+
 const contentTypes = new Map([
   [".jpg", "image/jpeg"],
   [".jpeg", "image/jpeg"],
@@ -28,9 +31,13 @@ export async function saveCardImage(
   const contentType = contentTypes.get(extension);
 
   if (
-    !Number.isSafeInteger(id) || id < 0 ||
-    !contentType || !["http:", "https:"].includes(url.protocol)
+    url.protocol !== "https:" || url.origin !== CARD_IMAGE_ORIGIN ||
+    url.username || url.password
   ) {
+    throw new Error("Invalid card image origin");
+  }
+
+  if (!Number.isSafeInteger(id) || id < 0 || !contentType) {
     throw new Error("Invalid card image path");
   }
 
@@ -44,7 +51,7 @@ export async function saveCardImage(
   }
 
   //* Download the image
-  const response = await download(imageUrl);
+  const response = await download(url.href);
   const receivedType = response.headers.get("content-type")
     ?.split(";")[0]?.trim().toLowerCase();
 
