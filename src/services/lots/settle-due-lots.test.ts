@@ -3,7 +3,15 @@ import { asc, eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 //* Models imports
-import { findWalletByUserId } from "../../models/wallet";
+import { findBidById } from "../../models/bid";
+import { markLotEnded } from "../../models/lot";
+import { findLotParticipantByUserId } from "../../models/lot-participant";
+import { insertReceipt } from "../../models/receipt";
+import {
+  decreaseTotalAndCommittedBalance,
+  findWalletByUserId,
+  increaseTotalBalance,
+} from "../../models/wallet";
 
 //* Local imports
 import { db } from "../../db/index";
@@ -20,10 +28,12 @@ import {
 //* Services imports
 import { cancelLot, CancelLotError } from "./cancel-lot";
 import { placeBid, PlaceBidError } from "./place-bid";
+import { joinPublicLotRoom } from "./public-lot-live";
 import {
   describeSettlementFailure,
   LotSettlementError,
   settleDueLots,
+  type SettleDueLotsDependencies,
 } from "./settle-due-lots";
 
 const clock = new Date("1999-06-15T12:00:00.000Z");
@@ -1362,5 +1372,271 @@ describe("settleDueLots", () => {
         availableBalance: "0.00",
       });
     });
+  });
+
+  describe("when a financial write fails", () => {
+    const injectedFailure = new Error("Injected settlement failure");
+    const cases = [
+      {
+        stage: "winner debit",
+        dependencies: {
+          decreaseTotalAndCommittedBalance: async (...args) => {
+            await decreaseTotalAndCommittedBalance(...args);
+            throw injectedFailure;
+          },
+        },
+      },
+      {
+        stage: "auctioneer credit",
+        dependencies: {
+          increaseTotalBalance: async (...args) => {
+            await increaseTotalBalance(...args);
+            throw injectedFailure;
+          },
+        },
+      },
+      {
+        stage: "receipt insertion",
+        dependencies: {
+          insertReceipt: async (...args) => {
+            await insertReceipt(...args);
+            throw injectedFailure;
+          },
+        },
+      },
+      {
+        stage: "lot closure",
+        dependencies: {
+          markLotEnded: async (...args) => {
+            await markLotEnded(...args);
+            throw injectedFailure;
+          },
+        },
+      },
+      {
+        stage: "share token validation",
+        dependencies: { createShareToken: () => "invalid-token" },
+      },
+    ] satisfies {
+      stage: string;
+      dependencies: Partial<SettleDueLotsDependencies>;
+    }[];
+
+    it.each(cases)(
+      "rolls back $stage and publishes nothing, then permits a retry",
+      async ({ stage, dependencies }) => {
+        const opened = await openLot({ endsAt: shift(clock, hour) });
+        const leader = await leadLot(opened.lotId, "25.00", clock);
+        const messages: string[] = [];
+        const leave = await joinPublicLotRoom(opened.lotId, (payload) =>
+          messages.push(payload),
+        );
+        messages.length = 0;
+
+        try {
+          const result = await settle(
+            settleDueLots({
+              ...dependencies,
+              now: () => shift(clock, 2 * hour),
+            }),
+          );
+          expect(result.status).toBe("rejected");
+          if (result.status !== "rejected") {
+            throw new Error("Expected settlement failure");
+          }
+          expect(settlementError(result.error, opened.lotId)?.cause).toEqual(
+            stage === "share token validation"
+              ? new Error("Share token must be 32 bytes encoded as base64url")
+              : injectedFailure,
+          );
+          expect(await readLot(opened.lotId)).toMatchObject({
+            status: "ACTIVE",
+            winnerId: null,
+            endedAt: null,
+            settledAt: null,
+            currentBidId: leader.accepted.id,
+          });
+          expect(await readWallet(leader.bidderId)).toMatchObject({
+            totalBalance: "100.00",
+            committedBalance: "25.00",
+            availableBalance: "75.00",
+          });
+          expect(await readWallet(opened.auctioneerId)).toMatchObject({
+            totalBalance: "0.00",
+            committedBalance: "0.00",
+            availableBalance: "0.00",
+          });
+          expect(await readMovements(opened.lotId)).toEqual([
+            {
+              type: "HOLD",
+              amount: "25.00",
+              bidId: leader.accepted.id,
+              walletId: leader.walletId,
+            },
+          ]);
+          expect(await readReceipts(opened.lotId)).toEqual([]);
+          expect(messages).toEqual([]);
+
+          await settleFor(shift(clock, 2 * hour));
+          await settleFor(shift(clock, 2 * hour));
+          expect(await readLot(opened.lotId)).toMatchObject({
+            status: "ENDED",
+            winnerId: leader.bidderId,
+          });
+          expect(await readWallet(leader.bidderId)).toMatchObject({
+            totalBalance: "75.00",
+            committedBalance: "0.00",
+          });
+          expect(await readWallet(opened.auctioneerId)).toMatchObject({
+            totalBalance: "25.00",
+          });
+          expect(
+            (await readMovements(opened.lotId))
+              .map((entry) => entry.type)
+              .sort(),
+          ).toEqual(["HOLD", "SETTLEMENT_CREDIT", "SETTLEMENT_DEBIT"]);
+          expect(await readReceipts(opened.lotId)).toHaveLength(1);
+          expect(messages).toHaveLength(1);
+        } finally {
+          leave();
+        }
+      },
+    );
+  });
+
+  it("publishes the winning settlement only after the transaction commits", async () => {
+    const opened = await openLot({ endsAt: shift(clock, hour) });
+    const leader = await leadLot(opened.lotId, "25.00", clock);
+    let committed = false;
+    const deliveries: { committed: boolean; payload: string }[] = [];
+    const leave = await joinPublicLotRoom(opened.lotId, (payload) => {
+      deliveries.push({ committed, payload });
+    });
+    deliveries.length = 0;
+
+    try {
+      await settleDueLots({
+        now: () => shift(clock, 2 * hour),
+        runInTransaction: async (work) => {
+          const result = await db.transaction(async (tx) => {
+            const settlement = await work(tx);
+            expect(deliveries).toEqual([]);
+            // A separate connection still sees the pre-commit state.
+            expect(await readLot(opened.lotId)).toMatchObject({
+              status: "ACTIVE",
+            });
+            expect(await readWallet(leader.bidderId)).toMatchObject({
+              totalBalance: "100.00",
+              committedBalance: "25.00",
+            });
+            expect(await readReceipts(opened.lotId)).toEqual([]);
+            return settlement;
+          });
+          expect(deliveries).toEqual([]);
+          expect(await readLot(opened.lotId)).toMatchObject({
+            status: "ENDED",
+          });
+          expect(await readWallet(leader.bidderId)).toMatchObject({
+            totalBalance: "75.00",
+            committedBalance: "0.00",
+          });
+          expect(await readWallet(opened.auctioneerId)).toMatchObject({
+            totalBalance: "25.00",
+          });
+          expect(await readReceipts(opened.lotId)).toHaveLength(1);
+          committed = true;
+          return result;
+        },
+      });
+      expect(deliveries).toHaveLength(1);
+      expect(deliveries[0]?.committed).toBe(true);
+      expect(JSON.parse(deliveries[0]!.payload).lot).toMatchObject({
+        status: "ENDED",
+        winnerParticipantNo: 1,
+      });
+    } finally {
+      leave();
+    }
+  });
+
+  describe("when winner validation fails", () => {
+    const cases = [
+      {
+        reason: "missing bid",
+        dependencies: {
+          findBidById: async (executor) =>
+            findBidById(executor, crypto.randomUUID()),
+        },
+        message: "Current bid was not found",
+      },
+      {
+        reason: "missing participant",
+        dependencies: {
+          findLotParticipantByUserId: async (executor, lotId) =>
+            findLotParticipantByUserId(executor, lotId, crypto.randomUUID()),
+        },
+        message: "Winner participant was not found",
+      },
+      {
+        reason: "missing wallets",
+        dependencies: { lockWalletsByUserIds: async () => [] },
+        message: "Settlement wallet was not found",
+      },
+      {
+        reason: "missing hold",
+        dependencies: { findOpenHoldForBid: async () => null },
+        message: "Open hold for the winning bid was not found",
+      },
+      {
+        reason: "mismatched hold",
+        dependencies: { findOpenHoldForBid: async () => ({ amount: "24.99" }) },
+        message: "Open hold for the winning bid was not found",
+      },
+    ] satisfies {
+      reason: string;
+      dependencies: Partial<SettleDueLotsDependencies>;
+      message: string;
+    }[];
+
+    it.each(cases)(
+      "rejects $reason and preserves the reserve",
+      async ({ dependencies, message }) => {
+        const opened = await openLot({ endsAt: shift(clock, hour) });
+        const leader = await leadLot(opened.lotId, "25.00", clock);
+        const result = await settle(
+          settleDueLots({ ...dependencies, now: () => shift(clock, 2 * hour) }),
+        );
+
+        expect(result.status).toBe("rejected");
+        if (result.status !== "rejected") {
+          throw new Error("Expected settlement failure");
+        }
+        expect(
+          settlementError(result.error, opened.lotId)?.cause,
+        ).toMatchObject({ message });
+        expect(await readLot(opened.lotId)).toMatchObject({
+          status: "ACTIVE",
+          winnerId: null,
+          endedAt: null,
+          settledAt: null,
+        });
+        expect(await readWallet(leader.bidderId)).toMatchObject({
+          totalBalance: "100.00",
+          committedBalance: "25.00",
+        });
+        expect(await readWallet(opened.auctioneerId)).toMatchObject({
+          totalBalance: "0.00",
+        });
+        expect(await readMovements(opened.lotId)).toEqual([
+          {
+            type: "HOLD",
+            amount: "25.00",
+            bidId: leader.accepted.id,
+            walletId: leader.walletId,
+          },
+        ]);
+        expect(await readReceipts(opened.lotId)).toEqual([]);
+      },
+    );
   });
 });
