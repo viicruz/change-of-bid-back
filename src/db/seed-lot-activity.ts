@@ -53,12 +53,7 @@ export async function seedLotActivity(input: {
 }
 
 async function seedDeposits(userId: string, email: string, now: Date) {
-  const existing = await db
-    .select({ id: walletMovement.id })
-    .from(walletMovement)
-    .innerJoin(wallet, eq(wallet.id, walletMovement.walletId))
-    .where(and(eq(wallet.userId, userId), eq(walletMovement.type, "DEPOSIT")))
-    .limit(1);
+  const existing = await seedDepositsQuery(userId).limit(1);
 
   if (existing.length > 0) {
     console.log(`skipped deposits for ${email}`);
@@ -78,14 +73,7 @@ async function seedDeposits(userId: string, email: string, now: Date) {
 }
 
 async function retimeDeposits(userId: string, now: Date) {
-  const rows = await db
-    .select({
-      id: walletMovement.id,
-      amount: walletMovement.amount,
-    })
-    .from(walletMovement)
-    .innerJoin(wallet, eq(wallet.id, walletMovement.walletId))
-    .where(and(eq(wallet.userId, userId), eq(walletMovement.type, "DEPOSIT")));
+  const rows = await seedDepositsQuery(userId);
   const instants = depositInstants(now);
 
   for (const [index, amount] of seedDepositAmounts.entries()) {
@@ -134,12 +122,7 @@ async function placePlannedBids(
   await retimeBids(
     seeded.id,
     placed,
-    bidInstants(
-      seeded.plan.startsAt,
-      seeded.plan.endsAt,
-      placed.length,
-      now,
-    ),
+    bidInstants(seeded.plan.startsAt, seeded.plan.endsAt, placed.length, now),
   );
 }
 
@@ -294,4 +277,12 @@ async function findUserId(email: string) {
   }
 
   return found.id;
+}
+
+function seedDepositsQuery(userId: string) {
+  return db
+    .select({ id: walletMovement.id, amount: walletMovement.amount })
+    .from(walletMovement)
+    .innerJoin(wallet, eq(wallet.id, walletMovement.walletId))
+    .where(and(eq(wallet.userId, userId), eq(walletMovement.type, "DEPOSIT")));
 }

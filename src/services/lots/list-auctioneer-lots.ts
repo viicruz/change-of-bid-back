@@ -1,7 +1,8 @@
 //* Libraries imports
-import { and, asc, eq, exists, inArray, or, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 //* Schemas imports
+import { formatListedMoney as formatMoney } from "../../schemas/money";
 import type {
   AuctioneerLotStatus,
   ListAuctioneerLotsQuery,
@@ -9,14 +10,14 @@ import type {
 
 //* Local imports
 import { db } from "../../db/index";
-import { bid, lot, lotItem, wallet, walletMovement } from "../../db/schema";
+import { bid, lot, wallet, walletMovement } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
+import { lotListColumns, requireLotStatus } from "./lot-read";
 import {
-  isCanceled,
-  isEnded,
-  isLive,
-  isScheduled,
-} from "./effective-lot-status";
+  loadListedLotItems,
+  lotListingOrder,
+  matchesLotSearch,
+} from "./lot-listing";
 
 const listAuctioneerLotsErrorCodes = ["NOT_AUCTIONEER"] as const;
 
@@ -91,22 +92,7 @@ export async function listAuctioneerLots(
   );
   const rows = await dependencies.executor
     .select({
-      id: lot.id,
-      title: lot.title,
-      description: lot.description,
-      openingBid: lot.openingBid,
-      minIncrement: lot.minIncrement,
-      startsAt: lot.startsAt,
-      endsAt: lot.endsAt,
-      status: sql<string | null>`CASE
-        WHEN ${isCanceled()} THEN 'CANCELED'
-        WHEN ${isEnded(now)} THEN 'ENDED'
-        WHEN ${isScheduled(now)} THEN 'SCHEDULED'
-        WHEN ${isLive(now)} THEN 'LIVE'
-      END`.as("effective_status"),
-      currentBid: bid.amount,
-      bidCount: lot.bidCount,
-      winnerId: lot.winnerId,
+      ...lotListColumns(now),
       receivedAmount: sql<string | null>`(
         select ${walletMovement.amount}
         from ${walletMovement}
@@ -122,28 +108,12 @@ export async function listAuctioneerLots(
     .where(
       and(
         eq(lot.auctioneerId, input.auctioneerId),
-        matchesStatus(input.status, now),
-        matchesText(dependencies.executor, input.q),
+        matchesLotSearch(dependencies.executor, input, now),
       ),
     )
-    .orderBy(
-      sql`CASE
-        WHEN ${isLive(now)} THEN 0
-        WHEN ${isScheduled(now)} THEN 1
-        WHEN ${isEnded(now)} THEN 2
-        ELSE 3
-      END`,
-      sql`CASE WHEN ${isEnded(now)} THEN ${lot.endsAt} END DESC`,
-      sql`CASE WHEN ${isScheduled(now)} THEN ${lot.startsAt} END ASC`,
-      sql`CASE WHEN ${isLive(now)} THEN ${lot.endsAt} END ASC`,
-      sql`CASE WHEN ${isCanceled()} THEN ${lot.canceledAt} END DESC`,
-      asc(lot.id),
-    );
+    .orderBy(...lotListingOrder(now));
 
-  const itemsByLotId = await loadItems(
-    dependencies.executor,
-    rows.map((row) => row.id),
-  );
+  const itemsByLotId = await loadListedLotItems(dependencies.executor, rows);
 
   return {
     totalReceived,
@@ -155,7 +125,7 @@ export async function listAuctioneerLots(
       minIncrement: row.minIncrement,
       startsAt: row.startsAt,
       endsAt: row.endsAt,
-      status: requireStatus(row.status),
+      status: requireLotStatus(row.status, "Lot listing"),
       currentBid: row.currentBid,
       bidCount: row.bidCount,
       sold: row.winnerId !== null,
@@ -195,115 +165,10 @@ async function loadTotalReceived(
   return formatListedMoney(rows[0]?.totalReceived ?? "0");
 }
 
-function matchesStatus(status: AuctioneerLotStatus | undefined, now: Date) {
-  if (status === "CANCELED") {
-    return isCanceled();
-  }
-
-  if (status === "ENDED") {
-    return isEnded(now);
-  }
-
-  if (status === "SCHEDULED") {
-    return isScheduled(now);
-  }
-
-  if (status === "LIVE") {
-    return isLive(now);
-  }
-
-  return undefined;
-}
-
-function matchesText(executor: DatabaseExecutor, q: string | undefined) {
-  const term = q?.trim() ?? "";
-
-  if (term.length === 0) {
-    return undefined;
-  }
-
-  const pattern = `%${escapeLike(term)}%`;
-
-  return or(
-    sql`${lot.title} ILIKE ${pattern} ESCAPE '\\'`,
-    exists(
-      executor
-        .select({ id: lotItem.id })
-        .from(lotItem)
-        .where(
-          sql`${lotItem.lotId} = ${lot.id} AND ${lotItem.cardName} ILIKE ${pattern} ESCAPE '\\'`,
-        ),
-    ),
-  );
-}
-
-function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/g, (character) => `\\${character}`);
-}
-
-async function loadItems(executor: DatabaseExecutor, lotIds: string[]) {
-  const itemsByLotId = new Map<string, AuctioneerLotItem[]>();
-
-  if (lotIds.length === 0) {
-    return itemsByLotId;
-  }
-
-  const items = await executor
-    .select({
-      id: lotItem.id,
-      lotId: lotItem.lotId,
-      position: lotItem.position,
-      cardId: lotItem.cardId,
-      quantity: lotItem.quantity,
-      cardName: lotItem.cardName,
-      imagePath: lotItem.imagePath,
-    })
-    .from(lotItem)
-    .where(inArray(lotItem.lotId, lotIds))
-    .orderBy(asc(lotItem.lotId), asc(lotItem.position));
-
-  for (const item of items) {
-    const grouped = itemsByLotId.get(item.lotId) ?? [];
-
-    grouped.push({
-      id: item.id,
-      position: item.position,
-      cardId: item.cardId,
-      quantity: item.quantity,
-      cardName: item.cardName,
-      imagePath: item.imagePath,
-    });
-    itemsByLotId.set(item.lotId, grouped);
-  }
-
-  return itemsByLotId;
-}
-
-function requireStatus(status: string | null): AuctioneerLotStatus {
-  if (
-    status === "SCHEDULED" ||
-    status === "LIVE" ||
-    status === "ENDED" ||
-    status === "CANCELED"
-  ) {
-    return status;
-  }
-
-  throw new Error("Lot listing returned an unexpected status");
-}
-
 function formatListedMoney(value: string): string {
-  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
-
-  if (match === null) {
+  const amount = formatMoney(value);
+  if (amount === null) {
     throw new Error("Lot listing returned an unexpected amount");
   }
-
-  const fraction = match[3] ?? "";
-
-  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
-    throw new Error("Lot listing returned an unexpected amount");
-  }
-
-  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
+  return amount;
 }

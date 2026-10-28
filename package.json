@@ -16,6 +16,7 @@
     "fallow:audit": "fallow audit"
   },
   "dependencies": {
+    "@better-auth/core": "^1.7.14",
     "@better-auth/drizzle-adapter": "^1.7.12",
     "@elysia/openapi": "^1.4.16",
     "@elysia/static": "^1.4.11",

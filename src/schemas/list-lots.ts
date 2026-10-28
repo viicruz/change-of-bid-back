@@ -1,16 +1,16 @@
 //* Libraries imports
 import { z } from "zod";
+import {
+  listedLotItemSchema,
+  lotStatusSchema,
+  lotSummarySchema,
+} from "./lot-read";
 
 const publicLotStatusSchema = z.enum(["SCHEDULED", "LIVE", "ENDED"]);
 
 export const publicLotListingItemLimit = 5;
 
-const auctioneerLotStatusSchema = z.enum([
-  "SCHEDULED",
-  "LIVE",
-  "ENDED",
-  "CANCELED",
-]);
+const auctioneerLotStatusSchema = lotStatusSchema;
 
 const lotSearchQuerySchema = z
   .string()
@@ -34,41 +34,13 @@ export const listAuctioneerLotsQuerySchema = z.object({
   status: auctioneerLotStatusSchema.optional(),
 });
 
-const listedLotItemSchema = z.object({
-  id: z.uuid(),
-  position: z.number().int(),
-  cardId: z.number().int(),
-  quantity: z.number().int(),
-  cardName: z.string(),
-  imagePath: z.string(),
-});
-
-const publicLotSchema = z.object({
-  id: z.uuid(),
-  title: z.string(),
-  description: z.string().nullable(),
-  openingBid: z.string(),
-  minIncrement: z.string(),
-  startsAt: z.date(),
-  endsAt: z.date(),
+const publicLotSchema = lotSummarySchema.extend({
   status: publicLotStatusSchema,
-  currentBid: z.string().nullable(),
-  bidCount: z.number().int(),
   sold: z.boolean(),
   items: z.array(listedLotItemSchema).max(publicLotListingItemLimit),
 });
 
-const auctioneerLotSchema = z.object({
-  id: z.uuid(),
-  title: z.string(),
-  description: z.string().nullable(),
-  openingBid: z.string(),
-  minIncrement: z.string(),
-  startsAt: z.date(),
-  endsAt: z.date(),
-  status: auctioneerLotStatusSchema,
-  currentBid: z.string().nullable(),
-  bidCount: z.number().int(),
+const auctioneerLotSchema = lotSummarySchema.extend({
   sold: z.boolean(),
   receivedAmount: z.string().nullable(),
   items: z.array(listedLotItemSchema),

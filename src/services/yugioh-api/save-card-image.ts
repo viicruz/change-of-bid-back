@@ -1,4 +1,5 @@
 //* Node imports
+import { statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 
@@ -34,6 +35,15 @@ export async function saveCardImage(
   }
 
   const filename = `${id}${extension}`;
+  const filePath = join(cardImageStorage.assets, filename);
+  const imagePath = `${cardImageStorage.prefix}/${filename}`;
+
+  //* Check if the file already exists
+  if (statSync(filePath, { throwIfNoEntry: false })?.isFile()) {
+    return imagePath;
+  }
+
+  //* Download the image
   const response = await download(imageUrl);
   const receivedType = response.headers.get("content-type")
     ?.split(";")[0]?.trim().toLowerCase();
@@ -49,7 +59,7 @@ export async function saveCardImage(
   }
 
   await mkdir(cardImageStorage.assets, { recursive: true });
-  await writeFile(join(cardImageStorage.assets, filename), bytes);
+  await writeFile(filePath, bytes);
 
-  return `${cardImageStorage.prefix}/${filename}`;
+  return imagePath;
 }

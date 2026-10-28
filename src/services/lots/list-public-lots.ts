@@ -1,5 +1,5 @@
 //* Libraries imports
-import { and, asc, eq, exists, inArray, lte, ne, or, sql } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 
 //* Schemas imports
 import {
@@ -10,9 +10,14 @@ import {
 
 //* Local imports
 import { db } from "../../db/index";
-import { bid, lot, lotItem } from "../../db/schema";
+import { bid, lot } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
-import { isEnded, isLive, isScheduled } from "./effective-lot-status";
+import { lotListColumns } from "./lot-read";
+import {
+  loadListedLotItems,
+  lotListingOrder,
+  matchesLotSearch,
+} from "./lot-listing";
 
 export type PublicLotItem = {
   id: string;
@@ -50,46 +55,22 @@ export async function listPublicLots(
   const now = dependencies.now();
   const rows = await dependencies.executor
     .select({
-      id: lot.id,
-      title: lot.title,
-      description: lot.description,
-      openingBid: lot.openingBid,
-      minIncrement: lot.minIncrement,
-      startsAt: lot.startsAt,
-      endsAt: lot.endsAt,
-      status: sql<string | null>`CASE
-        WHEN ${isEnded(now)} THEN 'ENDED'
-        WHEN ${isScheduled(now)} THEN 'SCHEDULED'
-        WHEN ${isLive(now)} THEN 'LIVE'
-      END`.as("effective_status"),
-      currentBid: bid.amount,
-      bidCount: lot.bidCount,
-      winnerId: lot.winnerId,
+      ...lotListColumns(now),
     })
     .from(lot)
     .leftJoin(bid, eq(bid.id, lot.currentBidId))
     .where(
       and(
         ne(lot.status, "CANCELED"),
-        matchesStatus(input.status, now),
-        matchesText(dependencies.executor, input.q),
+        matchesLotSearch(dependencies.executor, input, now),
       ),
     )
-    .orderBy(
-      sql`CASE
-        WHEN ${isLive(now)} THEN 0
-        WHEN ${isScheduled(now)} THEN 1
-        ELSE 2
-      END`,
-      sql`CASE WHEN ${isEnded(now)} THEN ${lot.endsAt} END DESC`,
-      sql`CASE WHEN ${isScheduled(now)} THEN ${lot.startsAt} END ASC`,
-      sql`CASE WHEN ${isLive(now)} THEN ${lot.endsAt} END ASC`,
-      asc(lot.id),
-    );
+    .orderBy(...lotListingOrder(now));
 
-  const itemsByLotId = await loadItems(
+  const itemsByLotId = await loadListedLotItems(
     dependencies.executor,
-    rows.map((row) => row.id),
+    rows,
+    publicLotListingItemLimit,
   );
 
   return rows.map((row) => ({
@@ -113,103 +94,6 @@ function createDefaultDependencies(): ListPublicLotsDependencies {
     now: () => new Date(),
     executor: db,
   };
-}
-
-function matchesStatus(status: PublicLotStatus | undefined, now: Date) {
-  if (status === "ENDED") {
-    return isEnded(now);
-  }
-
-  if (status === "SCHEDULED") {
-    return isScheduled(now);
-  }
-
-  if (status === "LIVE") {
-    return isLive(now);
-  }
-
-  return undefined;
-}
-
-function matchesText(executor: DatabaseExecutor, q: string | undefined) {
-  const term = q?.trim() ?? "";
-
-  if (term.length === 0) {
-    return undefined;
-  }
-
-  const pattern = `%${escapeLike(term)}%`;
-
-  return or(
-    sql`${lot.title} ILIKE ${pattern} ESCAPE '\\'`,
-    exists(
-      executor
-        .select({ id: lotItem.id })
-        .from(lotItem)
-        .where(
-          sql`${lotItem.lotId} = ${lot.id} AND ${lotItem.cardName} ILIKE ${pattern} ESCAPE '\\'`,
-        ),
-    ),
-  );
-}
-
-function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/g, (character) => `\\${character}`);
-}
-
-async function loadItems(executor: DatabaseExecutor, lotIds: string[]) {
-  const itemsByLotId = new Map<string, PublicLotItem[]>();
-
-  if (lotIds.length === 0) {
-    return itemsByLotId;
-  }
-
-  const rankedItems = executor
-    .select({
-      id: lotItem.id,
-      lotId: lotItem.lotId,
-      position: lotItem.position,
-      cardId: lotItem.cardId,
-      quantity: lotItem.quantity,
-      cardName: lotItem.cardName,
-      imagePath: lotItem.imagePath,
-      itemRank: sql<number>`row_number() over (partition by ${lotItem.lotId} order by ${lotItem.position} asc)`.as(
-        "item_rank",
-      ),
-    })
-    .from(lotItem)
-    .where(inArray(lotItem.lotId, lotIds))
-    .as("ranked_lot_items");
-
-  const items = await executor
-    .select({
-      id: rankedItems.id,
-      lotId: rankedItems.lotId,
-      position: rankedItems.position,
-      cardId: rankedItems.cardId,
-      quantity: rankedItems.quantity,
-      cardName: rankedItems.cardName,
-      imagePath: rankedItems.imagePath,
-    })
-    .from(rankedItems)
-    .where(lte(rankedItems.itemRank, publicLotListingItemLimit))
-    .orderBy(asc(rankedItems.lotId), asc(rankedItems.position));
-
-  for (const item of items) {
-    const grouped = itemsByLotId.get(item.lotId) ?? [];
-
-    grouped.push({
-      id: item.id,
-      position: item.position,
-      cardId: item.cardId,
-      quantity: item.quantity,
-      cardName: item.cardName,
-      imagePath: item.imagePath,
-    });
-    itemsByLotId.set(item.lotId, grouped);
-  }
-
-  return itemsByLotId;
 }
 
 function requireStatus(status: string | null): PublicLotStatus {

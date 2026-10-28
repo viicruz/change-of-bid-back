@@ -1,40 +1,21 @@
 //* Libraries imports
 import { z } from "zod";
+import {
+  listedLotItemSchema,
+  lotStatusSchema,
+  lotSummarySchema,
+} from "./lot-read";
 
 //* Schemas imports
 import { shareTokenSchema } from "./show-receipt";
 
-const bidderParticipationStatusSchema = z.enum([
-  "SCHEDULED",
-  "LIVE",
-  "ENDED",
-  "CANCELED",
-]);
+const bidderParticipationStatusSchema = lotStatusSchema;
 
-const listedParticipationItemSchema = z.object({
-  id: z.uuid(),
-  position: z.number().int(),
-  cardId: z.number().int(),
-  quantity: z.number().int(),
-  cardName: z.string(),
-  imagePath: z.string(),
-});
-
-const bidderParticipationSchema = z.object({
-  id: z.uuid(),
-  title: z.string(),
-  description: z.string().nullable(),
-  openingBid: z.string(),
-  minIncrement: z.string(),
-  startsAt: z.date(),
-  endsAt: z.date(),
-  status: bidderParticipationStatusSchema,
-  currentBid: z.string().nullable(),
-  bidCount: z.number().int(),
+const bidderParticipationSchema = lotSummarySchema.extend({
   participantNo: z.number().int().positive(),
   won: z.boolean(),
   shareToken: shareTokenSchema.nullable(),
-  items: z.array(listedParticipationItemSchema),
+  items: z.array(listedLotItemSchema),
 });
 
 export const listBidderParticipationsResponseSchema = z.object({

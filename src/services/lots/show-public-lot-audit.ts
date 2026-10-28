@@ -1,13 +1,14 @@
 //* Libraries imports
-import { asc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 //* Schemas imports
 import { formatListedMoney, normalizeMoney } from "../../schemas/money";
 import type { ShowPublicLotAuditStatus } from "../../schemas/show-lot-audit";
 
 //* Local imports
+import { loadShownLotBids } from "./lot-read";
 import { db } from "../../db/index";
-import { bid, lot, lotParticipant } from "../../db/schema";
+import { lot } from "../../db/schema";
 import { env } from "../../env";
 import type { DatabaseExecutor } from "../../models/executor";
 
@@ -84,7 +85,7 @@ export async function showPublicLotAudit(
       throw new ShowPublicLotAuditError("LOT_NOT_FOUND", "Lot was not found.");
     }
 
-    const storedBids = await loadBids(executor, lotId);
+    const storedBids = await loadShownLotBids(executor, lotId);
     const bids = storedBids.map(toPublicBid);
     const status = canVerifyHashChain(resolved.hashSecret)
       ? verifyChain(
@@ -124,7 +125,8 @@ function runShowPublicLotAuditRead<Result>(
 
 function canVerifyHashChain(secret: string): secret is string {
   return (
-    typeof secret === "string" && secret.length >= MINIMUM_BID_HASH_SECRET_LENGTH
+    typeof secret === "string" &&
+    secret.length >= MINIMUM_BID_HASH_SECRET_LENGTH
   );
 }
 
@@ -152,7 +154,10 @@ function verifyChain(
 
     const first = rows[0];
 
-    if (first === undefined || first.previousHash !== genesisBidHash(secret, lotId)) {
+    if (
+      first === undefined ||
+      first.previousHash !== genesisBidHash(secret, lotId)
+    ) {
       return "TAMPERED";
     }
 
@@ -232,23 +237,4 @@ async function findLotAnchor(executor: DatabaseExecutor, lotId: string) {
     .where(eq(lot.id, lotId));
 
   return rows[0] ?? null;
-}
-
-async function loadBids(
-  executor: DatabaseExecutor,
-  lotId: string,
-): Promise<StoredAuditBid[]> {
-  return executor
-    .select({
-      sequence: bid.sequence,
-      amount: bid.amount,
-      createdAt: bid.createdAt,
-      participantNo: lotParticipant.participantNo,
-      previousHash: bid.previousHash,
-      hash: bid.hash,
-    })
-    .from(bid)
-    .innerJoin(lotParticipant, eq(lotParticipant.id, bid.participantId))
-    .where(eq(bid.lotId, lotId))
-    .orderBy(asc(bid.sequence));
 }

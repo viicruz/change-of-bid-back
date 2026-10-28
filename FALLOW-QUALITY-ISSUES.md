@@ -2,6 +2,17 @@
 
 Relatório gerado em 2026-10-28 com `fallow` v3.36.0 (configuração `.fallowrc.json`). Execução completa do comando padrão: análise de código não utilizado, duplicação e saúde/complexidade.
 
+## Validação das correções das categorias 3 e 4 — 2026-10-28
+
+- Categoria 3 resolvida: `@better-auth/core` declarada nas dependências de produção.
+- Categoria 4 resolvida: extraídas consultas, projeções e schemas compartilhados de lotes, além das operações comuns de carteira, participantes e depósitos do seed.
+- `npx fallow --no-cache --format json`: **0 dependências não declaradas e 0 grupos de duplicação** (antes: 1 e 24, respectivamente).
+- `npx fallow dupes --no-cache --fail-on-issues`: passou, sem duplicações e sem alterar a configuração ou suprimir achados.
+- `npm test`: **33 arquivos e 425 testes passaram** antes e depois da refatoração.
+- `npm run typecheck` e `npm run build`: passaram.
+
+As seções abaixo preservam o relatório original para referência; as categorias 3 e 4 não representam mais pendências. Os achados de tamanho, complexidade e hotspots continuam fora do escopo desta correção.
+
 ## Resumo
 
 | Tipo | Quantidade |

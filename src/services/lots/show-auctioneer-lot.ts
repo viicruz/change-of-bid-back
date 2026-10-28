@@ -1,26 +1,20 @@
 //* Libraries imports
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 //* Schemas imports
+import { formatListedMoney as formatMoney } from "../../schemas/money";
 import type { ShowAuctioneerLotStatus } from "../../schemas/show-auctioneer-lot";
 
 //* Local imports
-import { db } from "../../db/index";
-import {
-  bid,
-  lot,
-  lotItem,
-  lotParticipant,
-  wallet,
-  walletMovement,
-} from "../../db/schema";
+import { wallet, walletMovement } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 import {
-  isCanceled,
-  isEnded,
-  isLive,
-  isScheduled,
-} from "./effective-lot-status";
+  findShownLot,
+  loadShownLotItems,
+  loadShownLotBids,
+  presentShownLot,
+  runLotRead,
+} from "./lot-read";
 
 const showAuctioneerLotErrorCodes = [
   "NOT_AUCTIONEER",
@@ -94,20 +88,6 @@ export type ShowAuctioneerLotDependencies = {
   ) => Promise<Result>;
 };
 
-function runShowAuctioneerLotRead<Result>(
-  work: (executor: DatabaseExecutor) => Promise<Result>,
-): Promise<Result> {
-  return db.transaction((executor) => work(executor), {
-    isolationLevel: "repeatable read",
-    accessMode: "read only",
-  });
-}
-
-type StoredBid = ShownAuctioneerLotBid & {
-  id: string;
-  userId: string;
-};
-
 export async function showAuctioneerLot(
   input: ShowAuctioneerLotInput,
   dependencies: Partial<ShowAuctioneerLotDependencies> = {},
@@ -126,7 +106,7 @@ export async function showAuctioneerLot(
   const now = resolved.now();
 
   return resolved.runInTransaction(async (executor) => {
-    const row = await findLot(executor, input.lotId, now);
+    const row = await findShownLot(executor, input.lotId, now);
 
     if (row === null) {
       throw new ShowAuctioneerLotError("LOT_NOT_FOUND", "Lot was not found.");
@@ -139,47 +119,18 @@ export async function showAuctioneerLot(
       );
     }
 
-    const items = await loadItems(executor, input.lotId);
-    const bids = await loadBids(executor, input.lotId);
+    const items = await loadShownLotItems(executor, input.lotId);
+    const bids = await loadShownLotBids(executor, input.lotId);
     const receivedAmount = await loadReceivedAmount(
       executor,
       input.lotId,
       input.auctioneerId,
     );
-    const leader = bids.find((entry) => entry.id === row.currentBidId);
-    const winner =
-      row.winnerId === null
-        ? undefined
-        : bids.find((entry) => entry.userId === row.winnerId);
-
     return {
       serverNow: now,
       lot: {
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        openingBid: row.openingBid,
-        minIncrement: row.minIncrement,
-        startsAt: row.startsAt,
-        endsAt: row.endsAt,
-        extensionCount: row.extensionCount,
-        status: requireStatus(row.status),
-        currentBid: row.currentBid,
-        leaderParticipantNo: leader?.participantNo ?? null,
-        bidCount: row.bidCount,
-        sold: row.winnerId !== null,
-        winnerParticipantNo: winner?.participantNo ?? null,
+        ...presentShownLot(row, items, bids),
         receivedAmount,
-        items: items.map((item) => ({
-          ...item,
-          cardSnapshot: publicCardSnapshot(item.cardSnapshot),
-        })),
-        bids: bids.map((entry) => ({
-          sequence: entry.sequence,
-          amount: entry.amount,
-          createdAt: entry.createdAt,
-          participantNo: entry.participantNo,
-        })),
       },
     };
   });
@@ -188,64 +139,8 @@ export async function showAuctioneerLot(
 function createDefaultDependencies(): ShowAuctioneerLotDependencies {
   return {
     now: () => new Date(),
-    runInTransaction: runShowAuctioneerLotRead,
+    runInTransaction: runLotRead,
   };
-}
-
-function publicCardSnapshot(snapshot: Record<string, unknown>) {
-  return Object.fromEntries(
-    Object.entries(snapshot).filter(([key]) => key !== "card_images"),
-  );
-}
-
-async function findLot(
-  executor: DatabaseExecutor,
-  lotId: string,
-  now: Date,
-) {
-  const rows = await executor
-    .select({
-      id: lot.id,
-      auctioneerId: lot.auctioneerId,
-      title: lot.title,
-      description: lot.description,
-      openingBid: lot.openingBid,
-      minIncrement: lot.minIncrement,
-      startsAt: lot.startsAt,
-      endsAt: lot.endsAt,
-      extensionCount: lot.extensionCount,
-      status: sql<string | null>`CASE
-        WHEN ${isCanceled()} THEN 'CANCELED'
-        WHEN ${isEnded(now)} THEN 'ENDED'
-        WHEN ${isScheduled(now)} THEN 'SCHEDULED'
-        WHEN ${isLive(now)} THEN 'LIVE'
-      END`.as("effective_status"),
-      currentBidId: lot.currentBidId,
-      currentBid: bid.amount,
-      bidCount: lot.bidCount,
-      winnerId: lot.winnerId,
-    })
-    .from(lot)
-    .leftJoin(bid, eq(bid.id, lot.currentBidId))
-    .where(eq(lot.id, lotId));
-
-  return rows[0] ?? null;
-}
-
-async function loadItems(executor: DatabaseExecutor, lotId: string) {
-  return executor
-    .select({
-      id: lotItem.id,
-      position: lotItem.position,
-      cardId: lotItem.cardId,
-      quantity: lotItem.quantity,
-      cardName: lotItem.cardName,
-      imagePath: lotItem.imagePath,
-      cardSnapshot: lotItem.cardSnapshot,
-    })
-    .from(lotItem)
-    .where(eq(lotItem.lotId, lotId))
-    .orderBy(asc(lotItem.position));
 }
 
 async function loadReceivedAmount(
@@ -275,50 +170,10 @@ async function loadReceivedAmount(
   return formatShownMoney(amount);
 }
 
-async function loadBids(
-  executor: DatabaseExecutor,
-  lotId: string,
-): Promise<StoredBid[]> {
-  return executor
-    .select({
-      id: bid.id,
-      userId: lotParticipant.userId,
-      sequence: bid.sequence,
-      amount: bid.amount,
-      createdAt: bid.createdAt,
-      participantNo: lotParticipant.participantNo,
-    })
-    .from(bid)
-    .innerJoin(lotParticipant, eq(lotParticipant.id, bid.participantId))
-    .where(eq(bid.lotId, lotId))
-    .orderBy(asc(bid.sequence));
-}
-
-function requireStatus(status: string | null): ShowAuctioneerLotStatus {
-  if (
-    status === "SCHEDULED" ||
-    status === "LIVE" ||
-    status === "ENDED" ||
-    status === "CANCELED"
-  ) {
-    return status;
-  }
-
-  throw new Error("Lot show returned an unexpected status");
-}
-
 function formatShownMoney(value: string): string {
-  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
-
-  if (match === null) {
+  const amount = formatMoney(value);
+  if (amount === null) {
     throw new Error("Lot show returned an unexpected amount");
   }
-
-  const fraction = match[3] ?? "";
-
-  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
-    throw new Error("Lot show returned an unexpected amount");
-  }
-
-  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
+  return amount;
 }
