@@ -119,7 +119,7 @@ async function insertCatalogCard(name: string, imagePath: string | null) {
   return id;
 }
 
-const minimumLotDurationMs = 24 * 60 * 60 * 1000;
+const minimumLotDurationMs = 4 * 60 * 1000;
 
 function createLotPayload(cardIds: number[]) {
   const startsAt = new Date(Date.now() - 60_000);
@@ -332,7 +332,7 @@ describe("POST /private/lots", () => {
     expect(response.status).toBe(422);
   });
 
-  it("rejects a lot that lasts less than 24 hours", async () => {
+  it("rejects a lot that lasts less than 4 minutes", async () => {
     const account = await registerAuctioneer();
     const startsAt = new Date(Date.now() - 60_000);
     const response = await postLot(account.token, {
