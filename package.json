@@ -18,6 +18,7 @@
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.12",
     "@elysia/openapi": "^1.4.16",
+    "@elysia/static": "^1.4.11",
     "@elysiajs/cors": "^1.4.2",
     "@elysiajs/cron": "^1.4.2",
     "@elysiajs/node": "^1.4.5",

@@ -15,6 +15,7 @@
 # production
 /build
 /dist
+/storage/card-images/
 
 # misc
 .DS_Store
