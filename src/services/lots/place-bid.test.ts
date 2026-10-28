@@ -1038,21 +1038,21 @@ describe("placeBid", () => {
     });
   });
 
-  describe("when the next minimum is above the supported money range", () => {
+  describe("when the next minimum is above the business bid limit", () => {
     it("rejects the bid and leaves the leading reserve in place", async () => {
       const leaderId = await insertUser("BIDDER");
       const challengerId = await insertUser("BIDDER");
       const leaderWalletId = await insertWallet(
         leaderId,
-        "9999999999999999.99",
+        "1000000.00",
       );
       const challengerWalletId = await insertWallet(challengerId, "100.00");
       const { lotId } = await liveLot({
-        openingBid: "9999999999999999.99",
+        openingBid: "1000000.00",
         minIncrement: "0.01",
       });
 
-      await placeFor(leaderId, lotId, "9999999999999999.99");
+      await placeFor(leaderId, lotId, "1000000.00");
       const beforeLot = await readLot(lotId);
       const beforeBids = await readBids(lotId);
 
@@ -1063,8 +1063,8 @@ describe("placeBid", () => {
       expect(await readLot(lotId)).toEqual(beforeLot);
       expect(await readBids(lotId)).toEqual(beforeBids);
       expect(await readWallet(leaderWalletId)).toEqual({
-        totalBalance: "9999999999999999.99",
-        committedBalance: "9999999999999999.99",
+        totalBalance: "1000000.00",
+        committedBalance: "1000000.00",
       });
       expect(await readWallet(challengerWalletId)).toEqual({
         totalBalance: "100.00",

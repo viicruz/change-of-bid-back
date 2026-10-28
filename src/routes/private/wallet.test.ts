@@ -1199,9 +1199,9 @@ describe("POST /private/wallet/deposits", () => {
       ]);
     });
 
-    it("credits the largest amount the balance column can store", async () => {
+    it("credits the largest allowed deposit", async () => {
       const account = await registerUser();
-      const maximum = "9999999999999999.99";
+      const maximum = "1000000.00";
 
       await setBalances(account.userId, "0.00", "0.00");
 
@@ -1351,8 +1351,8 @@ describe("POST /private/wallet/deposits", () => {
       await expectUnchangedBalance({ amount: "+1.00" });
     });
 
-    it("rejects an amount above the balance column precision", async () => {
-      await expectUnchangedBalance({ amount: "10000000000000000.00" });
+    it("rejects a deposit above the business limit", async () => {
+      await expectUnchangedBalance({ amount: "1000000.01" });
     });
   });
 
