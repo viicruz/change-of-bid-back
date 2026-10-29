@@ -85,9 +85,9 @@ function registerStoredLotCases() {
 }
 
 function registerMinimumDurationCases() {
-  it("accepts a duration of exactly 4 minutes when the start is in the past", async () => {
+  it("accepts a duration of exactly 1 minute when the start is in the past", async () => {
     const dependencies = createDependencies([tornadoDragon]);
-    const startsAt = new Date(now.getTime() - 60_000);
+    const startsAt = new Date(now.getTime() - minimumLotDurationMs / 2);
     const endsAt = new Date(startsAt.getTime() + minimumLotDurationMs);
 
     const result = await createLot(
@@ -105,7 +105,7 @@ function registerMinimumDurationCases() {
     expect(endsAt.getTime()).toBeGreaterThan(now.getTime());
   });
 
-  it("accepts a duration of exactly 4 minutes when the start is in the future", async () => {
+  it("accepts a duration of exactly 1 minute when the start is in the future", async () => {
     const dependencies = createDependencies([tornadoDragon]);
     const startsAt = new Date("2026-10-26T13:00:00.000Z");
     const endsAt = new Date(startsAt.getTime() + minimumLotDurationMs);
