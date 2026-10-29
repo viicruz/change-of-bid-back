@@ -63,6 +63,17 @@ export type SettleDueLotsDependencies = {
   markLotEnded: typeof markLotEnded;
 };
 
+type LockedLot = NonNullable<Awaited<ReturnType<typeof lockLotForUpdate>>>;
+type WinningBid = NonNullable<Awaited<ReturnType<typeof findBidById>>>;
+type LockedWallet = Awaited<ReturnType<typeof lockWalletsByUserIds>>[number];
+type WinningSettlement = {
+  bid: WinningBid;
+  participantNo: number;
+  winnerWallet: LockedWallet;
+  auctioneerWallet: LockedWallet;
+  amount: string;
+};
+
 export async function settleDueLots(
   dependencies: Partial<SettleDueLotsDependencies> = {},
 ): Promise<LotSettlement[]> {
@@ -121,36 +132,44 @@ async function settleLockedLot(
     };
   }
 
-  const endedAt = locked.endsAt;
-
   if (locked.currentBidId === null) {
     if (locked.bidCount !== 0) {
       throw new Error("Lot has bids but no current bid");
     }
 
-    const ended = await dependencies.markLotEnded(executor, locked.id, {
-      winnerId: null,
-      endedAt,
-      settledAt: now,
-    });
-
-    return {
-      lotId: ended.id,
-      outcome: "settled",
-      winnerId: null,
-      endedAt: ended.endedAt,
-      settledAt: ended.settledAt,
-    };
+    return endSettledLot(executor, locked, null, now, dependencies);
   }
 
+  const winning = await prepareWinningSettlement(
+    executor,
+    locked,
+    locked.currentBidId,
+    dependencies,
+  );
+  await persistWinningSettlement(executor, locked, winning, dependencies);
+
+  return endSettledLot(
+    executor,
+    locked,
+    winning.bid.bidderId,
+    now,
+    dependencies,
+  );
+}
+
+// Keep all steps on the lot transaction's executor. The lot is locked first;
+// the wallet model then locks both wallets in stable id order before any writes.
+async function prepareWinningSettlement(
+  executor: DatabaseExecutor,
+  locked: LockedLot,
+  currentBidId: string,
+  dependencies: SettleDueLotsDependencies,
+): Promise<WinningSettlement> {
   if (locked.bidCount < 1) {
     throw new Error("Lot has a current bid but no bid count");
   }
 
-  const currentBid = await dependencies.findBidById(
-    executor,
-    locked.currentBidId,
-  );
+  const currentBid = await dependencies.findBidById(executor, currentBidId);
 
   if (currentBid === null || currentBid.lotId !== locked.id) {
     throw new Error("Current bid was not found");
@@ -166,6 +185,26 @@ async function settleLockedLot(
     throw new Error("Winner participant was not found");
   }
 
+  const funding = await lockWinningFunds(
+    executor,
+    locked,
+    currentBid,
+    dependencies,
+  );
+
+  return {
+    bid: currentBid,
+    participantNo: participant.participantNo,
+    ...funding,
+  };
+}
+
+async function lockWinningFunds(
+  executor: DatabaseExecutor,
+  locked: LockedLot,
+  currentBid: WinningBid,
+  dependencies: SettleDueLotsDependencies,
+) {
   const lockedWallets = await dependencies.lockWalletsByUserIds(executor, [
     currentBid.bidderId,
     locked.auctioneerId,
@@ -195,16 +234,27 @@ async function settleLockedLot(
     throw new Error("Open hold for the winning bid was not found");
   }
 
-  if (
-    compareMoney(canonicalMoney(winnerWallet.committedBalance), amount) < 0
-  ) {
-    throw new Error(
-      "Winner committed balance does not cover the winning bid",
-    );
+  if (compareMoney(canonicalMoney(winnerWallet.committedBalance), amount) < 0) {
+    throw new Error("Winner committed balance does not cover the winning bid");
   }
 
-  // These inserts share the lot transaction. A unique violation rolls the
-  // debit, the credit, and the receipt back together.
+  return { winnerWallet, auctioneerWallet, amount };
+}
+
+async function persistWinningSettlement(
+  executor: DatabaseExecutor,
+  locked: LockedLot,
+  {
+    bid,
+    participantNo,
+    winnerWallet,
+    auctioneerWallet,
+    amount,
+  }: WinningSettlement,
+  dependencies: SettleDueLotsDependencies,
+) {
+  // A failure at any later step rolls back the movements, balances, receipt,
+  // and lot closure together, including a unique constraint violation.
   await dependencies.insertSettlementMovement(executor, {
     walletId: winnerWallet.id,
     type: "SETTLEMENT_DEBIT",
@@ -222,7 +272,11 @@ async function settleLockedLot(
     amount,
     lotId: locked.id,
   });
-  await dependencies.increaseTotalBalance(executor, auctioneerWallet.id, amount);
+  await dependencies.increaseTotalBalance(
+    executor,
+    auctioneerWallet.id,
+    amount,
+  );
 
   const shareToken = dependencies.createShareToken();
 
@@ -232,17 +286,25 @@ async function settleLockedLot(
 
   await dependencies.insertReceipt(executor, {
     lotId: locked.id,
-    winningBidId: currentBid.id,
-    winnerId: currentBid.bidderId,
-    winnerParticipantNo: participant.participantNo,
+    winningBidId: bid.id,
+    winnerId: bid.bidderId,
+    winnerParticipantNo: participantNo,
     finalAmount: amount,
-    endedAt,
+    endedAt: locked.endsAt,
     shareToken,
   });
+}
 
+async function endSettledLot(
+  executor: DatabaseExecutor,
+  locked: LockedLot,
+  winnerId: string | null,
+  now: Date,
+  dependencies: SettleDueLotsDependencies,
+): Promise<LotSettlement> {
   const ended = await dependencies.markLotEnded(executor, locked.id, {
-    winnerId: currentBid.bidderId,
-    endedAt,
+    winnerId,
+    endedAt: locked.endsAt,
     settledAt: now,
   });
 

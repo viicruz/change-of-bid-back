@@ -5,8 +5,7 @@ const openingBidStart = 25;
 const openingBidEnd = 100;
 const dayMs = 24 * 60 * 60 * 1000;
 const scheduledDurationDays = 3;
-const seedDeckCount = 40;
-const lotsPerStatus = 10;
+const lotsPerStatus = 8;
 
 export const seedMinIncrement = "5.00";
 
@@ -26,6 +25,8 @@ const seedLotStatuses = [
   "ended",
   "canceled",
 ] as const;
+
+const seedDeckCount = lotsPerStatus * seedLotStatuses.length;
 
 export type SeedLotStatus = (typeof seedLotStatuses)[number];
 
@@ -55,8 +56,6 @@ const liveBids: readonly (readonly SeedBidder[])[] = [
   [bidder2],
   [bidder2, bidder],
   [bidder, bidder2, bidder],
-  [],
-  [bidder2, bidder, bidder2],
 ];
 
 const endedBids: readonly (readonly SeedBidder[])[] = [
@@ -68,8 +67,6 @@ const endedBids: readonly (readonly SeedBidder[])[] = [
   [bidder, bidder2, bidder],
   [bidder2, bidder, bidder2],
   [],
-  [bidder, bidder2],
-  [bidder2, bidder],
 ];
 
 const canceledBids: readonly (readonly SeedBidder[])[] = [
@@ -80,8 +77,6 @@ const canceledBids: readonly (readonly SeedBidder[])[] = [
   [bidder2, bidder],
   [],
   [bidder, bidder2, bidder],
-  [],
-  [bidder2],
   [],
 ];
 

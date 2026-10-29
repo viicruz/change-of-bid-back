@@ -73,9 +73,9 @@ function runMigrations() {
 }
 
 async function fresh() {
-  // if (process.env.NODE_ENV === "production") {
-  //   throw new Error("db:fresh cannot run when NODE_ENV is production");
-  // }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("db:fresh cannot run when NODE_ENV is production");
+  }
 
   const databaseUrl = process.env.DATABASE_URL;
 

@@ -142,77 +142,85 @@ function verifyChain(
       return bidCount === 0 && headHash === null ? "INTACT" : "TAMPERED";
     }
 
-    if (rows.length !== bidCount) {
+    if (!hasValidChainShape(bidCount, rows)) {
       return "TAMPERED";
     }
 
-    for (let index = 0; index < rows.length; index += 1) {
-      if (rows[index]?.sequence !== index + 1) {
-        return "TAMPERED";
-      }
-    }
-
-    const first = rows[0];
-
     if (
-      first === undefined ||
-      first.previousHash !== genesisBidHash(secret, lotId)
+      !hasValidChainLinks(secret, lotId, rows) ||
+      !hasValidBidHashes(secret, lotId, rows)
     ) {
       return "TAMPERED";
     }
 
-    for (let index = 1; index < rows.length; index += 1) {
-      const current = rows[index];
-      const previous = rows[index - 1];
-
-      if (
-        current === undefined ||
-        previous === undefined ||
-        current.previousHash !== previous.hash
-      ) {
-        return "TAMPERED";
-      }
-    }
-
-    for (const row of rows) {
-      const amount = normalizeMoney(row.amount);
-
-      if (amount === null) {
-        return "TAMPERED";
-      }
-
-      let createdAt: string;
-
-      try {
-        createdAt = canonicalBidTimestamp(row.createdAt);
-      } catch {
-        return "TAMPERED";
-      }
-
-      const expectedHash = chainBidHash(secret, {
-        previousHash: row.previousHash,
-        lotId,
-        sequence: row.sequence,
-        participantNo: row.participantNo,
-        amount,
-        createdAt,
-      });
-
-      if (row.hash !== expectedHash) {
-        return "TAMPERED";
-      }
-    }
-
     const last = rows[rows.length - 1];
 
-    if (last === undefined || last.hash !== headHash) {
-      return "TAMPERED";
-    }
-
-    return "INTACT";
+    return last !== undefined && last.hash === headHash ? "INTACT" : "TAMPERED";
   } catch {
+    // Invalid stored payloads and failures in any verification step fail closed.
     return "TAMPERED";
   }
+}
+
+function hasValidChainShape(bidCount: number, rows: StoredAuditBid[]): boolean {
+  if (rows.length !== bidCount) {
+    return false;
+  }
+
+  for (let index = 0; index < rows.length; index += 1) {
+    if (rows[index]?.sequence !== index + 1) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function hasValidChainLinks(
+  secret: string,
+  lotId: string,
+  rows: StoredAuditBid[],
+): boolean {
+  let previousHash = genesisBidHash(secret, lotId);
+
+  for (const row of rows) {
+    if (row.previousHash !== previousHash) {
+      return false;
+    }
+
+    previousHash = row.hash;
+  }
+
+  return true;
+}
+
+function hasValidBidHashes(
+  secret: string,
+  lotId: string,
+  rows: StoredAuditBid[],
+): boolean {
+  for (const row of rows) {
+    const amount = normalizeMoney(row.amount);
+
+    if (amount === null) {
+      return false;
+    }
+
+    const expectedHash = chainBidHash(secret, {
+      previousHash: row.previousHash,
+      lotId,
+      sequence: row.sequence,
+      participantNo: row.participantNo,
+      amount,
+      createdAt: canonicalBidTimestamp(row.createdAt),
+    });
+
+    if (row.hash !== expectedHash) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 // A stored amount that cannot be listed stays in the response.

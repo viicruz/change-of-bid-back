@@ -17,6 +17,7 @@ import {
   walletMovement,
 } from "../../db/schema";
 import { env } from "../../env";
+import { readLiveFrames, type LiveFrame } from "./__tests__/lot-live-frames";
 
 //* Services imports
 import { publishPublicLot } from "../../services/lots/public-lot-live";
@@ -78,11 +79,6 @@ type LiveClient = {
   opened: Promise<void>;
   nextMessage: () => Promise<PublicLotLiveMessage>;
   close: () => Promise<void>;
-};
-
-type LiveFrame = {
-  opcode: number;
-  payload: string;
 };
 
 type LiveWire = {
@@ -248,64 +244,6 @@ function encodeClientText(text: string) {
     mask,
     masked,
   ]);
-}
-
-function readLiveFrames(buffer: Buffer) {
-  const frames: LiveFrame[] = [];
-  let offset = 0;
-
-  while (offset + 2 <= buffer.length) {
-    const opcode = buffer[offset] & 0x0f;
-    const masked = (buffer[offset + 1] & 0x80) !== 0;
-    let length = buffer[offset + 1] & 0x7f;
-    let cursor = offset + 2;
-
-    if (length === 126) {
-      if (cursor + 2 > buffer.length) {
-        break;
-      }
-
-      length = buffer.readUInt16BE(cursor);
-      cursor += 2;
-    } else if (length === 127) {
-      if (cursor + 8 > buffer.length) {
-        break;
-      }
-
-      length = Number(buffer.readBigUInt64BE(cursor));
-      cursor += 8;
-    }
-
-    const maskLength = masked ? 4 : 0;
-
-    if (cursor + maskLength + length > buffer.length) {
-      break;
-    }
-
-    const payload = Buffer.from(
-      buffer.subarray(cursor + maskLength, cursor + maskLength + length),
-    );
-
-    if (masked) {
-      const mask = buffer.subarray(cursor, cursor + 4);
-
-      for (let index = 0; index < payload.length; index += 1) {
-        payload[index] ^= mask[index % 4];
-      }
-    }
-
-    frames.push({
-      opcode,
-      payload:
-        opcode === websocketTextOpcode ? payload.toString("utf8") : "",
-    });
-    offset = cursor + maskLength + length;
-  }
-
-  return {
-    frames,
-    rest: buffer.subarray(offset),
-  };
 }
 
 function openLiveWire(lotId: string) {
@@ -1165,8 +1103,13 @@ describe("public lot live room", () => {
       expect(ended.lot.sold).toBe(true);
       expect(ended.lot.winnerParticipantNo).toBe(accepted.participantNo);
       expect(ended.lot.bids).toHaveLength(1);
-      expect(storedReceipt?.shareToken).toEqual(expect.any(String));
-      expect(storedBid?.hash).toEqual(expect.any(String));
+
+      if (storedReceipt === undefined || storedBid === undefined) {
+        throw new Error("Settlement did not persist the receipt and winning bid");
+      }
+
+      expect(storedReceipt.shareToken).toEqual(expect.any(String));
+      expect(storedBid.hash).toEqual(expect.any(String));
       expectPrivateText(client.rawMessages.join("\n"), [
         auctioneer.email,
         auctioneer.name,
@@ -1174,10 +1117,10 @@ describe("public lot live room", () => {
         bidder.email,
         bidder.name,
         bidder.userId,
-        storedReceipt?.shareToken ?? "",
-        storedReceipt?.winnerId ?? "",
-        storedBid?.hash ?? "",
-        storedBid?.previousHash ?? "",
+        storedReceipt.shareToken,
+        storedReceipt.winnerId,
+        storedBid.hash,
+        storedBid.previousHash,
       ]);
       expectPublicKeys(ended);
     });

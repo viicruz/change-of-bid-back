@@ -30,7 +30,7 @@ export const tornadoDragon = catalogCard({
 export const decodeTalker = catalogCard({
   id: 20,
   name: "Decode Talker",
-  imagePath: "https://images.example/decode.jpg",
+  imagePath: "/card-images/20.jpg",
 });
 
 export function catalogCard(card: {
@@ -67,16 +67,30 @@ export function lotInput(overrides: Partial<CreateLotInput> = {}): CreateLotInpu
 export function createDependencies(cards: CatalogCard[]) {
   const dependencies = {
     now: () => now,
+    ensureCardImage: vi.fn(async (source) => {
+      if (!source.imagePath?.trim()) throw new Error("Missing image");
+      return source.imagePath;
+    }),
     runInTransaction: (work) => work({} as DatabaseExecutor),
     findCardsByIds: vi.fn(async (_executor, ids) => {
       return cards.filter((entry) => ids.includes(entry.id));
     }),
     insertLot: vi.fn(async (_executor, values) => {
+      const {
+        description = null,
+        currentBidId = null,
+        winnerId = null,
+        headHash = null,
+        endedAt = null,
+        settledAt = null,
+        canceledAt = null,
+      } = values;
+
       return {
         id: "lot-1",
         auctioneerId: values.auctioneerId,
         title: values.title,
-        description: values.description ?? null,
+        description,
         openingBid: values.openingBid,
         minIncrement: values.minIncrement,
         startsAt: values.startsAt,
@@ -84,13 +98,13 @@ export function createDependencies(cards: CatalogCard[]) {
         endsAt: values.endsAt,
         extensionCount: values.extensionCount ?? 0,
         status: values.status ?? "ACTIVE",
-        currentBidId: values.currentBidId ?? null,
-        winnerId: values.winnerId ?? null,
+        currentBidId,
+        winnerId,
         bidCount: values.bidCount ?? 0,
-        headHash: values.headHash ?? null,
-        endedAt: values.endedAt ?? null,
-        settledAt: values.settledAt ?? null,
-        canceledAt: values.canceledAt ?? null,
+        headHash,
+        endedAt,
+        settledAt,
+        canceledAt,
         createdAt: now,
         updatedAt: now,
       } satisfies InsertedLot;

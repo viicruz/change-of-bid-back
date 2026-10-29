@@ -59,7 +59,29 @@ export async function deposit(
     ...createDefaultDependencies(),
     ...dependencies,
   };
+  const amount = validateDepositInput(input);
 
+  try {
+    return await resolved.runInTransaction((executor) =>
+      persistDeposit(executor, input.userId, amount, resolved),
+    );
+  } catch (error) {
+    if (error instanceof DepositError) {
+      throw error;
+    }
+
+    if (isNumericOutOfRange(error)) {
+      throw new DepositError(
+        "AMOUNT_OUT_OF_RANGE",
+        "The deposit exceeds the wallet balance limit.",
+      );
+    }
+
+    throw error;
+  }
+}
+
+function validateDepositInput(input: DepositInput): string {
   if (input.role !== "BIDDER") {
     throw new DepositError(
       "NOT_BIDDER",
@@ -77,49 +99,39 @@ export async function deposit(
     throw new DepositError("INVALID_MONEY", moneyValidationMessage);
   }
 
-  try {
-    return await resolved.runInTransaction(async (executor) => {
-      const locked = await resolved.lockWalletByUserId(executor, input.userId);
+  return amount;
+}
 
-      if (locked === null) {
-        throw new DepositError("WALLET_NOT_FOUND", "Wallet was not found.");
-      }
+// Lock, movement, credit, and balance read all use the same transaction.
+async function persistDeposit(
+  executor: DatabaseExecutor,
+  userId: string,
+  amount: string,
+  dependencies: DepositDependencies,
+): Promise<WalletResponse> {
+  const locked = await dependencies.lockWalletByUserId(executor, userId);
 
-      await resolved.insertDepositMovement(executor, {
-        walletId: locked.id,
-        amount,
-      });
-      await resolved.increaseTotalBalance(executor, locked.id, amount);
-
-      const updated = await resolved.findWalletByUserId(
-        executor,
-        input.userId,
-      );
-
-      if (updated === null) {
-        throw new Error("Wallet was not found after deposit");
-      }
-
-      return {
-        totalBalance: updated.totalBalance,
-        committedBalance: updated.committedBalance,
-        availableBalance: updated.availableBalance,
-      };
-    });
-  } catch (error) {
-    if (error instanceof DepositError) {
-      throw error;
-    }
-
-    if (isNumericOutOfRange(error)) {
-      throw new DepositError(
-        "AMOUNT_OUT_OF_RANGE",
-        "The deposit exceeds the wallet balance limit.",
-      );
-    }
-
-    throw error;
+  if (locked === null) {
+    throw new DepositError("WALLET_NOT_FOUND", "Wallet was not found.");
   }
+
+  await dependencies.insertDepositMovement(executor, {
+    walletId: locked.id,
+    amount,
+  });
+  await dependencies.increaseTotalBalance(executor, locked.id, amount);
+
+  const updated = await dependencies.findWalletByUserId(executor, userId);
+
+  if (updated === null) {
+    throw new Error("Wallet was not found after deposit");
+  }
+
+  return {
+    totalBalance: updated.totalBalance,
+    committedBalance: updated.committedBalance,
+    availableBalance: updated.availableBalance,
+  };
 }
 
 function createDefaultDependencies(): DepositDependencies {

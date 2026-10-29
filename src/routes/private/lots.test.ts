@@ -1,11 +1,22 @@
 //* Libraries imports
 import { asc, eq, inArray } from "drizzle-orm";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 
 //* Local imports
 import { app } from "../../app";
 import { db } from "../../db/index";
 import { card, lot, lotItem, user, wallet } from "../../db/schema";
+
+import { mkdir, writeFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { cardImageStorage } from "../../lib/card-image-storage";
+
+vi.mock("../../lib/card-image-storage", async () => {
+  const { mkdtemp } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  return { cardImageStorage: { assets: await mkdtemp(join(tmpdir(), "lot-route-images-")), prefix: "/card-images" } };
+});
 
 const password = "Correct-horse-battery-1";
 const createdEmails: string[] = [];
@@ -104,6 +115,11 @@ async function insertCatalogCard(name: string, imagePath: string | null) {
   const id = randomCardId();
 
   createdCardIds.push(id);
+  if (imagePath?.trim()) {
+    await mkdir(cardImageStorage.assets, { recursive: true });
+    await writeFile(join(cardImageStorage.assets, `${id}.jpg`), new Uint8Array([255, 216, 255, 224, 255, 217]));
+    imagePath = `/card-images/${id}.jpg`;
+  }
 
   await db.insert(card).values({
     id,
@@ -195,6 +211,7 @@ async function cleanup(emails: string[], cardIds: number[]) {
 
 afterAll(async () => {
   await db.$client.end();
+  await rm(cardImageStorage.assets, { recursive: true, force: true });
 });
 
 describe("POST /private/lots", () => {
@@ -280,14 +297,14 @@ describe("POST /private/lots", () => {
         cardId: decodeId,
         quantity: 1,
         cardName: "Decode Talker",
-        imagePath: "https://images.example/decode.jpg",
+        imagePath: `/card-images/${decodeId}.jpg`,
       }),
       expect.objectContaining({
         position: 2,
         cardId: tornadoId,
         quantity: 1,
         cardName: "Tornado Dragon",
-        imagePath: "https://images.example/tornado.jpg",
+        imagePath: `/card-images/${tornadoId}.jpg`,
       }),
     ]);
 
@@ -490,7 +507,7 @@ describe("GET /private/lots", () => {
             cardId,
             quantity: 1,
             cardName: "Panel Dragon",
-            imagePath: "https://images.example/panel.jpg",
+            imagePath: `/card-images/${cardId}.jpg`,
           }),
         ],
       }),
@@ -832,7 +849,7 @@ describe("GET /private/lots/:id", () => {
             cardId,
             quantity: 1,
             cardName: "Shown Dragon",
-            imagePath: "https://images.example/shown.jpg",
+            imagePath: `/card-images/${cardId}.jpg`,
           }),
         ],
       }),

@@ -918,6 +918,7 @@ describe("listPublicLots", () => {
           currentBid: "15.00",
           bidCount: 1,
           sold: false,
+          totalItems: 1,
           items: [
             expect.objectContaining({
               position: 1,
@@ -940,6 +941,7 @@ describe("listPublicLots", () => {
           currentBid: "25.50",
           bidCount: 1,
           sold: true,
+          totalItems: 1,
           items: [
             expect.objectContaining({
               position: 1,
@@ -953,7 +955,7 @@ describe("listPublicLots", () => {
       ]);
     });
 
-    it("returns at most five items ordered by position", async () => {
+    it("returns at most five items ordered by position and the full item count", async () => {
       const token = createToken();
       const cards = await Promise.all(
         Array.from({ length: 6 }, (_, index) =>
@@ -975,6 +977,7 @@ describe("listPublicLots", () => {
       const listed = await listByToken(token);
 
       expect(listed).toHaveLength(1);
+      expect(listed[0]?.totalItems).toBe(6);
       expect(listed[0]?.items.map((item) => item.position)).toEqual([
         1, 2, 3, 4, 5,
       ]);

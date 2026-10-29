@@ -1,3 +1,6 @@
+x-database-url: &database-url
+  DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-change_of_bid}
+
 services:
   postgres:
     image: postgres:17
@@ -16,6 +19,42 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # Applies pending migrations once and exits. The image entrypoint only starts the server.
+  migrate:
+    # Reuses the image built by the backend service.
+    image: change-of-bid-back
+    container_name: change-of-bid-migrate
+    entrypoint: ["npm", "run", "db:migrate"]
+    environment:
+      <<: *database-url
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build: .
+    image: change-of-bid-back
+    container_name: change-of-bid-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      <<: *database-url
+      PORT: 3001
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      PAGE_ORIGIN: ${PAGE_ORIGIN:-http://localhost:3000}
+      BID_HASH_SECRET: ${BID_HASH_SECRET:-}
+    volumes:
+      # Same folder used by `npm run dev` and `npm run db:seed` on the host.
+      - ./storage/card-images:/app/storage/card-images
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:

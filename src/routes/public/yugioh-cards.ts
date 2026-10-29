@@ -14,8 +14,14 @@ const yugiohCardsRoutes = new Elysia({ prefix: "/yugioh/cards" })
         async (request) => {
             const yugiohApiClient = new YGOProDeckApiClient();
             const cards = await yugiohApiClient.searchCards(request.query);
-            await saveUnregisteredCards(cards.data);
-            return cards;
+            const imagePaths = await saveUnregisteredCards(cards.data);
+            return {
+                ...cards,
+                data: cards.data.map((card) => ({
+                    ...card,
+                    imagePath: imagePaths.get(card.id) ?? null,
+                })),
+            };
         },
         {
             query: cardSearchQuerySchema,
