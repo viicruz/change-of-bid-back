@@ -6,6 +6,9 @@ Database migration, Docker startup, and development reset instructions:
 Analysis scope, verified Fallow candidates, and isolated test coverage:
 [Fallow workflow](docs/fallow.md).
 
+Funcionamento, justificativa e limites da integridade dos lances:
+[Validação por HMAC](docs/validacao-hmac.md).
+
 ## Getting Started
 To get started with this template, simply paste this command into your terminal:
 ```bash

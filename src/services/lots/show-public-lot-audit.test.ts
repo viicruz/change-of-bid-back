@@ -6,15 +6,15 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { db } from "../../db/index";
 import { bid, lot, lotParticipant, walletMovement } from "../../db/schema";
 import { env } from "../../env";
+import {
+  createPublicLotAuditFixtures,
+  expectTextOmitsPrivateAuditData,
+} from "../../test/public-lot-audit-fixtures";
 
 //* Services imports
 import { canonicalBidTimestamp, chainBidHash } from "./bid-hash";
 import { cancelLot } from "./cancel-lot";
 import { type AcceptedBid } from "./place-bid";
-import {
-  createPublicLotAuditFixtures,
-  expectTextOmitsPrivateAuditData,
-} from "./public-lot-audit-fixtures";
 import {
   showPublicLotAudit,
   ShowPublicLotAuditError,

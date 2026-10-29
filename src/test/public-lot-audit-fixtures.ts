@@ -3,10 +3,10 @@ import { eq, inArray } from "drizzle-orm";
 import { expect } from "vitest";
 
 //* Schemas imports
-import { addMoney } from "../../schemas/money";
+import { addMoney } from "../schemas/money";
 
 //* Local imports
-import { db } from "../../db/index";
+import { db } from "../db/index";
 import {
   bid,
   lot,
@@ -14,10 +14,10 @@ import {
   user,
   wallet,
   walletMovement,
-} from "../../db/schema";
+} from "../db/schema";
 
 //* Services imports
-import { placeBid, type AcceptedBid } from "./place-bid";
+import { placeBid, type AcceptedBid } from "../services/lots/place-bid";
 
 export type AuditAccount = {
   id: string;

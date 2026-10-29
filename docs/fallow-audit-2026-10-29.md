@@ -200,6 +200,52 @@ Validação:
 - `fallow architecture` e `fallow audit --base HEAD`, com `--format json --quiet --explain`: saída **0**, sem ciclos nem novos findings no diff.
 - `git diff --check`: saída **0**.
 
+### Execução do C04 — 29/10/2026
+
+Implementação preparada sobre `6730c3f`, sem criar commit Git. A fixture foi
+movida de `src/services/lots/public-lot-audit-fixtures.ts` para
+`src/test/public-lot-audit-fixtures.ts`. Foram ajustados os quatro imports
+internos e os imports dos dois consumidores: `show-public-lot-audit.test.ts`
+e `routes/public/lot-audit.test.ts`. Comparação com o arquivo em HEAD confirmou
+o restante do conteúdo idêntico, incluindo a ordem de limpeza exigida pelas FKs
+(D70). Nenhum cenário foi adicionado ou removido.
+
+As exclusões existentes em `tsconfig.build.json` (`src/test`) e
+`vitest.config.ts` (`src/test/**`) já cobrem o novo caminho, sem mudança de
+configuração. O helper está ausente tanto do programa TypeScript de build
+(incluindo imports transitivos) quanto das fontes do sourcemap do bundle.
+
+Validação:
+
+- `fallow guard` nos caminhos envolvidos, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 598 testes aprovados**,
+  incluindo as duas suítes consumidoras, em PostgreSQL 17 descartável.
+  Relatórios temporários em `/tmp/change-of-bid-fallow-coverage.XO0nhZ/`.
+- Saúde de produção e inventário completo com a cobertura recém-gerada:
+  saída **0** em ambos, nenhum finding de saúde.
+- `fallow dead-code --production`, com os mesmos flags JSON/explain:
+  saída **1**, **7 achados** retidos P02–P08; **0 arquivos sem uso**. P01
+  resolvido pela localização correta da fixture, sem apagar seus helpers.
+- `fallow architecture` e `fallow audit --base HEAD`, com os mesmos flags:
+  saída **0**, sem ciclos nem novos findings no diff.
+- `git diff --check`: saída **0**.
+
+Comparação de cobertura com a rodada C03 preservada em
+`/tmp/change-of-bid-fallow-coverage.vJhMw7/`: **70 → 69 arquivos**
+instrumentados. O único arquivo retirado é a fixture; nenhum arquivo foi
+adicionado ao mapa. Os statements, branches e funções cobertos/não cobertos dos
+demais arquivos permanecem iguais. A mudança dos percentuais abaixo decorre
+da retirada do helper, sem perda de cobertura no código de produção:
+
+| Métrica | C03 | C04 |
+| --- | --- | --- |
+| Statements | 1.545/1.710 (**90,35%**) | 1.485/1.648 (**90,10%**) |
+| Branches | 636/750 (**84,80%**) | 624/736 (**84,78%**) |
+| Funções | 370/411 (**90,02%**) | 358/399 (**89,72%**) |
+| Linhas | 1.506/1.670 (**90,17%**) | 1.448/1.610 (**89,93%**) |
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.

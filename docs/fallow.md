@@ -161,8 +161,10 @@ de 29/10/2026 têm os consumidores abaixo e devem ser preservados:
 | `RequestRateGate`, `src/services/yugioh-api/yugioh-api.ts` | `src/services/yugioh-api/yugioh-api.test.ts`: controle do rate limit. |
 | `WalletMovementRecord`, `src/schemas/wallet.ts` | `src/routes/private/wallet.test.ts`: tipo de movimento. |
 
-P01 (`public-lot-audit-fixtures.ts`) também tem consumidores em testes;
-sua mudança de localização pertence ao C04. O gate de **saúde** de produção
+P01 foi resolvido no C04: `public-lot-audit-fixtures.ts` fica em `src/test`,
+com os dois consumidores de testes preservados. As exclusões existentes em
+`tsconfig.build.json` e `vitest.config.ts` retiram o helper do build e da
+instrumentação de cobertura. O gate de **saúde** de produção
 não substitui a análise completa de código morto, typecheck ou revisão dos
 consumidores antes de excluir um símbolo.
 

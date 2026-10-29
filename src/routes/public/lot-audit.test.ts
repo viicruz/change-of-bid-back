@@ -8,11 +8,10 @@ import { db } from "../../db/index";
 import { bid, lot, lotParticipant } from "../../db/schema";
 import { env } from "../../env";
 
-//* Services imports
 import {
   createPublicLotAuditFixtures,
   expectTextOmitsPrivateAuditData,
-} from "../../services/lots/public-lot-audit-fixtures";
+} from "../../test/public-lot-audit-fixtures";
 
 const {
   hoursFromNow,
