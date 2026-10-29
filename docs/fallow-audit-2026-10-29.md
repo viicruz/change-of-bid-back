@@ -396,6 +396,64 @@ Validação:
   em `/tmp/change-of-bid-c07-{architecture,audit,type-aware}.json`.
 - `git diff --check`: saída **0**.
 
+### Execução do C08 — 29/10/2026
+
+Implementação preparada sobre `047e5ba`, sem criar commit Git. A mudança fica
+restrita a `src/services/lots/place-bid.ts`, com dois helpers internos e sem
+alterar exports ou contratos públicos:
+
+- `acceptLockedBid` concentra as etapas executadas dentro da transação:
+  bloqueio e validação do lote, validação do líder e do mínimo, bloqueio das
+  carteiras e conferência do saldo, registro do lance, transição das reservas
+  e atualização do líder com a eventual extensão do prazo.
+- `insertParticipantBid` registra ou recupera o participante, prepara o lance
+  canônico, persiste o lance e verifica se o timestamp gravado corresponde ao
+  instante usado no HMAC. Devolve o lance persistido e os dados canônicos
+  necessários para atualizar o lote e montar a resposta.
+
+`placeBid` mantém a autorização e a normalização do valor antes da transação
+e publica o evento somente depois de sua conclusão. Todos os passos de banco
+continuam recebendo o mesmo executor de uma única transação. A ordem das
+operações permanece igual: lote primeiro, carteiras na ordem estável do
+modelo, participante/lance, HOLD e aumento da reserva do novo líder,
+RELEASE e redução da reserva anterior, atualização final do lote.
+As consultas de locks, o cálculo HMAC, os valores monetários, a janela
+inclusiva de extensão e os erros permanecem inalterados.
+
+Nenhum teste foi adicionado, removido ou alterado. As suítes existentes
+exercitam concorrência no mesmo lote, saldo compartilhado entre lotes,
+disputa com cancelamento, extensão repetida, encadeamento HMAC e rollback
+por divergência de timestamp ou falha na escrita final, sem publicação de
+evento após rollback.
+
+Validação:
+
+- `fallow guard` no arquivo, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 601 testes aprovados**
+  em PostgreSQL 17 descartável. Statements **90,23%**, branches **84,91%**,
+  funções **89,95%**, linhas **90,07%**. Relatórios em
+  `/tmp/change-of-bid-fallow-coverage.rzROET/`.
+- Comparação com a cobertura do C07: os mesmos **71 arquivos** no mapa;
+  contagens de statements, branches e funções cobertos/não cobertos iguais
+  nos outros 70 arquivos. Em `place-bid.ts`, branches permanecem **55/65**;
+  a extração acrescenta **3 statements cobertos** e **2 funções cobertas**,
+  preservando **11 statements** e **10 branches** não cobertos. A variação
+  dos percentuais decorre da refatoração, sem novos cenários de teste.
+- Saúde de produção e inventário completo com essa cobertura: saída **0**
+  em ambos, nenhum finding de saúde. Nenhuma função de `place-bid.ts`
+  excede o limiar consultivo de **60 linhas**; L04/L09 deixam de aparecer
+  nesse inventário, sem alterar limiares ou supressões.
+- `fallow dead-code --type-aware`, com os mesmos flags JSON/explain:
+  saída **0**, somente o aviso T01 já registrado; nenhum arquivo, export
+  ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
+  nem findings no diff; veredito do audit **pass**. Relatórios temporários
+  em `/tmp/change-of-bid-c08-{guard,architecture,audit,type-aware}.json`.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.

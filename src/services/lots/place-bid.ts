@@ -119,70 +119,9 @@ export async function placeBid(
 
   const amount = parseBidAmount(input.amount);
 
-  const accepted = await resolved.runInTransaction(async (executor) => {
-    const { locked, now } = await lockBiddableLot(executor, input.lotId, resolved);
-    const currentBid = await findValidatedLeader(
-      executor,
-      locked,
-      input.userId,
-      resolved,
-    );
-    assertMinimumBid(locked, currentBid, amount);
-
-    const funding = await lockBidFunding(
-      executor,
-      input.userId,
-      currentBid,
-      amount,
-      resolved,
-    );
-    const participant = await resolved.findOrCreateLotParticipant(
-      executor,
-      locked.id,
-      input.userId,
-    );
-    const canonical = prepareCanonicalBid({
-      locked,
-      currentBid,
-      participant,
-      bidderId: input.userId,
-      amount,
-      now,
-      hashSecret: resolved.hashSecret,
-    });
-    const createdAtCanonical = canonicalBidTimestamp(canonical.createdAt);
-    const inserted = await resolved.insertBid(executor, canonical);
-
-    if (canonicalBidTimestamp(asDate(inserted.createdAt)) !== createdAtCanonical) {
-      throw new Error("Persisted bid timestamp does not match the hashed instant");
-    }
-
-    await transitionBidReserves(
-      executor,
-      { lotId: locked.id, bidId: inserted.id, amount },
-      currentBid,
-      funding,
-      resolved,
-    );
-
-    const schedule = antiSnipeExtension(locked.endsAt, locked.extensionCount, now);
-    const marked = await resolved.markLotLeadingBid(executor, locked.id, {
-      currentBidId: inserted.id,
-      bidCount: canonical.sequence,
-      headHash: canonical.hash,
-      ...(schedule === null ? {} : { schedule }),
-    });
-
-    return {
-      id: inserted.id,
-      sequence: inserted.sequence,
-      amount: storedMoney(inserted.amount),
-      createdAt: asDate(inserted.createdAt),
-      participantNo: participant.participantNo,
-      endsAt: marked.endsAt,
-      extensionCount: marked.extensionCount,
-    };
-  });
+  const accepted = await resolved.runInTransaction((executor) =>
+    acceptLockedBid(executor, input, amount, resolved),
+  );
 
   // The bid is committed. A rejection throws inside the transaction and never
   // reaches the room.
@@ -193,6 +132,97 @@ export async function placeBid(
 
 // All database steps below receive the transaction's executor. Lock the lot
 // first, then the wallets (in the model's stable id order), before writing.
+async function acceptLockedBid(
+  executor: DatabaseExecutor,
+  input: PlaceBidInput,
+  amount: string,
+  dependencies: PlaceBidDependencies,
+): Promise<AcceptedBid> {
+  const { locked, now } = await lockBiddableLot(executor, input.lotId, dependencies);
+  const currentBid = await findValidatedLeader(
+    executor,
+    locked,
+    input.userId,
+    dependencies,
+  );
+  assertMinimumBid(locked, currentBid, amount);
+
+  const funding = await lockBidFunding(
+    executor,
+    input.userId,
+    currentBid,
+    amount,
+    dependencies,
+  );
+  const { inserted, sequence, hash, participantNo } = await insertParticipantBid(
+    executor,
+    { locked, currentBid, bidderId: input.userId, amount, now },
+    dependencies,
+  );
+
+  await transitionBidReserves(
+    executor,
+    { lotId: locked.id, bidId: inserted.id, amount },
+    currentBid,
+    funding,
+    dependencies,
+  );
+
+  const schedule = antiSnipeExtension(locked.endsAt, locked.extensionCount, now);
+  const marked = await dependencies.markLotLeadingBid(executor, locked.id, {
+    currentBidId: inserted.id,
+    bidCount: sequence,
+    headHash: hash,
+    ...(schedule === null ? {} : { schedule }),
+  });
+
+  return {
+    id: inserted.id,
+    sequence: inserted.sequence,
+    amount: storedMoney(inserted.amount),
+    createdAt: asDate(inserted.createdAt),
+    participantNo,
+    endsAt: marked.endsAt,
+    extensionCount: marked.extensionCount,
+  };
+}
+
+async function insertParticipantBid(
+  executor: DatabaseExecutor,
+  context: {
+    locked: LockedLot;
+    currentBid: CurrentBid | null;
+    bidderId: string;
+    amount: string;
+    now: Date;
+  },
+  dependencies: PlaceBidDependencies,
+) {
+  const participant = await dependencies.findOrCreateLotParticipant(
+    executor,
+    context.locked.id,
+    context.bidderId,
+  );
+  const canonical = prepareCanonicalBid({
+    ...context,
+    participant,
+    hashSecret: dependencies.hashSecret,
+  });
+  const createdAtCanonical = canonicalBidTimestamp(canonical.createdAt);
+  const inserted = await dependencies.insertBid(executor, canonical);
+
+  if (canonicalBidTimestamp(asDate(inserted.createdAt)) !== createdAtCanonical) {
+    throw new Error("Persisted bid timestamp does not match the hashed instant");
+  }
+
+  return {
+    inserted,
+    sequence: canonical.sequence,
+    hash: canonical.hash,
+    participantNo: participant.participantNo,
+  };
+}
+
 async function lockBiddableLot(
   executor: DatabaseExecutor,
   lotId: string,
