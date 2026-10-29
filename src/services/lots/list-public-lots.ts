@@ -10,7 +10,7 @@ import {
 
 //* Local imports
 import { db } from "../../db/index";
-import { bid, lot } from "../../db/schema";
+import { bid, lot, lotItem } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 import { lotListColumns } from "./lot-read";
 import type { ListedLotItem } from "./lot-read-types";
@@ -34,6 +34,7 @@ export type PublicLot = {
   currentBid: string | null;
   bidCount: number;
   sold: boolean;
+  totalItems: number;
   items: PublicLotItem[];
 };
 
@@ -50,6 +51,7 @@ export async function listPublicLots(
   const rows = await dependencies.executor
     .select({
       ...lotListColumns(now),
+      totalItems: dependencies.executor.$count(lotItem, eq(lotItem.lotId, lot.id)),
     })
     .from(lot)
     .leftJoin(bid, eq(bid.id, lot.currentBidId))
@@ -79,6 +81,7 @@ export async function listPublicLots(
     currentBid: row.currentBid,
     bidCount: row.bidCount,
     sold: row.winnerId !== null,
+    totalItems: row.totalItems,
     items: itemsByLotId.get(row.id) ?? [],
   }));
 }

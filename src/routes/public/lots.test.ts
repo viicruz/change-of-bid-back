@@ -406,6 +406,7 @@ describe("GET /public/lots", () => {
           currentBid: null,
           bidCount: 0,
           sold: false,
+          totalItems: 1,
           items: [
             expect.objectContaining({
               position: 1,
@@ -435,6 +436,7 @@ describe("GET /public/lots", () => {
       "startsAt",
       "status",
       "title",
+      "totalItems",
     ]);
     expect(Object.keys(item ?? {}).sort()).toEqual([
       "cardId",
