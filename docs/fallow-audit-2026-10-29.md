@@ -1,5 +1,10 @@
 # Auditoria Fallow — 29/10/2026
 
+Estado de fechamento revalidado sobre `bb14b1e` no
+[C13](#execução-do-c13--29102026). O resultado e os inventários de abertura
+abaixo descrevem a base original; as seções de execução registram a evolução
+do lote. O [guia Fallow](fallow.md) contém a receita e a referência atuais.
+
 ## Resultado e escopo
 
 Auditoria do projeto inteiro, com leitura dos achados e de seus consumidores, sem aplicar correções nem criar commits Git. Os commits abaixo são unidades propostas de trabalho. Base: `6053de7a9a3cc7c261006416aaed4e369fc7b439`; árvore limpa antes da auditoria. Data de referência: 29/10/2026, America/Sao_Paulo.
@@ -53,20 +58,16 @@ Códigos **0 e 1** representam análises concluídas; **1** significa gate repro
 
 A primeira rodada carregou automaticamente `coverage/coverage-final.json`, datado de **28/10/2026 22:10:43 -03:00**. O diagnóstico `coverage-auto-detected` explica por que o mesmo comando pode mudar com o arquivo encontrado no disco. O arquivo antigo não foi sobrescrito nesta auditoria.
 
-Foi executada a suíte completa em **PostgreSQL 17 descartável**, criado por Docker, em porta local aleatória, com variáveis exclusivas de auditoria e dados em tmpfs. Migrações aplicadas por `npm run db:migrate`; container removido ao final. Nenhum `db:fresh` real foi executado. Para repetir, usar a receita de [fallow.md](fallow.md#cobertura-real-em-banco-descartável), com um novo banco descartável, e escolher um diretório de cobertura novo:
+Foi executada a suíte completa em **PostgreSQL 17 descartável**, criado por Docker, em porta local aleatória, com variáveis exclusivas de auditoria e dados em tmpfs. Migrações aplicadas por `npm run db:migrate`; container removido ao final. Nenhum `db:fresh` real foi executado. A reprodução atual usa a receita de [fallow.md](fallow.md#cobertura-real-em-banco-descartável), automatizada no C01:
 
 ```sh
-npm run test:coverage -- --coverage.reportsDirectory=/tmp/fallow-audit-current/coverage
-node_modules/.bin/fallow health --complexity --complexity-breakdown \
-  --hotspots --ownership --targets --coverage-gaps --file-scores --score \
-  --coverage /tmp/fallow-audit-current/coverage/coverage-final.json \
-  --format json --quiet --explain > /tmp/fallow-audit-current/health.json
-node_modules/.bin/fallow health --production --complexity \
-  --coverage /tmp/fallow-audit-current/coverage/coverage-final.json \
-  --format json --quiet --explain
+npm run fallow:coverage
 ```
 
-Executar os comandos acima somente depois de preparar/exportar o banco descartável como na receita. Registrar o status real de cada comando, inclusive quando for 1.
+O script prepara e exporta o banco descartável, executa a suíte sem paralelismo
+entre arquivos e passa a cobertura recém-gerada explicitamente às duas
+análises de saúde. Preserva relatórios e códigos reais de saída, inclusive 1,
+no diretório temporário exclusivo informado no terminal.
 
 Resultados atuais:
 
@@ -163,7 +164,7 @@ C01–C02 são os primeiros passos recomendados. C03–C06 são melhorias pequen
 | **C10** `refactor(live): separar ciclo de vida do stream publico` | Extrair lifecycle de publicLotLiveRoutes com dono claro da assinatura da sala e do close, inclusive durante o snapshot inicial. O transporte existente é WebSocket, sem timer ou listener de abort próprios. | L07. | Opcional. Testes de frames WebSocket, desconexão e encerramento passam; saída da sala preservada mesmo quando o close antecede o fim do snapshot. |
 | **C11** `refactor(lots): separar consulta e montagem da listagem do leiloeiro` | Dividir listAuctioneerLots sem unificar filtros/DTOs de bidder e público. | L10 e hotspot de listagens. | Opcional. Paginação, ordenação, totais monetários e permissões preservados nas suítes de listagem. |
 | **C12** `refactor(test): separar cenarios extensos por dominio` | Aplicar em commits separados por suíte: liquidação, lances, carteira, listagens. Usar o inventário L para escolher o primeiro arquivo. | 161 entradas de tamanho em testes/helpers. | Opcional, um arquivo/domínio por commit real. Contagem de testes e isolamento preservados; callbacks describe de centenas de linhas não são, sozinhos, funções de negócio complexas. |
-| **C13** `docs(fallow): registrar decisoes e limites da auditoria` | Versionar esta triagem, atualizar referências históricas em docs/fallow.md e preservar reproduções/decisões T/S/A. O link para fallow-audit-2026-10-28.md atualmente não tem arquivo na árvore. | T01, S01–S06, A01/A02 e decisões de manter D/P. | Pode acompanhar o início/fim do lote; não implica suprimir os findings. Reexecutar análises após cada mudança relevante. |
+| **C13** `docs(fallow): registrar decisoes e limites da auditoria` | Versionar esta triagem, atualizar referências históricas em docs/fallow.md e preservar reproduções/decisões T/S/A. Substituir a dependência histórica de fallow-audit-2026-10-28.md, ausente da árvore, pelo relatório de 29/10. | T01, S01–S06, A01/A02 e decisões de manter D/P. | Pode acompanhar o início/fim do lote; não implica suprimir os findings. Reexecutar análises após cada mudança relevante. |
 
 Para cada commit que tocar código: `fallow guard <arquivos>` antes, testes da superfície afetada e `npm run typecheck`; `fallow architecture` e `fallow audit --base HEAD` na revisão do diff ainda não commitado. Usar sempre os flags JSON/explain acima. Para comparações entre commits, fixar a referência base real do lote. `audit --base HEAD` sozinho não audita o backlog inteiro. Reexecutar o detector específico para confirmar a redução prometida; os commits opcionais não têm meta artificial de zerar todos os sinais consultivos.
 
@@ -687,6 +688,81 @@ Validação:
   ciclos nem findings no diff; veredito do audit **pass** nos 11 arquivos
   de código. Relatórios em `/tmp/change-of-bid-c12-{guard,architecture,audit,type-aware}.json`.
 - `git diff --check`: saída **0**.
+
+### Execução do C13 — 29/10/2026
+
+Fechamento documental preparado sobre `bb14b1e`, sem criar commit Git.
+`docs/fallow.md` passa a apontar para esta auditoria e para esta execução,
+substituindo referências ambíguas aos commits de 28/10, cujo relatório não
+existe na árvore. As contagens originais e os apêndices são mantidos como
+histórico; o guia apresenta o estado revalidado após C01–C12. A reprodução
+de cobertura acima passa a usar o script descartável já entregue no C01.
+
+Decisões retidas:
+
+- **T01:** mesmo aviso no projeto e na reprodução mínima, apesar do
+  `export type` explícito. Mantida a classificação de provável falso positivo
+  neste contrato Elysia. Preservados API, script de reprodução e gatilho de
+  revisão ao atualizar Fallow/companion/Elysia.
+- **S01–S06:** os mesmos seis IDs permanecem visíveis. Conferidos os
+  consumidores atuais, a validação de origem antes do download, timeout e
+  redirects, a origem local dos caminhos, a validação/escaping do nome do
+  banco, o bloqueio de produção e o comando sem shell. S01 segue mitigado no
+  fluxo atual; S02–S06 seguem sem vulnerabilidade demonstrada nesses fluxos.
+  O downloader isolado continua exigindo que seus consumidores validem a URL.
+- **A01/A02:** fronteiras e políticas continuam não medidas; ciclos foram
+  medidos. Hotspots, tamanho e bus factor são sinais consultivos, com janela,
+  relógio e limitações de identidade explicitados no guia. Não foram
+  inventadas zonas nem assumida ausência de revisão por bus factor 1.
+- **D/P:** mantidas operações SQL, schemas, erros e contratos distintos,
+  conforme os apêndices e o guia. P01 está resolvido pela mudança de
+  localização; P02–P08 têm consumidores de teste conferidos e são preservados.
+  C12 cobriu apenas liquidação; a reorganização das demais suítes continua
+  opcional e não condiciona este fechamento.
+
+Nenhum código, dependência, configuração, limiar ou supressão foi alterado.
+Ferramentas locais revalidadas: Fallow/companion **3.36.0**, TypeScript
+**5.9.3**, Vitest/provider **5.0.5** e Elysia **1.4.30**.
+
+Validação:
+
+- `npm run typecheck`: saída **0**.
+- `npm run fallow:coverage`: saída **0**, **46 arquivos / 608 testes
+  aprovados**, em PostgreSQL 17 descartável, removido ao final. Statements
+  **90,70%**, branches **85,32%**, funções **90,12%**, linhas **90,55%**;
+  percentuais iguais aos registrados no C12. Relatórios em
+  `/tmp/change-of-bid-fallow-coverage.2gHqy1/`.
+- Saúde de produção e inventário completo com essa cobertura: saída **0**
+  em ambos, nenhum finding de saúde. **72/72 arquivos** associados;
+  **413/415 funções** no recorte de produção e **413/1.947** no inventário.
+  Alcance estático **62/62 arquivos runtime**, sem arquivo/export sem caminho
+  de teste. H01/H02 e G01 continuam resolvidos; H03 não reaparece.
+- `fallow list --entry-points`: saída **0**, **78 entrypoints** completos.
+- `fallow dead-code`: saída **0**, nenhum finding; `dead-code --type-aware`:
+  saída **0**, somente T01. `sh docs/fallow/reproduce-t01.sh`: saída **0**,
+  compilação sem emissão aprovada e o mesmo aviso T01 reproduzido.
+- `fallow dead-code --production`: saída **1**, exatamente P02–P08,
+  **0 arquivos sem uso**. Gate reprovado pelos sete exports/tipos usados
+  pelos testes excluídos do recorte; não é falha da ferramenta.
+- `fallow security --surface`: saída **0**, mesmos **6 candidatos**;
+  **3.063 call sites não resolvidos**, com trilhas de confiança
+  `module-level`. Essa limitação não é prova de fluxo contaminado nem uma
+  análise de CVEs.
+- `fallow dupes`: saída **0**, **0 grupos**. Modo semântico: saída **0**,
+  **78 grupos / 42 famílias / 166 instâncias**, **36/66 arquivos** e
+  **1.695/8.400 linhas (20,18%)**. O inventário consultivo atual não
+  substitui os 80 grupos históricos nem autoriza consolidação automática.
+- `fallow flags --retirement`: saída **0**, nenhuma flag reconhecida.
+- `fallow guard` nos dois documentos e `fallow architecture`: saída **0**,
+  sem ciclos nem regras de fronteiras configuradas. Todos os comandos Fallow
+  acima usaram `--format json --quiet --explain`, com stderr separado.
+  Relatórios em `/tmp/change-of-bid-c13-9setqyfa/`.
+- `fallow audit --base HEAD --coverage` com o caminho absoluto da cobertura
+  desta rodada e os mesmos flags JSON/explain: saída **0**, veredito **pass**
+  nos dois documentos alterados, sem novos findings. O diff é documental;
+  a saúde de todo o código foi conferida separadamente acima.
+- Links e âncoras locais dos dois documentos conferidos, sem destinos
+  ausentes; `git diff --check`: saída **0**.
 
 ## Apêndice D — Todos os grupos semânticos
 
