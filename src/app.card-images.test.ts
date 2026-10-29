@@ -91,6 +91,38 @@ describe("card image static plugin", () => {
     expect(publicApi.status).toBe(200);
     expect(await publicApi.text()).toBe("Hello World");
   });
+
+  it("re-downloads a canonical image missing from disk and serves it", async () => {
+    const id = 2_000_000_000 + Math.floor(Math.random() * 100_000_000);
+    const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0xff, 0xd9]);
+    const nativeFetch = globalThis.fetch;
+    let available = true;
+    const provider = vi.fn(async (_url: string) => available
+      ? new Response(bytes, { headers: { "content-type": "image/jpeg" } })
+      : new Response("Not found", { status: 404 }));
+    vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) => {
+      const url = input instanceof Request ? input.url : String(input);
+      return url.startsWith("https://images.ygoprodeck.com/") ? provider(url) : nativeFetch(input, init);
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      const restored = await fetch(`${baseUrl}/card-images/${id}.jpg`);
+      expect(restored.status).toBe(200);
+      expect(new Uint8Array(await restored.arrayBuffer())).toEqual(bytes);
+      expect(provider).toHaveBeenCalledExactlyOnceWith(`https://images.ygoprodeck.com/images/cards/${id}.jpg`);
+
+      await fetch(`${baseUrl}/card-images/${id}.jpg`);
+      expect(provider).toHaveBeenCalledOnce();
+
+      available = false;
+      const missing = await fetch(`${baseUrl}/card-images/${id + 1}.jpg`);
+      expect(missing.status).toBe(404);
+    } finally {
+      warn.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 

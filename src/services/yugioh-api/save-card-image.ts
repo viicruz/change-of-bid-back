@@ -5,10 +5,28 @@ import { cardImageStorage } from "../../lib/card-image-storage";
 
 export type ImageDownload = (url: string) => Promise<Response>;
 
-export const downloadCardImage: ImageDownload = (url) =>
-  fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000) });
+// YGOPRODeck allows 20 requests/second; stay below it across every download path.
+export const CARD_IMAGE_DOWNLOADS_PER_SECOND = 15;
 
-const CARD_IMAGE_ORIGIN = "https://images.ygoprodeck.com";
+// Spaces request starts evenly, so no one-second window holds more than `perSecond` starts.
+export function rateLimitDownload(download: ImageDownload, perSecond: number): ImageDownload {
+  const interval = 1000 / perSecond;
+  let nextStart = 0;
+  return async (url) => {
+    const now = Date.now();
+    const start = Math.max(now, nextStart);
+    nextStart = start + interval;
+    if (start > now) await new Promise((resolve) => setTimeout(resolve, start - now));
+    return download(url);
+  };
+}
+
+export const downloadCardImage: ImageDownload = rateLimitDownload(
+  (url) => fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000) }),
+  CARD_IMAGE_DOWNLOADS_PER_SECOND,
+);
+
+export const CARD_IMAGE_ORIGIN = "https://images.ygoprodeck.com";
 const contentTypes = new Map([
   [".jpg", "image/jpeg"], [".jpeg", "image/jpeg"],
   [".png", "image/png"], [".webp", "image/webp"],
