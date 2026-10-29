@@ -28,12 +28,15 @@ import { placeBid, type AcceptedBid } from "../services/lots/place-bid";
 import { settleDueLots } from "../services/lots/settle-due-lots";
 import { deposit } from "../services/wallet/deposit";
 
-export async function seedLotActivity(input: {
-  auctioneerEmail: string;
-  bidderEmails: Record<SeedBidder, string>;
-  lots: SeededLot[];
-  now?: Date;
-}) {
+export async function seedLotActivity(
+  input: {
+    auctioneerEmail: string;
+    bidderEmails: Record<SeedBidder, string>;
+    lots: SeededLot[];
+    now?: Date;
+  },
+  dependencies: { settleDueLots?: typeof settleDueLots } = {},
+) {
   const now = input.now ?? new Date();
   const bidderIds: Record<SeedBidder, string> = {
     bidder: await findUserId(input.bidderEmails.bidder),
@@ -48,7 +51,11 @@ export async function seedLotActivity(input: {
   }
 
   await closeEndedLots(input.lots);
-  await settleEndedLots(input.lots, now);
+  await settleEndedLots(
+    input.lots,
+    now,
+    dependencies.settleDueLots ?? settleDueLots,
+  );
   await cancelSeededLots(input.auctioneerEmail, input.lots);
 }
 
@@ -213,7 +220,11 @@ async function closeEndedLots(lots: SeededLot[]) {
   }
 }
 
-async function settleEndedLots(lots: SeededLot[], now: Date) {
+async function settleEndedLots(
+  lots: SeededLot[],
+  now: Date,
+  settle: typeof settleDueLots,
+) {
   const ended = lots.filter((seeded) => seeded.plan.status === "ended");
 
   if (ended.length === 0) {
@@ -221,7 +232,7 @@ async function settleEndedLots(lots: SeededLot[], now: Date) {
   }
 
   const titles = new Map(ended.map((seeded) => [seeded.id, seeded.title]));
-  const results = await settleDueLots({
+  const results = await settle({
     now: () => now,
     listDueLotIds: async () => ended.map((seeded) => seeded.id),
   });
