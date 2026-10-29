@@ -39,15 +39,16 @@ export async function seedLots(
   client?: CardSearchClient,
 ) {
   const auctioneerId = await findAuctioneerId(auctioneerEmail);
-  const decks = await loadDeckFixtures();
+  const fixtures = await loadDeckFixtures();
   const plans = planSeedLots(now);
 
-  if (decks.length !== plans.length) {
+  if (fixtures.length < plans.length) {
     throw new Error(
-      `Expected ${plans.length} deck fixtures and found ${decks.length}`,
+      `Expected at least ${plans.length} deck fixtures and found ${fixtures.length}`,
     );
   }
 
+  const decks = fixtures.slice(0, plans.length);
   const existingTitles = await findExistingLotTitles(
     auctioneerId,
     decks.map((deck) => deck.name),

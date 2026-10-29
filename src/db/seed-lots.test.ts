@@ -130,6 +130,22 @@ afterEach(() => {
 });
 
 describe("seedLots orchestration", () => {
+  it("creates only the first 32 fixtures with eight lots per status", async () => {
+    existingTitles.clear();
+    decks[32] = deck("Unused deck", [999]);
+
+    const result = await runSeed();
+
+    expect(result).toHaveLength(32);
+    expect(result.map((entry) => entry.title)).toEqual(decks.slice(0, 32).map((entry) => entry.name));
+    for (const status of ["scheduled", "live", "ended", "canceled"]) {
+      expect(result.filter((entry) => entry.plan.status === status)).toHaveLength(8);
+    }
+    expect(mocks.insertLot).toHaveBeenCalledTimes(32);
+    expect(mocks.findCardsByIds).toHaveBeenCalledExactlyOnceWith(expect.anything(), [1]);
+    expect(searchCards).not.toHaveBeenCalled();
+  });
+
   it("uses the catalog without searching or saving cards already stored", async () => {
     await expect(runSeed()).resolves.toEqual([
       { id: "lot-Deck 0", title: "Deck 0", plan: plans[0] },
@@ -213,10 +229,10 @@ describe("seedLots orchestration", () => {
     expect(mocks.transaction).not.toHaveBeenCalled();
   });
 
-  it("rejects a fixture count that does not match the plan before catalog work", async () => {
-    decks.pop();
+  it("rejects fewer fixtures than the plan before catalog work", async () => {
+    decks = decks.slice(0, 31);
 
-    await expect(runSeed()).rejects.toThrow("Expected 40 deck fixtures and found 39");
+    await expect(runSeed()).rejects.toThrow("Expected at least 32 deck fixtures and found 31");
 
     expect(mocks.findExistingTitles).not.toHaveBeenCalled();
     expect(mocks.findCardsByIds).not.toHaveBeenCalled();
