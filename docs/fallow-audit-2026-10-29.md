@@ -454,6 +454,63 @@ Validação:
   em `/tmp/change-of-bid-c08-{guard,architecture,audit,type-aware}.json`.
 - `git diff --check`: saída **0**.
 
+### Execução do C09 — 29/10/2026
+
+Implementação preparada sobre `e0ef1ce`, sem criar commit Git. A mudança fica
+restrita a `src/services/wallet/deposit.ts`, com dois helpers internos e sem
+alterar exports ou contratos públicos:
+
+- `validateDepositInput` confere a autorização BIDDER antes de validar o
+  tipo e normalizar o valor monetário. Retorna o valor canônico; as mesmas
+  rejeições acontecem antes de abrir a transação.
+- `persistDeposit` recebe o executor da transação e mantém a sequência:
+  bloqueio da carteira por usuário, validação de existência, inserção do
+  movimento DEPOSIT, aumento do saldo total e leitura dos saldos finais.
+  Todas as operações continuam usando o mesmo executor, preservando a
+  atomicidade do movimento e do crédito e o saldo comprometido.
+
+`deposit` conserva a resolução das dependências antes da validação e aguarda
+a transação dentro do `try`. Erros de domínio mantêm sua identidade; erros
+PostgreSQL `22003`, inclusive encadeados por `cause`, continuam traduzidos
+para `AMOUNT_OUT_OF_RANGE`. Os demais erros continuam sendo propagados.
+Consultas, locks, limites monetários e formato da resposta permanecem iguais.
+
+Nenhum teste foi adicionado, removido ou alterado. As suítes existentes
+verificam autorização pela sessão, impedimento de crédito em outra carteira,
+normalização, limites, carteira ausente, depósitos concorrentes sem perda
+de crédito e rollback do movimento quando o saldo excede o limite do banco.
+A integração dos seeds continua reconciliando saldos e movimentos e
+verificando idempotência.
+
+Validação:
+
+- `fallow guard` no arquivo, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 601 testes aprovados**
+  em PostgreSQL 17 descartável, incluindo carteira, depósitos e integração
+  financeira. Statements **90,25%**, branches **84,91%**, funções **90,00%**,
+  linhas **90,09%**. Relatórios em
+  `/tmp/change-of-bid-fallow-coverage.WA19CF/`.
+- Comparação com a cobertura do C08: os mesmos **71 arquivos** no mapa;
+  contagens de statements, branches e funções cobertos/não cobertos iguais
+  nos outros 70 arquivos. Em `deposit.ts`, branches permanecem **18/21**;
+  a extração acrescenta **3 statements cobertos** e **2 funções cobertas**,
+  preservando **4 statements** e **3 branches** não cobertos. A variação
+  dos percentuais decorre da refatoração, sem novos cenários de teste.
+- Saúde de produção e inventário completo com essa cobertura: saída **0**
+  em ambos, nenhum finding de saúde. Nenhuma função de `deposit.ts`
+  excede o limiar consultivo de **60 linhas**; L05 deixa de aparecer nesse
+  inventário, sem alterar limiares ou supressões.
+- `fallow dead-code --type-aware`, com os mesmos flags JSON/explain:
+  saída **0**, somente o aviso T01 já registrado; nenhum arquivo, export
+  ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
+  nem findings no diff; veredito do audit **pass**. Relatórios temporários
+  em `/tmp/change-of-bid-c09-{guard,architecture,audit,type-aware}.json`.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.
