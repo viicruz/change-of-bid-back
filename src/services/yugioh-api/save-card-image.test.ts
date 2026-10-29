@@ -7,7 +7,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vites
 
 //* Local imports
 import { cardImageStorage } from "../../lib/card-image-storage";
-import { downloadCardImage, saveCardImage } from "./save-card-image";
+import { CARD_IMAGE_DOWNLOADS_PER_SECOND, downloadCardImage, rateLimitDownload, saveCardImage } from "./save-card-image";
 
 vi.mock("../../lib/card-image-storage", async () => {
   const { mkdtemp } = await import("node:fs/promises");
@@ -128,6 +128,48 @@ describe("downloadCardImage", () => {
     } finally {
       timeout.mockRestore();
     }
+  });
+});
+
+describe("rateLimitDownload", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("starts at most the configured number of downloads per second", async () => {
+    vi.useFakeTimers();
+    const starts: number[] = [];
+    const limited = rateLimitDownload(async () => {
+      starts.push(Date.now());
+      return new Response(imageBytes);
+    }, CARD_IMAGE_DOWNLOADS_PER_SECOND);
+    const origin = Date.now();
+
+    const all = Promise.all(Array.from({ length: 31 }, () => limited(imageUrl)));
+    await vi.advanceTimersByTimeAsync(999);
+    expect(starts).toHaveLength(15);
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(starts).toHaveLength(30);
+    await vi.advanceTimersByTimeAsync(1);
+    await all;
+
+    expect(starts[0]).toBe(origin);
+    for (const [index, at] of starts.entries()) {
+      expect(starts.filter((other) => other >= at && other < at + 1000).length, `window at #${index}`)
+        .toBeLessThanOrEqual(CARD_IMAGE_DOWNLOADS_PER_SECOND);
+    }
+  });
+
+  it("does not delay downloads that are already spaced out", async () => {
+    vi.useFakeTimers();
+    const fetchImage = vi.fn(async () => new Response(imageBytes));
+    const limited = rateLimitDownload(fetchImage, CARD_IMAGE_DOWNLOADS_PER_SECOND);
+
+    await limited(imageUrl);
+    vi.advanceTimersByTime(500);
+    await limited(imageUrl);
+
+    expect(fetchImage).toHaveBeenCalledTimes(2);
   });
 });
 

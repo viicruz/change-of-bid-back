@@ -10,6 +10,7 @@ import { staticPlugin } from "@elysia/static";
 import { auth, OpenAPI } from "./lib/auth";
 import { env } from "./env";
 import { cardImageStorage } from "./lib/card-image-storage";
+import { restoreMissingCardImage } from "./services/yugioh-api/restore-card-image";
 
 //* Routes imports
 import { privateRoutes } from "./routes/private";
@@ -33,6 +34,16 @@ export const app = new Elysia({ adapter: nodeAdapter })
       allowedHeaders: ["Content-Type", "Authorization"],
     }),
   )
+  .onRequest(async ({ request }) => {
+    if (request.method !== "GET" && request.method !== "HEAD") return;
+    const { pathname } = new URL(request.url);
+    try {
+      await restoreMissingCardImage(pathname);
+    } catch (error) {
+      // The static plugin still answers 404 when the image cannot be restored.
+      console.warn(`Could not restore ${pathname}:`, error instanceof Error ? error.message : error);
+    }
+  })
   .mapResponse(async ({ path, response, set, request }) => {
     if (
       path !== cardImageStorage.prefix &&
