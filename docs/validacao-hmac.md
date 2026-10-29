@@ -70,7 +70,7 @@ previousHash|lotId|sequence|participantNo|amount|createdAt
 
 A mensagem é processada em UTF-8 pelos métodos usados. Esses campos têm formatos restritos que não incluem `|`; acrescentar texto livre exigiria rever a serialização para evitar ambiguidades.
 
-[money.ts](../src/schemas/money.ts) normaliza, por exemplo, `10`, `10.0` e `10.00` para `10.00`. O valor deve ser maior que zero e não ultrapassar BRL 1.000.000,00. A auditoria repete essa normalização, portanto autentica a representação canônica do valor, não variações textuais equivalentes.
+[money.ts](../src/schemas/money.ts) normaliza, por exemplo, `10`, `10.0` e `10.00` para `10.00`. O valor deve ser maior que zero e não ultrapassar BRL 1.000.000,00, o teto de cada transação monetária descrito em [Valores monetários](dominio.md#valores-monetários). A auditoria repete essa normalização, portanto autentica a representação canônica do valor, não variações textuais equivalentes.
 
 `canonicalBidTimestamp` usa `Date.toISOString()` e exige ano de quatro dígitos, UTC e três dígitos de milissegundos. Na aceitação, o instante é definido pela aplicação e enviado explicitamente ao banco; depois da inserção, o serviço confere se o instante persistido coincide com o autenticado. Uma divergência desfaz a transação.
 
