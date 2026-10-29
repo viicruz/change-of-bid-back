@@ -9,6 +9,7 @@ import { insertLotItems } from "../../models/lot-item";
 
 //* Local imports
 import { db } from "../../db/index";
+import { ensureCardImage } from "../yugioh-api/ensure-card-image";
 
 const createLotErrorCodes = [
   "NOT_AUCTIONEER",
@@ -83,6 +84,7 @@ export type CreatedLot = {
 
 export type CreateLotDependencies = {
   now: () => Date;
+  ensureCardImage: typeof ensureCardImage;
   runInTransaction: <Result>(
     work: (executor: DatabaseExecutor) => Promise<Result>,
   ) => Promise<Result>;
@@ -154,11 +156,18 @@ async function findLotCards(
     );
   }
 
-  const cardsWithoutImage = requestedIds.filter((id) => {
-    const entry = cardsById.get(id);
-
-    return entry === undefined || !hasImage(entry.imagePath);
-  });
+  const cardsWithoutImage: number[] = [];
+  for (const id of requestedIds) {
+    const entry = cardsById.get(id)!;
+    try {
+      const imagePath = await dependencies.ensureCardImage({
+        cardId: id, imagePath: entry.imagePath, snapshot: entry.raw,
+      });
+      cardsById.set(id, { ...entry, imagePath });
+    } catch {
+      cardsWithoutImage.push(id);
+    }
+  }
 
   if (cardsWithoutImage.length > 0) {
     throw new CreateLotError(
@@ -241,6 +250,7 @@ function toCreatedLot(
 function createDefaultDependencies(): CreateLotDependencies {
   return {
     now: () => new Date(),
+    ensureCardImage,
     runInTransaction: (work) => db.transaction((tx) => work(tx)),
     findCardsByIds,
     insertLot,

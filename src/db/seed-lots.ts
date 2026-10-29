@@ -17,6 +17,7 @@ import { insertLotItems } from "../models/lot-item";
 import type { Card } from "../schemas/ygo-pro-deck";
 
 //* Services imports
+import { ensureCardImage } from "../services/yugioh-api/ensure-card-image";
 import { saveUnregisteredCards } from "../services/yugioh-api/save-unregistered-cards";
 import {
   YGOProDeckApiClient,
@@ -54,6 +55,15 @@ export async function seedLots(
   const pendingLots = pending.map(({ deck, plan }) =>
     prepareSeedLot(deck, plan, cardsById),
   );
+  // The seed also publishes lots directly. Confirm images before the first
+  // transaction so legacy catalog paths cannot introduce new hotlinks.
+  for (const pendingLot of pendingLots) {
+    for (const item of pendingLot.items) {
+      item.imagePath = await ensureCardImage({
+        cardId: item.cardId, imagePath: item.imagePath, snapshot: item.cardSnapshot,
+      });
+    }
+  }
   const seededLots: SeededLot[] = [];
 
   for (const pendingLot of pendingLots) {

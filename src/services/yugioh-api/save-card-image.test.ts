@@ -130,3 +130,49 @@ describe("downloadCardImage", () => {
     }
   });
 });
+
+describe("atomic image storage", () => {
+  it("coalesces simultaneous downloads and exposes only a complete final file", async () => {
+    const { readdir } = await import("node:fs/promises");
+    const gate = Promise.withResolvers<Response>();
+    const fetchImage = vi.fn(() => gate.promise);
+    const first = saveCardImage(6983839, imageUrl, fetchImage);
+    const second = saveCardImage(6983839, imageUrl, fetchImage);
+    await vi.waitFor(() => expect(fetchImage).toHaveBeenCalledOnce());
+    await expect(readFile(join(cardImageStorage.assets, "6983839.jpg"))).rejects.toThrow();
+    gate.resolve(new Response(imageBytes, { headers: { "content-type": "image/jpeg" } }));
+    expect(await Promise.all([first, second])).toEqual(["/card-images/6983839.jpg", "/card-images/6983839.jpg"]);
+    expect(await readFile(join(cardImageStorage.assets, "6983839.jpg"))).toEqual(Buffer.from(imageBytes));
+    expect(await readdir(cardImageStorage.assets)).toEqual(["6983839.jpg"]);
+  });
+
+  it.each([new Uint8Array(), new Uint8Array([255, 216, 255]), new TextEncoder().encode("not an image")])(
+    "replaces an invalid legacy file", async (bytes) => {
+      await mkdir(cardImageStorage.assets, { recursive: true });
+      await writeFile(join(cardImageStorage.assets, "6983839.jpg"), bytes);
+      await saveCardImage(6983839, imageUrl, download);
+      expect(download).toHaveBeenCalledOnce();
+      expect(await readFile(join(cardImageStorage.assets, "6983839.jpg"))).toEqual(Buffer.from(imageBytes));
+    },
+  );
+
+  it("clears failed concurrent work so a later request can retry", async () => {
+    const gate = Promise.withResolvers<Response>();
+    const fetchImage = vi.fn(() => gate.promise);
+    const first = saveCardImage(6983839, imageUrl, fetchImage);
+    const second = saveCardImage(6983839, imageUrl, fetchImage);
+    const settled = Promise.allSettled([first, second]);
+    await vi.waitFor(() => expect(fetchImage).toHaveBeenCalledOnce());
+    gate.reject(new Error("offline"));
+    expect((await settled).map((entry) => entry.status)).toEqual(["rejected", "rejected"]);
+    await expect(readFile(join(cardImageStorage.assets, "6983839.jpg"))).rejects.toThrow();
+    await expect(saveCardImage(6983839, imageUrl, download)).resolves.toBe("/card-images/6983839.jpg");
+  });
+
+  it("separates different source variants even when their supplied id is the same", async () => {
+    const original = await saveCardImage(6983839, imageUrl, download);
+    const variant = await saveCardImage(6983839, imageUrl.replace("/cards/", "/cards_small/"), download);
+    expect(variant).not.toBe(original);
+    expect(download).toHaveBeenCalledTimes(2);
+  });
+});

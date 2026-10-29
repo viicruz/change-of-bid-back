@@ -21,6 +21,7 @@ const mocks = vi.hoisted(() => {
   const findExistingTitles = vi.fn();
 
   return {
+    ensureCardImage: vi.fn<typeof import("../services/yugioh-api/ensure-card-image").ensureCardImage>(),
     transactionExecutor,
     findAuctioneer,
     findExistingTitles,
@@ -46,6 +47,7 @@ const mocks = vi.hoisted(() => {
 // Importing the seed cannot create a real database connection or download images.
 vi.mock("./index", () => ({ db: { select: mocks.select, transaction: mocks.transaction } }));
 vi.mock("./deck-fixtures", () => ({ loadDeckFixtures: mocks.loadDeckFixtures }));
+vi.mock("../services/yugioh-api/ensure-card-image", () => ({ ensureCardImage: mocks.ensureCardImage }));
 vi.mock("../models/card", () => ({ findCardsByIds: mocks.findCardsByIds }));
 vi.mock("../models/lot", () => ({ insertLot: mocks.insertLot }));
 vi.mock("../models/lot-item", () => ({ insertLotItems: mocks.insertLotItems }));
@@ -97,6 +99,7 @@ function runSeed() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.ensureCardImage.mockImplementation(async (source) => source.imagePath!);
   decks = Array.from({ length: 40 }, (_, index) => deck(`Deck ${index}`, [1]));
   existingTitles = new Set(decks.slice(1).map((entry) => entry.name));
   catalog = new Map([[1, catalogCard(1)]]);
@@ -130,6 +133,23 @@ afterEach(() => {
 });
 
 describe("seedLots orchestration", () => {
+  it("prepares local images of legacy catalog rows before publishing and preserves snapshots", async () => {
+    const legacy = catalogCard(1, "https://images.ygoprodeck.com/images/cards/1.jpg");
+    catalog.set(1, legacy);
+    mocks.ensureCardImage.mockResolvedValueOnce("/card-images/1.jpg");
+    await runSeed();
+    expect(mocks.ensureCardImage).toHaveBeenCalledExactlyOnceWith({ cardId: 1, imagePath: legacy.imagePath, snapshot: legacy.raw });
+    expect(mocks.insertLotItems).toHaveBeenCalledWith(mocks.transactionExecutor, [expect.objectContaining({
+      imagePath: "/card-images/1.jpg", cardSnapshot: legacy.raw,
+    })]);
+  });
+
+  it("does not publish any seed lot when image preparation fails", async () => {
+    mocks.ensureCardImage.mockRejectedValueOnce(new Error("Image unavailable"));
+    await expect(runSeed()).rejects.toThrow("Image unavailable");
+    expect(mocks.transaction).not.toHaveBeenCalled();
+  });
+
   it("creates only the first 32 fixtures with eight lots per status", async () => {
     existingTitles.clear();
     decks[32] = deck("Unused deck", [999]);

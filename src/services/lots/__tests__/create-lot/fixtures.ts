@@ -30,7 +30,7 @@ export const tornadoDragon = catalogCard({
 export const decodeTalker = catalogCard({
   id: 20,
   name: "Decode Talker",
-  imagePath: "https://images.example/decode.jpg",
+  imagePath: "/card-images/20.jpg",
 });
 
 export function catalogCard(card: {
@@ -67,6 +67,10 @@ export function lotInput(overrides: Partial<CreateLotInput> = {}): CreateLotInpu
 export function createDependencies(cards: CatalogCard[]) {
   const dependencies = {
     now: () => now,
+    ensureCardImage: vi.fn(async (source) => {
+      if (!source.imagePath?.trim()) throw new Error("Missing image");
+      return source.imagePath;
+    }),
     runInTransaction: (work) => work({} as DatabaseExecutor),
     findCardsByIds: vi.fn(async (_executor, ids) => {
       return cards.filter((entry) => ids.includes(entry.id));

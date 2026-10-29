@@ -22,3 +22,6 @@ bun run dev
 ```
 
 Open http://localhost:3000/ with your browser to see the result.
+
+Contrato de preview local, recuperação de imagens e comando de backfill:
+[Imagens das cartas](docs/card-images.md).

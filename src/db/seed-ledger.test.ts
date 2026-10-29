@@ -16,6 +16,17 @@ import * as deposits from "../services/wallet/deposit";
 import * as bids from "../services/lots/place-bid";
 import { showPublicLotAudit } from "../services/lots/show-public-lot-audit";
 
+import { mkdir, writeFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { cardImageStorage } from "../lib/card-image-storage";
+
+vi.mock("../lib/card-image-storage", async () => {
+  const { mkdtemp } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  return { cardImageStorage: { assets: await mkdtemp(join(tmpdir(), "seed-ledger-images-")), prefix: "/card-images" } };
+});
+
 const suffix = crypto.randomUUID();
 const auctioneerEmail = `seed-ledger-owner-${suffix}@example.test`;
 const bidderEmails = {
@@ -51,9 +62,13 @@ beforeAll(async () => {
   // Use the real deck fixtures and a preloaded catalog to avoid external APIs.
   const decks = (await loadDeckFixtures()).slice(0, 32);
   const ids = [...new Set(decks.flatMap((deck) => deck.cards.map((entry) => entry.passcode)))];
+  await mkdir(cardImageStorage.assets, { recursive: true });
+  for (const id of ids) {
+    await writeFile(join(cardImageStorage.assets, `${id}.jpg`), new Uint8Array([255, 216, 255, 224, 255, 217]));
+  }
   const inserted = await db.insert(card).values(ids.map((id) => ({
     id, name: `Seed card ${id}`, type: "Normal Monster", frameType: "normal", race: "Warrior",
-    raw: { id, name: `Seed card ${id}` }, imagePath: `/seed-test/${id}.jpg`, fetchedAt: now,
+    raw: { id, name: `Seed card ${id}` }, imagePath: `/card-images/${id}.jpg`, fetchedAt: now,
   }))).onConflictDoNothing().returning({ id: card.id });
   insertedCardIds.push(...inserted.map((row) => row.id));
 
@@ -94,6 +109,7 @@ afterAll(async () => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     await db.$client.end();
+    await rm(cardImageStorage.assets, { recursive: true, force: true });
   }
 });
 

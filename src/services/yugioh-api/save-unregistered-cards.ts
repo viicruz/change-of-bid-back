@@ -1,5 +1,5 @@
 //* Libraries imports
-import { inArray, type InferInsertModel } from "drizzle-orm";
+import { eq, inArray, sql, type InferInsertModel } from "drizzle-orm";
 
 //* Schemas imports
 import type { Card } from "../../schemas/ygo-pro-deck";
@@ -9,61 +9,65 @@ import { db } from "../../db/index";
 import { card } from "../../db/schema";
 import {
   downloadCardImage,
-  saveCardImage,
   type ImageDownload,
 } from "./save-card-image";
+
+import { ensureCardImage } from "./ensure-card-image";
 
 type CardRow = InferInsertModel<typeof card>;
 
 export type CardCatalog = {
-  findExistingIds(ids: number[]): Promise<number[]>;
+  findExistingCards(ids: number[]): Promise<{ id: number; imagePath: string | null; raw: Record<string, unknown> }[]>;
+  updateImagePath(id: number, imagePath: string): Promise<void>;
   insertCards(rows: CardRow[]): Promise<void>;
 };
 
-/**
- * Insert cards returned by a search when their ids are not already stored.
- * Existing rows are left unchanged.
- */
+/** Register new cards and repair existing image locations without refreshing metadata. */
 export async function saveUnregisteredCards(
   cards: readonly Card[],
   catalog: CardCatalog = createCardCatalog(),
   download: ImageDownload = downloadCardImage,
-): Promise<void> {
+): Promise<Map<number, string>> {
   const unique = uniqueCards(cards);
+  const paths = new Map<number, string>();
+  if (unique.length === 0) return paths;
 
-  if (unique.length === 0) {
-    return;
-  }
-
-  const existingIds = new Set(await catalog.findExistingIds(unique.map((entry) => entry.id)));
-  const missing = unique.filter((entry) => !existingIds.has(entry.id));
-
-  if (missing.length === 0) {
-    return;
-  }
-
+  const existing = new Map((await catalog.findExistingCards(unique.map((entry) => entry.id)))
+    .map((entry) => [entry.id, entry]));
   const fetchedAt = new Date();
   const rows: CardRow[] = [];
 
-  for (const entry of missing) {
-    const imageUrl = entry.card_images?.[0]?.image_url;
-
-    if (!imageUrl) {
-      continue;
-    }
-
+  // Sequential downloads bound resource use for each search.
+  for (const entry of unique) {
+    const stored = existing.get(entry.id);
+    let imagePath: string;
     try {
-      const imagePath = await saveCardImage(entry.id, imageUrl, download);
-      rows.push(toCardRow(entry, fetchedAt, imagePath));
+      imagePath = await ensureCardImage({
+        cardId: entry.id,
+        imagePath: stored?.imagePath ?? null,
+        snapshot: stored?.raw ?? entry,
+      }, download);
     } catch {
-      // Leave the card unregistered so a later search can try again.
-      continue;
+      // A fresh search reference may repair a catalog entry with no old source.
+      try {
+        if (!stored) continue;
+        const oldImages = stored.raw.card_images;
+        const first = Array.isArray(oldImages) ? oldImages[0] : undefined;
+        if (first?.image_url === entry.card_images?.[0]?.image_url) continue;
+        imagePath = await ensureCardImage({ cardId: entry.id, imagePath: null, snapshot: entry }, download);
+      } catch {
+        continue;
+      }
     }
+    if (stored) {
+      if (stored.imagePath !== imagePath) await catalog.updateImagePath(entry.id, imagePath);
+    } else {
+      rows.push(toCardRow(entry, fetchedAt, imagePath));
+    }
+    paths.set(entry.id, imagePath);
   }
-
-  if (rows.length > 0) {
-    await catalog.insertCards(rows);
-  }
+  if (rows.length > 0) await catalog.insertCards(rows);
+  return paths;
 }
 
 function uniqueCards(cards: readonly Card[]): Card[] {
@@ -106,16 +110,19 @@ function toRawCard(entry: Card): Record<string, unknown> {
 
 function createCardCatalog(): CardCatalog {
   return {
-    async findExistingIds(ids) {
+    async findExistingCards(ids) {
       const rows = await db
-        .select({ id: card.id })
+        .select({ id: card.id, imagePath: card.imagePath, raw: card.raw })
         .from(card)
         .where(inArray(card.id, ids));
 
-      return rows.map((row) => row.id);
+      return rows;
+    },
+    async updateImagePath(id, imagePath) {
+      await db.update(card).set({ imagePath }).where(eq(card.id, id));
     },
     async insertCards(rows) {
-      await db.insert(card).values(rows).onConflictDoNothing({ target: card.id });
+      await db.insert(card).values(rows).onConflictDoUpdate({ target: card.id, set: { imagePath: sql`excluded.image_path` } });
     },
   };
 }
