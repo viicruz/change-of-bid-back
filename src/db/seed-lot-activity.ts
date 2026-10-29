@@ -12,7 +12,8 @@ import {
   seedDepositAmounts,
   type SeedBidder,
 } from "./seed-lot-plan";
-import { bid, lot, user, wallet, walletMovement } from "./schema";
+import { findSeedUserByEmail } from "./seed-user-lookup";
+import { bid, lot, wallet, walletMovement } from "./schema";
 
 //* Schemas imports
 import { normalizeMoney } from "../schemas/money";
@@ -276,12 +277,7 @@ async function cancelSeededLots(auctioneerEmail: string, lots: SeededLot[]) {
 }
 
 async function findUserId(email: string) {
-  const rows = await db
-    .select({ id: user.id })
-    .from(user)
-    .where(eq(user.email, email))
-    .limit(1);
-  const found = rows[0];
+  const found = await findSeedUserByEmail(db, email);
 
   if (!found) {
     throw new Error(`User ${email} was not found`);

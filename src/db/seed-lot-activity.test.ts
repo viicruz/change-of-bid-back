@@ -16,6 +16,7 @@ import type { LotSettlement, settleDueLots } from "../services/lots/settle-due-l
 
 const mocks = vi.hoisted(() => ({
   select: vi.fn(),
+  findUser: vi.fn(),
   update: vi.fn(),
   txUpdate: vi.fn(),
   transaction: vi.fn(),
@@ -94,12 +95,15 @@ beforeEach(() => {
   writes = [];
   transactionWrites = [];
   settle = vi.fn<typeof settleDueLots>().mockResolvedValue([]);
+  mocks.findUser.mockImplementation(async (condition: SQL) => [
+    { id: dialect.sqlToQuery(condition).params[0] },
+  ]);
   mocks.select.mockReturnValue({
     from: (table: PgTable) => {
       if (table === user) {
         return {
           where: (condition: SQL) => ({
-            limit: async () => [{ id: dialect.sqlToQuery(condition).params[0] }],
+            limit: async () => mocks.findUser(condition),
           }),
         };
       }
@@ -134,6 +138,36 @@ afterEach(() => {
 });
 
 describe("seed activity settlement", () => {
+  it.each(Object.values(bidderEmails))("rejects an unknown bidder %s before any side effects", async (email) => {
+    mocks.findUser.mockImplementation(async (condition: SQL) => {
+      const queriedEmail = dialect.sqlToQuery(condition).params[0];
+      return queriedEmail === email ? [] : [{ id: queriedEmail }];
+    });
+
+    await expect(runActivity([seededLot("ended")])).rejects.toThrow(`User ${email} was not found`);
+
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.transaction).not.toHaveBeenCalled();
+    expect(mocks.placeBid).not.toHaveBeenCalled();
+    expect(settle).not.toHaveBeenCalled();
+    expect(mocks.cancelLot).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unknown auctioneer before canceling lots with the User message", async () => {
+    mocks.findUser.mockResolvedValueOnce([{ id: bidderEmails.bidder }])
+      .mockResolvedValueOnce([{ id: bidderEmails.bidder2 }])
+      .mockResolvedValueOnce([]);
+
+    await expect(runActivity([seededLot("canceled")]))
+      .rejects.toThrow("User owner@example.test was not found");
+
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.transaction).not.toHaveBeenCalled();
+    expect(mocks.placeBid).not.toHaveBeenCalled();
+    expect(settle).not.toHaveBeenCalled();
+    expect(mocks.cancelLot).not.toHaveBeenCalled();
+  });
+
   it("does not call settlement or open a transaction for an empty lot list", async () => {
     await runActivity([]);
 

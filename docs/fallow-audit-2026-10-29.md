@@ -246,6 +246,49 @@ da retirada do helper, sem perda de cobertura no código de produção:
 | Funções | 370/411 (**90,02%**) | 358/399 (**89,72%**) |
 | Linhas | 1.506/1.670 (**90,17%**) | 1.448/1.610 (**89,93%**) |
 
+### Execução do C05 — 29/10/2026
+
+Implementação preparada sobre `1fe6d9c`, sem criar commit Git. O novo helper
+`src/db/seed-user-lookup.ts` concentra somente a consulta de usuário por email:
+projeção de `id`, igualdade por email e `limit(1)`. Recebe o executor por
+parâmetro; os dois seeds continuam passando o mesmo `db`, sem abrir transação
+ou conexão adicional. Retorna a primeira linha ou `undefined`.
+
+`findAuctioneerId` e `findUserId` preservam a validação de ausência e as
+mensagens distintas `Auctioneer ${email} was not found` e
+`User ${email} was not found`. As consultas de carteira, a ordem das etapas,
+o retiming e as fronteiras de transação permanecem inalterados. Nenhuma
+consulta de `seed-users.ts` foi migrada: seu executor transacional é próprio.
+
+Os testes existentes foram preservados. Foram acrescentados três cenários
+em `seed-lot-activity.test.ts`: ausência de cada um dos dois bidders e ausência
+do leiloeiro na etapa de cancelamento, verificando a mensagem e a interrupção
+antes das operações seguintes. O cenário de leiloeiro ausente em
+`seed-lots.test.ts` continua passando com a mensagem `Auctioneer`.
+
+Validação:
+
+- `fallow guard` nos caminhos envolvidos, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- Suítes `seed-lots.test.ts` e `seed-lot-activity.test.ts`: saída **0**,
+  **2 arquivos / 43 testes aprovados**. `npm run typecheck`: saída **0**.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 601 testes aprovados**
+  em PostgreSQL 17 descartável, incluindo a integração `seed-ledger.test.ts`
+  com reconciliação financeira, cadeias de lances e idempotência.
+  Relatórios temporários em `/tmp/change-of-bid-fallow-coverage.XEwNRU/`.
+  Statements **90,16%**, branches **84,91%**, funções **89,75%**, linhas
+  **90,00%**. O mapa contém **70 arquivos**, incluindo o novo helper.
+- Saúde de produção e inventário completo com essa cobertura recém-gerada:
+  saída **0** em ambos, nenhum finding de saúde.
+- `fallow dupes --mode semantic`, com os flags JSON/explain: saída **0**.
+  Os fingerprints originais de D23 (`dup:4a0b639e`) e D20 (`dup:0615a02e`)
+  não aparecem mais; a consulta distinta de carteira permanece preservada.
+  A rodada contém **78 grupos / 41 famílias / 170 instâncias** consultivos.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto do relatório desta execução e os flags JSON/explain: saída **0**,
+  sem ciclos nem findings no diff; veredito do audit **pass**.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.

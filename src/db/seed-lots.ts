@@ -5,7 +5,8 @@ import { and, eq, inArray } from "drizzle-orm";
 import { loadDeckFixtures, type DeckLot, type DeckLotCard } from "./deck-fixtures";
 import { db } from "./index";
 import { planSeedLots, type SeedLotPlan } from "./seed-lot-plan";
-import { lot, user } from "./schema";
+import { findSeedUserByEmail } from "./seed-user-lookup";
+import { lot } from "./schema";
 
 //* Models imports
 import { findCardsByIds } from "../models/card";
@@ -132,12 +133,7 @@ export async function seedLots(
 }
 
 async function findAuctioneerId(email: string) {
-  const rows = await db
-    .select({ id: user.id })
-    .from(user)
-    .where(eq(user.email, email))
-    .limit(1);
-  const auctioneer = rows[0];
+  const auctioneer = await findSeedUserByEmail(db, email);
 
   if (!auctioneer) {
     throw new Error(`Auctioneer ${email} was not found`);

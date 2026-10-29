@@ -6,8 +6,6 @@ A chave, `BID_HASH_SECRET`, fica no back-end, fora do banco. Isso dificulta que 
 
 **Limite central:** a âncora também está no banco. Se um atacante puder alterar o histórico e a âncora juntos, poderá restaurar um prefixo válido sem conhecer a chave. Portanto, a implementação detecta os cenários descritos abaixo, mas não oferece prova independente de que o histórico nunca foi truncado ou restaurado.
 
-Documentação conferida em **29/10/2026**. As descrições de comportamento se baseiam no código atual; as justificativas comparativas são uma análise técnica da adequação da solução, não um registro de benchmarks ou de alternativas formalmente avaliadas pela equipe.
-
 ## 1. Requisitos que orientam a solução
 
 Os [Requisitos do projeto](https://app.notion.com/p/Requisitos-do-projeto-40433102e159806bb6fcdc2d3dffcd0e) definem o comportamento esperado. O [Banco de dados V2](https://app.notion.com/p/Banco-de-dados-V2-40433102e15980a69d9af2a3e7b19dba), na seção de integridade, escolhe explicitamente HMAC-SHA256 encadeado, gênese por lote, serialização canônica e âncora no lote.
@@ -41,7 +39,7 @@ A validação de integridade é diferente da validação de negócio. Papel do u
 createHmac("sha256", secret).update(payload).digest("hex");
 ```
 
-O resultado completo tem 256 bits, representados por 64 caracteres hexadecimais, sem truncamento. Não há biblioteca criptográfica adicional nem implementação manual da construção HMAC. Veja a [documentação de `crypto.createHmac` no Node.js 22](https://nodejs.org/docs/latest-v22.x/api/crypto.html#cryptocreatehmacalgorithm-key-options).
+O resultado completo tem 256 bits, representados por 64 caracteres hexadecimais, sem truncamento. Não há biblioteca criptográfica adicional nem implementação manual da construção HMAC. Veja a [documentação de](https://nodejs.org/docs/latest-v22.x/api/crypto.html#cryptocreatehmacalgorithm-key-options) `crypto.createHmac` [no Node.js 22](https://nodejs.org/docs/latest-v22.x/api/crypto.html#cryptocreatehmacalgorithm-key-options).
 
 ### 3.2 Gênese por lote
 
