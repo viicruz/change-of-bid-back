@@ -160,7 +160,7 @@ C01–C02 são os primeiros passos recomendados. C03–C06 são melhorias pequen
 | **C07** `refactor(seed): separar etapas de criacao e retiming dos lotes` | Dividir orquestração de seedLots/retimeBids/upsertSeedUser apenas em etapas com contrato próprio. | L03/L06/L08; hotspots dos seeds. | Opcional, após C05. Preservar uma transação de retiming, vetores HMAC, HOLD/RELEASE e idempotência. Não reabrir H03 como falta de testes. |
 | **C08** `refactor(bids): separar etapas da transacao de lance` | Se necessário, extrair blocos coesos de placeBid e callback accepted sem alterar fronteira da transação. | L04/L09. | Opcional; alto cuidado. Testes de concorrência, locks, extensão, encadeamento e rollback passam. Não fundir queries de locks do inventário D. |
 | **C09** `refactor(wallet): separar validacao e persistencia do deposito` | Dividir deposit por responsabilidade, mantendo autorização, valores monetários e atomicidade. | L05. | Opcional e independente de C08. Testes de depósito, carteira e integração financeira passam; locks/ordem preservados. |
-| **C10** `refactor(live): separar ciclo de vida do stream publico` | Extrair lifecycle de publicLotLiveRoutes com dono claro de timer, abort e close. | L07. | Opcional. Testes SSE de frames, desconexão e encerramento passam, sem timer pendente. |
+| **C10** `refactor(live): separar ciclo de vida do stream publico` | Extrair lifecycle de publicLotLiveRoutes com dono claro da assinatura da sala e do close, inclusive durante o snapshot inicial. O transporte existente é WebSocket, sem timer ou listener de abort próprios. | L07. | Opcional. Testes de frames WebSocket, desconexão e encerramento passam; saída da sala preservada mesmo quando o close antecede o fim do snapshot. |
 | **C11** `refactor(lots): separar consulta e montagem da listagem do leiloeiro` | Dividir listAuctioneerLots sem unificar filtros/DTOs de bidder e público. | L10 e hotspot de listagens. | Opcional. Paginação, ordenação, totais monetários e permissões preservados nas suítes de listagem. |
 | **C12** `refactor(test): separar cenarios extensos por dominio` | Aplicar em commits separados por suíte: liquidação, lances, carteira, listagens. Usar o inventário L para escolher o primeiro arquivo. | 161 entradas de tamanho em testes/helpers. | Opcional, um arquivo/domínio por commit real. Contagem de testes e isolamento preservados; callbacks describe de centenas de linhas não são, sozinhos, funções de negócio complexas. |
 | **C13** `docs(fallow): registrar decisoes e limites da auditoria` | Versionar esta triagem, atualizar referências históricas em docs/fallow.md e preservar reproduções/decisões T/S/A. O link para fallow-audit-2026-10-28.md atualmente não tem arquivo na árvore. | T01, S01–S06, A01/A02 e decisões de manter D/P. | Pode acompanhar o início/fim do lote; não implica suprimir os findings. Reexecutar análises após cada mudança relevante. |
@@ -509,6 +509,74 @@ Validação:
   absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
   nem findings no diff; veredito do audit **pass**. Relatórios temporários
   em `/tmp/change-of-bid-c09-{guard,architecture,audit,type-aware}.json`.
+- `git diff --check`: saída **0**.
+
+### Execução do C10 — 29/10/2026
+
+Implementação preparada sobre `101d49e`, sem criar commit Git. A descrição
+original de C10 citava SSE, timer e abort, mas o código já usa WebSocket
+desde a base desta auditoria. O aceite foi corrigido para o transporte real:
+não há timer nem listener de abort próprios nesse endpoint.
+
+`src/routes/public/lot-live-lifecycle.ts` concentra a entrada e a saída da
+sala em `PublicLotLiveLifecycle`. A instância usada pela rota passa a ser a
+dona dos registros fracos de assinaturas e sockets fechados:
+
+- `open` desativa mensagens do cliente no hook do adaptador, entra na sala
+  e encaminha seus payloads sem transformação. Se o socket fechar enquanto
+  o snapshot está pendente, executa a saída assim que a assinatura chegar,
+  sem armazená-la como conexão ativa.
+- `close` marca o socket como fechado, executa a saída registrada e remove
+  seu registro. Chamadas repetidas não repetem a saída; fechar um cliente
+  não remove os demais assinantes.
+- Falhas na entrada/snapshot continuam fechando o socket com código **1011**
+  e a mesma mensagem. O erro original é propagado mesmo quando a tentativa
+  de fechar um socket já desconectado também falha.
+
+`publicLotLiveRoutes` conserva o registro no app raiz, a validação de UUID,
+origem e existência do lote e delega os hooks de abertura/fechamento.
+O protocolo, os payloads públicos, a fila de publicação e a montagem do
+snapshot no serviço permanecem inalterados. O lifecycle recebe a função de
+entrada na sala por construtor; seu import do serviço é somente de tipo.
+
+As suítes existentes foram preservadas. Sete testes novos controlam a Promise
+de entrada para verificar a desconexão durante o snapshot, saída única,
+isolamento entre clientes, encaminhamento de payloads, falhas de snapshot
+e de fechamento e bloqueio das mensagens do cliente, incluindo `ping`.
+Não abrem servidor, conexão de banco ou timer. A integração existente
+continua exercitando frames reais, reconexão, cancelamento, liquidação,
+isolamento entre salas e privacidade.
+
+Validação:
+
+- `fallow guard` nos quatro caminhos envolvidos, com
+  `--format json --quiet --explain`: saída **0**, sem regras de fronteiras
+  configuradas.
+- Suíte `lot-live-lifecycle.test.ts`: saída **0**, **7 testes aprovados**.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos.
+- `npm run fallow:coverage`: saída **0**, **46 arquivos / 608 testes aprovados**
+  em PostgreSQL 17 descartável. Statements **90,69%**, branches **85,32%**,
+  funções **90,07%**, linhas **90,54%**. Relatórios em
+  `/tmp/change-of-bid-fallow-coverage.1Eouxp/`.
+- Comparação com C09: **71 → 72 arquivos** no mapa, acrescentando somente
+  `lot-live-lifecycle.ts`. As contagens de statements, branches e funções
+  cobertos/não cobertos permanecem iguais nos outros 70 arquivos.
+  O lifecycle tem **26/26 statements**, **6/6 branches** e **6/6 funções**
+  cobertos. A rota conserva apenas a propagação de erro inesperado do
+  `beforeHandle` sem cobertura; a melhora reflete os cenários novos do
+  lifecycle extraído e a mudança na distribuição das funções.
+- Saúde de produção e inventário completo com essa cobertura: saída **0**
+  em ambos, nenhum finding de saúde. Nenhuma função de produção dos dois
+  módulos excede o limiar consultivo de **60 linhas**; L07 deixa de aparecer
+  nesse inventário, sem alterar limiares ou supressões. O `describe` da nova
+  suíte aparece no inventário consultivo de tamanho de testes.
+- `fallow dead-code --type-aware`, com os mesmos flags JSON/explain:
+  saída **0**, somente o aviso T01 já registrado; nenhum arquivo, export
+  ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
+  nem findings no diff; veredito do audit **pass**. Relatórios temporários
+  em `/tmp/change-of-bid-c10-{guard,architecture,audit,type-aware}.json`.
 - `git diff --check`: saída **0**.
 
 ## Apêndice D — Todos os grupos semânticos
