@@ -84,7 +84,32 @@ export async function listAuctioneerLots(
     dependencies.executor,
     input.auctioneerId,
   );
-  const rows = await dependencies.executor
+  const rows = await findAuctioneerLotRows(dependencies.executor, input, now);
+  const itemsByLotId = await loadListedLotItems(dependencies.executor, rows);
+
+  return {
+    totalReceived,
+    lots: rows.map((row) => toAuctioneerLot(row, itemsByLotId)),
+  };
+}
+
+function createDefaultDependencies(): ListAuctioneerLotsDependencies {
+  return {
+    now: () => new Date(),
+    executor: db,
+  };
+}
+
+type AuctioneerLotRow = Awaited<
+  ReturnType<typeof findAuctioneerLotRows>
+>[number];
+
+function findAuctioneerLotRows(
+  executor: DatabaseExecutor,
+  input: ListAuctioneerLotsInput,
+  now: Date,
+) {
+  return executor
     .select({
       ...lotListColumns(now),
       receivedAmount: sql<string | null>`(
@@ -102,40 +127,33 @@ export async function listAuctioneerLots(
     .where(
       and(
         eq(lot.auctioneerId, input.auctioneerId),
-        matchesLotSearch(dependencies.executor, input, now),
+        matchesLotSearch(executor, input, now),
       ),
     )
     .orderBy(...lotListingOrder(now));
-
-  const itemsByLotId = await loadListedLotItems(dependencies.executor, rows);
-
-  return {
-    totalReceived,
-    lots: rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      description: row.description,
-      openingBid: row.openingBid,
-      minIncrement: row.minIncrement,
-      startsAt: row.startsAt,
-      endsAt: row.endsAt,
-      status: requireLotStatus(row.status, "Lot listing"),
-      currentBid: row.currentBid,
-      bidCount: row.bidCount,
-      sold: row.winnerId !== null,
-      receivedAmount:
-        row.receivedAmount === null
-          ? null
-          : formatListedMoney(row.receivedAmount),
-      items: itemsByLotId.get(row.id) ?? [],
-    })),
-  };
 }
 
-function createDefaultDependencies(): ListAuctioneerLotsDependencies {
+function toAuctioneerLot(
+  row: AuctioneerLotRow,
+  itemsByLotId: ReadonlyMap<string, AuctioneerLotItem[]>,
+): AuctioneerLot {
   return {
-    now: () => new Date(),
-    executor: db,
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    openingBid: row.openingBid,
+    minIncrement: row.minIncrement,
+    startsAt: row.startsAt,
+    endsAt: row.endsAt,
+    status: requireLotStatus(row.status, "Lot listing"),
+    currentBid: row.currentBid,
+    bidCount: row.bidCount,
+    sold: row.winnerId !== null,
+    receivedAmount:
+      row.receivedAmount === null
+        ? null
+        : formatListedMoney(row.receivedAmount),
+    items: itemsByLotId.get(row.id) ?? [],
   };
 }
 

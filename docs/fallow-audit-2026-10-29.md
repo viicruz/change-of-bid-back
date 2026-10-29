@@ -579,6 +579,55 @@ Validação:
   em `/tmp/change-of-bid-c10-{guard,architecture,audit,type-aware}.json`.
 - `git diff --check`: saída **0**.
 
+### Execução do C11 — 29/10/2026
+
+Implementação preparada sobre `5854c06`, sem criar commit Git. A mudança fica
+restrita a `src/services/lots/list-auctioneer-lots.ts`, com dois helpers
+internos e sem alterar exports ou contratos públicos:
+
+- `findAuctioneerLotRows` concentra a consulta: colunas comuns da listagem,
+  subconsulta do crédito de liquidação recebido pelo leiloeiro, join com o
+  lance atual, filtro pelo dono do lote, busca textual/status e ordenação
+  compartilhada. Recebe o mesmo executor e o mesmo instante `now`.
+- `toAuctioneerLot` monta o DTO de cada linha: status validado, `sold` pela
+  existência de vencedor, `receivedAmount` formatado ou nulo e itens do lote.
+
+`listAuctioneerLots` mantém a verificação do papel AUCTIONEER antes de
+qualquer leitura, a ordem total recebido → linhas → itens e o formato da
+resposta. Filtros, DTOs e consultas de bidder e da listagem pública não foram
+unificados; SQL, ordenação, formatação monetária e erros permanecem iguais.
+
+Nenhum teste foi adicionado, removido ou alterado. As suítes existentes
+cobrem permissão, status efetivo, ordenação, busca textual, lotes cancelados,
+valores recebidos por lote e total recebido.
+
+Validação:
+
+- `fallow guard` no arquivo, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos.
+- `npm run fallow:coverage`: saída **0**, **46 arquivos / 608 testes aprovados**
+  em PostgreSQL 17 descartável. Statements **90,70%**, branches **85,32%**,
+  funções **90,12%**, linhas **90,55%**. Relatórios em
+  `/tmp/change-of-bid-fallow-coverage.KrO8HJ/`.
+- Comparação com a cobertura do C10: os mesmos **72 arquivos** no mapa;
+  contagens de statements, branches e funções cobertos/não cobertos iguais
+  nos outros 71 arquivos. Em `list-auctioneer-lots.ts`, branches permanecem
+  **8/11**; a extração acrescenta **2 statements cobertos** e **2 funções
+  cobertas**, preservando **1 statement** e **3 branches** não cobertos.
+  A variação dos percentuais decorre da refatoração, sem novos cenários.
+- Saúde de produção e inventário completo com essa cobertura: saída **0**
+  em ambos, nenhum finding de saúde. Nenhuma função de
+  `list-auctioneer-lots.ts` excede o limiar consultivo de **60 linhas**;
+  L10 deixa de aparecer nesse inventário, sem alterar limiares ou supressões.
+- `fallow dead-code --type-aware`, com os mesmos flags JSON/explain:
+  saída **0**, somente o aviso T01 já registrado; nenhum arquivo, export
+  ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
+  nem findings no diff; veredito do audit **pass**.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.
