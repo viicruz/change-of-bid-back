@@ -104,7 +104,8 @@ npm run fallow:coverage
 
 O comando executa `docs/fallow/measure-coverage.sh`: cria um PostgreSQL 17
 novo, com porta local aleatória e dados em tmpfs, aplica as migrações e roda a
-suíte completa com cobertura V8. Usa `--no-file-parallelism`: os arquivos
+suíte completa com cobertura V8. O `vitest.config.ts` desativa o paralelismo
+entre arquivos para todos os comandos de teste: os arquivos
 compartilham o banco e a liquidação busca lotes globalmente, podendo encontrar
 fixtures ainda incompletas de outra suíte quando há execução paralela. Testes
 de concorrência dentro de cada arquivo continuam executando seus cenários.
