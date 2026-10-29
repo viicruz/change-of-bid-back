@@ -628,6 +628,66 @@ Validação:
   nem findings no diff; veredito do audit **pass**.
 - `git diff --check`: saída **0**.
 
+### Execução do C12 — 29/10/2026
+
+Implementação preparada sobre `1d36732`, sem criar commit Git. Este primeiro
+commit do C12 cobre somente a suíte de liquidação, escolhida pelo maior
+callback do inventário (L011). Lances, carteira e listagens ficam para
+commits próprios, conforme o escopo proposto.
+
+`src/services/lots/settle-due-lots.test.ts` passa de **1.852 para 59 linhas**
+e continua sendo a única entrada Vitest dessa suíte. Registra os mesmos
+17 blocos na ordem original e mantém `afterEach(cleanup)` e o fechamento do
+pool em `afterAll`. Os novos módulos em
+`src/services/lots/__tests__/settle-due-lots/` separam:
+
+- Fixtures, relógio fixo, operações auxiliares e limpeza; consultas de
+  verificação ficam em `reads.ts`. As listas de IDs criados continuam únicas
+  para toda a suíte, com a mesma ordem de limpeza das FKs.
+- Liquidação e recibos, elegibilidade/agenda, saldos e reservas,
+  concorrência com lances, concorrência com cancelamento, validação,
+  rollback financeiro e publicação após commit.
+
+Os helpers exclusivos da corrida de lance ficam no próprio módulo desse
+cenário, fora do callback `describe`, sem estado mutável compartilhado novo.
+Os testes continuam usando transações, locks e conexões reais; não foram
+introduzidos mocks nem arquivos de teste executados em paralelo.
+
+Nenhum teste foi adicionado ou removido. Comparação temporária pela AST e
+pelos tokens TypeScript confirmou os 17 blocos na mesma ordem, os mesmos
+23 helpers/constantes originais e os dois hooks. Na corrida de lance,
+as declarações movidas para o escopo do módulo também são idênticas;
+as asserções, tabelas parametrizadas e os corpos dos testes não mudam.
+Código de produção, configuração, limiares e supressões permanecem iguais.
+
+Validação:
+
+- `fallow guard` nos 11 caminhos de código, com
+  `--format json --quiet --explain`: saída **0**, sem regras de fronteiras
+  configuradas.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos. Os novos
+  módulos de teste não aparecem nas fontes do sourcemap do bundle.
+- `npm run fallow:coverage`, antes e depois: saída **0**, **46 arquivos /
+  608 testes aprovados** em cada execução, com PostgreSQL 17 descartável.
+  Relatórios anteriores em `/tmp/change-of-bid-fallow-coverage.tcyanG/`;
+  posteriores em `/tmp/change-of-bid-fallow-coverage.hkl9Am/`.
+- Cobertura idêntica: statements **90,70%**, branches **85,32%**, funções
+  **90,12%**, linhas **90,55%**. Os mesmos **72 arquivos** instrumentados,
+  com cada statement, branch e função mantendo seu estado coberto/não
+  coberto. Os novos módulos ficam na exclusão existente `__tests__`.
+- Saúde de produção e inventário completo com a cobertura nova: saída **0**
+  em ambos, nenhum finding de saúde. O callback de 1.535 linhas de L011
+  deixa de existir. Cenários individuais extensos continuam no inventário
+  consultivo; não foram fragmentadas asserções apenas para reduzir métricas.
+- `fallow dead-code --type-aware`, com os mesmos flags JSON/explain:
+  saída **0**, somente o aviso T01 já registrado; nenhum arquivo, export
+  ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto da cobertura nova e os flags JSON/explain: saída **0**, sem
+  ciclos nem findings no diff; veredito do audit **pass** nos 11 arquivos
+  de código. Relatórios em `/tmp/change-of-bid-c12-{guard,architecture,audit,type-aware}.json`.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.
