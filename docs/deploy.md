@@ -1,8 +1,30 @@
 # Deployment and database operations
 
 The Docker image runs with `NODE_ENV=production`. Its entrypoint starts the
-compiled server with `exec node dist/index.js`. Starting or restarting the
-container does not reset the database, run migrations, or create demo data.
+compiled server with `exec node dist/index.js`. Without a deploy reset key,
+starting or restarting the container does not reset the database, run
+migrations, or create demo data. See [Reset once per deploy](#reset-once-per-deploy).
+
+## Reset once per deploy
+
+When `DEPLOY_RESET_KEY` or `RENDER_GIT_COMMIT` is set, the entrypoint runs
+`src/db/deploy-reset.ts` before starting the server. Render sets
+`RENDER_GIT_COMMIT` to the deployed commit, so every Render deploy of a new commit:
+
+1. drops the `public` and `drizzle` schemas and recreates `public`;
+2. applies the migrations with `drizzle-kit migrate`;
+3. runs the demo seed (`src/db/seed.ts`).
+
+**All data in the database is lost on each such deploy.** The completed key is
+stored in `deploy_state.reset_run`, which the reset does not drop, so restarts of
+the same deploy skip the reset. If any step fails, the container exits before the
+server starts, the key is not recorded, and the next boot tries again.
+
+- Redeploying the same commit does not reset. Set `DEPLOY_RESET_KEY` to a new
+  value to force a reset.
+- Docker Compose sets neither variable, so local containers never reset.
+- The seed downloads card data and images from YGOProDeck. A temporary API
+  failure fails the boot; redeploying usually fixes it.
 
 ## Deploying with Docker
 
