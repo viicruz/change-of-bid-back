@@ -1,10 +1,10 @@
 //* Libraries imports
 import { asc, eq, inArray } from "drizzle-orm";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, assert, describe, expect, it } from "vitest";
 
 //* Models imports
 import { findBidById } from "../../models/bid";
-import { markLotEnded } from "../../models/lot";
+import { lockLotForUpdate, markLotEnded } from "../../models/lot";
 import { findLotParticipantByUserId } from "../../models/lot-participant";
 import { insertReceipt } from "../../models/receipt";
 import {
@@ -27,12 +27,13 @@ import {
 
 //* Services imports
 import { cancelLot, CancelLotError } from "./cancel-lot";
-import { placeBid, PlaceBidError } from "./place-bid";
+import { placeBid, PlaceBidError, type AcceptedBid } from "./place-bid";
 import { joinPublicLotRoom } from "./public-lot-live";
 import {
   describeSettlementFailure,
   LotSettlementError,
   settleDueLots,
+  type LotSettlement,
   type SettleDueLotsDependencies,
 } from "./settle-due-lots";
 
@@ -791,96 +792,305 @@ describe("settleDueLots", () => {
   });
 
   describe("when a bid races settlement", () => {
-    it("keeps a single valid outcome and accepts no bid on an ended lot", async () => {
+    type Race = Awaited<ReturnType<typeof prepareRace>>;
+    type BidResult = Awaited<ReturnType<typeof settle<AcceptedBid>>>;
+    type SettlementResult = Awaited<ReturnType<typeof settle<LotSettlement[]>>>;
+    type Balances = Pick<
+      Awaited<ReturnType<typeof readWallet>>,
+      "totalBalance" | "committedBalance" | "availableBalance"
+    >;
+
+    async function prepareRace() {
       const endsAt = shift(clock, 2 * hour);
       const bidAt = shift(endsAt, -1);
-      const opened = await openLot({
-        endsAt,
-        openingBid: "10.00",
-        minIncrement: "0.50",
-      });
+      const opened = await openLot({ endsAt });
       const leader = await leadLot(opened.lotId, "10.00", clock);
       const challengerId = await insertUser("BIDDER");
-      await insertWallet(challengerId, "100.00");
+      const challengerWalletId = await insertWallet(challengerId, "100.00");
 
-      const [bidResult, settlement] = await Promise.all([
-        settle(placeFor(challengerId, opened.lotId, "10.50", bidAt)),
-        settle(settleFor(endsAt)),
+      return { opened, leader, challengerId, challengerWalletId, bidAt, endsAt };
+    }
+
+    function expectSettlementResult(
+      race: Race,
+      settlement: SettlementResult,
+      expected: LotSettlement[],
+    ) {
+      assert(settlement.status === "fulfilled", "Settlement must succeed");
+      expect(forLot(settlement.value, race.opened.lotId)).toEqual(expected);
+    }
+
+    async function expectBalances(
+      race: Race,
+      expected: { leader: Balances; challenger: Balances; auctioneer: Balances },
+    ) {
+      expect(await readWallet(race.leader.bidderId)).toMatchObject(
+        expected.leader,
+      );
+      expect(await readWallet(race.challengerId)).toMatchObject(
+        expected.challenger,
+      );
+      expect(await readWallet(race.opened.auctioneerId)).toMatchObject(
+        expected.auctioneer,
+      );
+    }
+
+    async function expectMovements(
+      race: Race,
+      expected: Awaited<ReturnType<typeof readMovements>>,
+    ) {
+      const movements = await readMovements(race.opened.lotId);
+      expect(movements).toHaveLength(expected.length);
+      expect(movements).toEqual(expect.arrayContaining(expected));
+    }
+
+    function initialHold({ leader }: Race) {
+      return {
+        type: "HOLD" as const,
+        amount: "10.00",
+        bidId: leader.accepted.id,
+        walletId: leader.walletId,
+      };
+    }
+
+    function initialBid({ leader }: Race) {
+      return {
+        id: leader.accepted.id,
+        bidderId: leader.bidderId,
+        amount: "10.00",
+        sequence: 1,
+      };
+    }
+
+    async function expectSettlementToWinRace(
+      race: Race,
+      bidResult: BidResult,
+      settlement: SettlementResult,
+    ) {
+      const { opened, leader, endsAt } = race;
+      assert(
+        bidResult.status === "rejected",
+        "Bid must be rejected after settlement",
+      );
+      expect(bidResult.error).toBeInstanceOf(PlaceBidError);
+      expect(bidResult.error).toMatchObject({ code: "LOT_ENDED" });
+      expectSettlementResult(race, settlement, [
+        {
+          lotId: opened.lotId,
+          outcome: "settled",
+          winnerId: leader.bidderId,
+          endedAt: endsAt,
+          settledAt: endsAt,
+        },
       ]);
-      const stored = await readLot(opened.lotId);
-      const bids = await readBids(opened.lotId);
-      const movements = await readMovements(opened.lotId);
-      const receipts = await readReceipts(opened.lotId);
-      const challengerBids = bids.filter(
-        (entry) => entry.bidderId === challengerId,
-      );
-      const settlements = movements.filter(
-        (movement) =>
-          movement.type === "SETTLEMENT_DEBIT" ||
-          movement.type === "SETTLEMENT_CREDIT",
-      );
-
-      expect(stored).toBeDefined();
-
-      if (stored?.status === "ENDED") {
-        expect(bidResult.status).toBe("rejected");
-
-        if (bidResult.status === "rejected") {
-          expect(bidResult.error).toBeInstanceOf(PlaceBidError);
-          expect(bidResult.error).toMatchObject({ code: "LOT_ENDED" });
-        }
-
-        expect(challengerBids).toEqual([]);
-        expect(settlements).toHaveLength(2);
-        expect(receipts).toHaveLength(1);
-        expect(stored.winnerId).toBe(leader.bidderId);
-        expect(stored.endedAt).toEqual(endsAt);
-        expect(
-          movements.filter((movement) => movement.type === "RELEASE"),
-        ).toEqual([]);
-        expect(await readWallet(leader.bidderId)).toMatchObject({
+      expect(await readLot(opened.lotId)).toMatchObject({
+        status: "ENDED",
+        currentBidId: leader.accepted.id,
+        bidCount: 1,
+        endsAt,
+        originalEndsAt: endsAt,
+        extensionCount: 0,
+        winnerId: leader.bidderId,
+        endedAt: endsAt,
+        settledAt: endsAt,
+        canceledAt: null,
+      });
+      expect(await readBids(opened.lotId)).toEqual([initialBid(race)]);
+      expect(await readReceipts(opened.lotId)).toEqual([
+        expect.objectContaining({
+          lotId: opened.lotId,
+          winningBidId: leader.accepted.id,
+          winnerId: leader.bidderId,
+          winnerParticipantNo: leader.accepted.participantNo,
+          finalAmount: "10.00",
+          endedAt: endsAt,
+        }),
+      ]);
+      await expectMovements(race, [
+        initialHold(race),
+        {
+          type: "SETTLEMENT_DEBIT",
+          amount: "10.00",
+          bidId: null,
+          walletId: leader.walletId,
+        },
+        {
+          type: "SETTLEMENT_CREDIT",
+          amount: "10.00",
+          bidId: null,
+          walletId: opened.auctioneerWalletId,
+        },
+      ]);
+      await expectBalances(race, {
+        leader: {
           totalBalance: "90.00",
           committedBalance: "0.00",
           availableBalance: "90.00",
-        });
-        expect(await readWallet(challengerId)).toMatchObject({
+        },
+        challenger: {
           totalBalance: "100.00",
           committedBalance: "0.00",
           availableBalance: "100.00",
-        });
-      } else {
-        expect(stored?.status).toBe("ACTIVE");
-        expect(bidResult.status).toBe("fulfilled");
-        expect(stored?.endsAt.getTime()).toBeGreaterThan(endsAt.getTime());
-        expect(stored?.winnerId).toBeNull();
-        expect(stored?.settledAt).toBeNull();
-        expect(stored?.endedAt).toBeNull();
-        expect(challengerBids).toHaveLength(1);
-        expect(settlements).toEqual([]);
-        expect(receipts).toEqual([]);
-        expect(
-          forLot(
-            settlement.status === "fulfilled" ? settlement.value : [],
-            opened.lotId,
-          ).filter((entry) => entry.outcome === "settled"),
-        ).toEqual([]);
-        expect(await readWallet(leader.bidderId)).toMatchObject({
+        },
+        auctioneer: {
+          totalBalance: "10.00",
+          committedBalance: "0.00",
+          availableBalance: "10.00",
+        },
+      });
+    }
+
+    async function expectBidToWinRace(
+      race: Race,
+      bidResult: BidResult,
+      settlement: SettlementResult,
+    ) {
+      const { opened, leader, challengerId, challengerWalletId, endsAt } = race;
+      const extendedEndsAt = shift(endsAt, 2 * minute);
+      assert(
+        bidResult.status === "fulfilled",
+        "Bid must succeed before settlement",
+      );
+      const accepted = bidResult.value;
+      expect(accepted).toMatchObject({
+        sequence: 2,
+        amount: "10.50",
+        participantNo: 2,
+        endsAt: extendedEndsAt,
+        extensionCount: 1,
+      });
+      // The due scan can run before or after the bid commits, so it may omit
+      // the extended lot or lock it and explicitly skip it. Neither may fail.
+      assert(settlement.status === "fulfilled", "Settlement must succeed");
+      const results = forLot(settlement.value, opened.lotId);
+      expect([[], [{ lotId: opened.lotId, outcome: "skipped" }]]).toContainEqual(
+        results,
+      );
+      expect(await readLot(opened.lotId)).toMatchObject({
+        status: "ACTIVE",
+        currentBidId: accepted.id,
+        bidCount: 2,
+        endsAt: extendedEndsAt,
+        originalEndsAt: endsAt,
+        extensionCount: 1,
+        winnerId: null,
+        settledAt: null,
+        endedAt: null,
+        canceledAt: null,
+      });
+      expect(await readBids(opened.lotId)).toEqual([
+        initialBid(race),
+        {
+          id: accepted.id,
+          bidderId: challengerId,
+          amount: "10.50",
+          sequence: 2,
+        },
+      ]);
+      expect(await readReceipts(opened.lotId)).toEqual([]);
+      await expectMovements(race, [
+        initialHold(race),
+        {
+          type: "HOLD",
+          amount: "10.50",
+          bidId: accepted.id,
+          walletId: challengerWalletId,
+        },
+        {
+          type: "RELEASE",
+          amount: "10.00",
+          bidId: leader.accepted.id,
+          walletId: leader.walletId,
+        },
+      ]);
+      await expectBalances(race, {
+        leader: {
           totalBalance: "100.00",
           committedBalance: "0.00",
           availableBalance: "100.00",
-        });
-        expect(await readWallet(challengerId)).toMatchObject({
+        },
+        challenger: {
           totalBalance: "100.00",
           committedBalance: "10.50",
           availableBalance: "89.50",
-        });
-      }
-
-      expect(await readWallet(opened.auctioneerId)).toMatchObject({
-        committedBalance: "0.00",
-        availableBalance: stored?.status === "ENDED" ? "10.00" : "0.00",
-        totalBalance: stored?.status === "ENDED" ? "10.00" : "0.00",
+        },
+        auctioneer: {
+          totalBalance: "0.00",
+          committedBalance: "0.00",
+          availableBalance: "0.00",
+        },
       });
+    }
+
+    it("keeps a single valid outcome and accepts no bid on an ended lot", async () => {
+      const race = await prepareRace();
+      const [bidResult, settlement] = await Promise.all([
+        settle(
+          placeFor(race.challengerId, race.opened.lotId, "10.50", race.bidAt),
+        ),
+        settle(settleFor(race.endsAt)),
+      ]);
+      const stored = await readLot(race.opened.lotId);
+      assert(stored, "Raced lot must still exist");
+
+      if (stored.status === "ENDED") {
+        await expectSettlementToWinRace(race, bidResult, settlement);
+      } else {
+        await expectBidToWinRace(race, bidResult, settlement);
+      }
+    });
+
+    it("skips a due lot when the bid commits before settlement locks it", async () => {
+      const race = await prepareRace();
+      let bidResult: BidResult | undefined;
+      const settlement = await settle(
+        settleDueLots({
+          now: () => race.endsAt,
+          lockLotForUpdate: async (executor, lotId) => {
+            expect(lotId).toBe(race.opened.lotId);
+            // The real due scan has finished. Commit the bid on another
+            // connection before settlement takes the row lock and revalidates.
+            bidResult = await settle(
+              placeFor(race.challengerId, lotId, "10.50", race.bidAt),
+            );
+            return lockLotForUpdate(executor, lotId);
+          },
+        }),
+      );
+
+      assert(bidResult, "Settlement must attempt to lock the scanned lot");
+      expectSettlementResult(race, settlement, [
+        { lotId: race.opened.lotId, outcome: "skipped" },
+      ]);
+      await expectBidToWinRace(race, bidResult, settlement);
+    });
+
+    it("rejects the pending bid when settlement commits before the bid locks the lot", async () => {
+      const race = await prepareRace();
+      let settlement: SettlementResult | undefined;
+      const bidResult = await settle(
+        placeBid(
+          {
+            lotId: race.opened.lotId,
+            userId: race.challengerId,
+            role: "BIDDER",
+            amount: "10.50",
+          },
+          {
+            now: () => race.bidAt,
+            lockLotForUpdate: async (executor, lotId) => {
+              expect(lotId).toBe(race.opened.lotId);
+              // Even with a timestamp before endsAt, the pending bid must read
+              // the settled state committed on another connection before locking.
+              settlement = await settle(settleFor(race.endsAt));
+              return lockLotForUpdate(executor, lotId);
+            },
+          },
+        ),
+      );
+
+      assert(settlement, "Bid must attempt to lock the lot");
+      await expectSettlementToWinRace(race, bidResult, settlement);
     });
 
     it("rejects a bid after the lot is settled and keeps the single settlement", async () => {
