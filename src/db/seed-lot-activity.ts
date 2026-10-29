@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 
 //* Local imports
 import { db } from "./index";
+import type { DatabaseExecutor } from "../models/executor";
 import { env } from "../env";
 import type { SeededLot } from "./seed-lots";
 import {
@@ -170,29 +171,7 @@ async function retimeBids(
           hash,
         })
         .where(eq(bid.id, placedBid.id));
-      await tx
-        .update(walletMovement)
-        .set({ createdAt })
-        .where(
-          and(
-            eq(walletMovement.bidId, placedBid.id),
-            eq(walletMovement.type, "HOLD"),
-          ),
-        );
-
-      const previous = placed[index - 1];
-
-      if (previous) {
-        await tx
-          .update(walletMovement)
-          .set({ createdAt })
-          .where(
-            and(
-              eq(walletMovement.bidId, previous.id),
-              eq(walletMovement.type, "RELEASE"),
-            ),
-          );
-      }
+      await retimeBidMovements(tx, placedBid.id, placed[index - 1]?.id, createdAt);
 
       previousHash = hash;
     }
@@ -202,6 +181,32 @@ async function retimeBids(
       .set({ headHash: previousHash })
       .where(eq(lot.id, lotId));
   });
+}
+
+async function retimeBidMovements(
+  tx: Pick<DatabaseExecutor, "update">,
+  bidId: string,
+  previousBidId: string | undefined,
+  createdAt: Date,
+) {
+  await tx
+    .update(walletMovement)
+    .set({ createdAt })
+    .where(
+      and(eq(walletMovement.bidId, bidId), eq(walletMovement.type, "HOLD")),
+    );
+
+  if (previousBidId !== undefined) {
+    await tx
+      .update(walletMovement)
+      .set({ createdAt })
+      .where(
+        and(
+          eq(walletMovement.bidId, previousBidId),
+          eq(walletMovement.type, "RELEASE"),
+        ),
+      );
+  }
 }
 
 async function closeEndedLots(lots: SeededLot[]) {

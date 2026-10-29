@@ -342,6 +342,60 @@ Validação:
   temporários em `/tmp/change-of-bid-c06-m4cQt5/`.
 - `git diff --check`: saída **0**.
 
+### Execução do C07 — 29/10/2026
+
+Implementação preparada sobre `ff2f041`, após C05/C06, sem criar commit Git.
+A refatoração fica nos três módulos de seeds, com helpers internos e sem
+novos exports:
+
+- `seed-lots.ts`: `findPendingSeedLots` seleciona decks e planos ainda não
+  criados; `prepareSeedLot` valida o catálogo e monta os itens;
+  `createSeedLot` persiste cada lote com seus itens na mesma transação.
+  Todos os decks pendentes continuam sendo validados antes da primeira
+  transação de lote. A ordem dos planos, itens, consultas e logs é preservada.
+- `seed-lot-activity.ts`: `retimeBidMovements` atualiza o HOLD do lance e,
+  quando existe lance anterior, seu RELEASE. Recebe o executor da transação
+  de `retimeBids`; o recálculo HMAC, as atualizações de lances e movimentos
+  e a gravação final de `headHash` continuam em uma única transação, na
+  mesma ordem. O fluxo de settlement, incluindo `settleEndedLots` (H03),
+  permanece inalterado.
+- `seed-users.ts`: `upsertSeedIdentity` concentra a identidade do usuário;
+  `upsertSeedCredential` concentra a conta credential e sua senha. A
+  orquestração continua executando identidade, carteira e credencial na
+  mesma transação, preservando IDs, saldos, contas OAuth e os retornos
+  `created`/`updated`. Os imports de tipos não carregam o pool ao importar
+  o módulo.
+
+Nenhum teste foi adicionado, removido ou alterado. As suítes existentes
+verificam os contratos extraídos, inclusive os vetores HMAC fixos,
+HOLD/RELEASE, interrupção por erro, rollback e idempotência.
+
+Validação:
+
+- `fallow guard` nos caminhos envolvidos, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- Suítes `seed-lots.test.ts`, `seed-lot-activity.test.ts` e
+  `seed-users-import.test.ts`: saída **0**, **3 arquivos / 44 testes aprovados**.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 601 testes aprovados**
+  em PostgreSQL 17 descartável, incluindo `seed-users.test.ts` (rollback e
+  preservação de saldos/identidades) e `seed-ledger.test.ts` (reconciliação
+  financeira, cadeias de lances e segunda execução sem duplicações).
+  Statements **90,21%**, branches **84,91%**, funções **89,90%**, linhas
+  **90,05%**. Relatórios em `/tmp/change-of-bid-fallow-coverage.8ffIPA/`.
+- Saúde de produção e inventário completo com essa cobertura: saída **0**
+  em ambos, nenhum finding de saúde. Nenhuma função dos três módulos
+  alterados excede o limiar consultivo de **60 linhas**; L03/L06/L08
+  deixam de aparecer nesse inventário, sem alterar os limiares.
+- `fallow dead-code --type-aware`, com os mesmos flags JSON/explain:
+  saída **0**, somente o aviso T01 já registrado; nenhum arquivo, export
+  ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
+  nem findings no diff; veredito do audit **pass**. Relatórios temporários
+  em `/tmp/change-of-bid-c07-{architecture,audit,type-aware}.json`.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.

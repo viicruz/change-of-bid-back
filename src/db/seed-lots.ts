@@ -40,6 +40,35 @@ export async function seedLots(
   client?: CardSearchClient,
 ) {
   const auctioneerId = await findAuctioneerId(auctioneerEmail);
+  const pending = await findPendingSeedLots(auctioneerId, now);
+
+  if (pending.length === 0) {
+    return [];
+  }
+
+  const cardsById = await ensureCatalogCards(
+    uniquePasscodes(pending.map((entry) => entry.deck)),
+    client,
+  );
+  // Validate every pending deck before starting the first lot transaction.
+  const pendingLots = pending.map(({ deck, plan }) =>
+    prepareSeedLot(deck, plan, cardsById),
+  );
+  const seededLots: SeededLot[] = [];
+
+  for (const pendingLot of pendingLots) {
+    const created = await createSeedLot(auctioneerId, pendingLot);
+
+    seededLots.push(created);
+    console.log(
+      `created ${created.plan.status} lot ${created.title} (${created.id})`,
+    );
+  }
+
+  return seededLots;
+}
+
+async function findPendingSeedLots(auctioneerId: string, now: Date) {
   const fixtures = await loadDeckFixtures();
   const plans = planSeedLots(now);
 
@@ -54,7 +83,8 @@ export async function seedLots(
     auctioneerId,
     decks.map((deck) => deck.name),
   );
-  const pending = decks.flatMap((deck, index) => {
+
+  return decks.flatMap((deck, index) => {
     const plan = plans[index];
 
     if (!plan) {
@@ -68,20 +98,18 @@ export async function seedLots(
 
     return [{ deck, plan }];
   });
+}
 
-  if (pending.length === 0) {
-    return [];
-  }
-
-  const cardsById = await ensureCatalogCards(
-    uniquePasscodes(pending.map((entry) => entry.deck)),
-    client,
-  );
-  const pendingLots = pending.map((entry) => ({
-    deck: entry.deck,
-    plan: entry.plan,
-    items: entry.deck.cards.map((card) => {
-      const stored = requireCatalogCard(entry.deck, card, cardsById);
+function prepareSeedLot(
+  deck: DeckLot,
+  plan: SeedLotPlan,
+  cardsById: Map<number, CatalogCard>,
+) {
+  return {
+    deck,
+    plan,
+    items: deck.cards.map((card) => {
+      const stored = requireCatalogCard(deck, card, cardsById);
 
       return {
         position: card.position,
@@ -92,44 +120,37 @@ export async function seedLots(
         imagePath: stored.imagePath,
       };
     }),
-  }));
-  const seededLots: SeededLot[] = [];
+  };
+}
 
-  for (const pendingLot of pendingLots) {
-    const created = await db.transaction(async (tx) => {
-      const createdLot = await insertLot(tx, {
-        auctioneerId,
-        title: pendingLot.deck.name,
-        description: pendingLot.deck.description,
-        openingBid: pendingLot.plan.openingBid,
-        minIncrement: pendingLot.plan.minIncrement,
-        startsAt: pendingLot.plan.insertStartsAt,
-        originalEndsAt: pendingLot.plan.insertEndsAt,
-        endsAt: pendingLot.plan.insertEndsAt,
-      });
-
-      await insertLotItems(
-        tx,
-        pendingLot.items.map((item) => ({
-          lotId: createdLot.id,
-          ...item,
-        })),
-      );
-
-      return createdLot;
+async function createSeedLot(
+  auctioneerId: string,
+  pending: ReturnType<typeof prepareSeedLot>,
+): Promise<SeededLot> {
+  const created = await db.transaction(async (tx) => {
+    const createdLot = await insertLot(tx, {
+      auctioneerId,
+      title: pending.deck.name,
+      description: pending.deck.description,
+      openingBid: pending.plan.openingBid,
+      minIncrement: pending.plan.minIncrement,
+      startsAt: pending.plan.insertStartsAt,
+      originalEndsAt: pending.plan.insertEndsAt,
+      endsAt: pending.plan.insertEndsAt,
     });
 
-    seededLots.push({
-      id: created.id,
-      title: created.title,
-      plan: pendingLot.plan,
-    });
-    console.log(
-      `created ${pendingLot.plan.status} lot ${created.title} (${created.id})`,
+    await insertLotItems(
+      tx,
+      pending.items.map((item) => ({
+        lotId: createdLot.id,
+        ...item,
+      })),
     );
-  }
 
-  return seededLots;
+    return createdLot;
+  });
+
+  return { id: created.id, title: created.title, plan: pending.plan };
 }
 
 async function findAuctioneerId(email: string) {
