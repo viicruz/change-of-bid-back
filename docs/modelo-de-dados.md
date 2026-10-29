@@ -14,8 +14,11 @@ em [Validação por HMAC](validacao-hmac.md).
   é a fonte de verdade de um lote publicado.
 - O banco grava `ACTIVE`, `ENDED` e `CANCELED`. Agendado e ao vivo são
   calculados. Não há job só para virar essa chave.
-- Dinheiro é `numeric(18,2)` em string. Contas usam decimal no SQL ou em
-  centavos inteiros, nunca float.
+- Dinheiro é `numeric(18,2)` em string. Cada lance, movimento, comprovante,
+  lance inicial e incremento não passa de `1000000.00`. O saldo da carteira
+  não tem esse teto; o maior valor da coluna é `9999999999999999.99`. Contas
+  usam decimal no SQL ou em centavos inteiros, nunca float. A regra está em
+  [Domínio](dominio.md#valores-monetários).
 - Datas são `timestamptz` e saem em UTC.
 - `bid` e `wallet_movement` não têm `updated_at`. A aplicação não os edita.
   Não há trigger de imutabilidade em `bid`.

@@ -8,6 +8,9 @@ criação também devolve `cardIds`. Corpo que não passa no schema da rota vira
 erro de validação do framework, em geral `422`, sem esses códigos.
 
 Valores monetários trafegam como string com duas casas, por exemplo `"10.50"`.
+Cada valor aceito vai de `0.01` a `1000000.00`. O saldo da carteira pode passar
+desse teto; os dois limites estão em
+[Domínio](dominio.md#valores-monetários).
 Datas trafegam em ISO 8601 UTC. O servidor é a referência de tempo:
 `GET /public/lots/:id` e a sala devolvem `serverNow`.
 
@@ -138,8 +141,9 @@ Todas exigem sessão e papel `AUCTIONEER`. `BIDDER` recebe `403`
 ```
 
 `description` vazia, só com espaços, `null` ou ausente vira `null`. Dinheiro
-vai como string maior que zero, no máximo duas casas, e a rota normaliza para
-duas casas. As datas são ISO com offset. `cardIds` tem ao menos um inteiro
+vai como string maior que zero, no máximo duas casas, até `1000000.00`, e a
+rota normaliza para duas casas. Fora disso a resposta é `422` `INVALID_MONEY`.
+As datas são ISO com offset. `cardIds` tem ao menos um inteiro
 positivo.
 
 O início precisa ser anterior ao fim, e o fim precisa estar no futuro. O
@@ -181,7 +185,7 @@ Sucesso responde `201` com id, sequência, valor, instante, `participantNo`,
 | --- | --- | --- |
 | `NOT_BIDDER` | 403 | Papel diferente de `BIDDER`. |
 | `LOT_NOT_FOUND` | 404 | Lote inexistente. |
-| `INVALID_MONEY` | 422 | Valor ausente, zero, malformado ou acima do teto. |
+| `INVALID_MONEY` | 422 | Valor ausente, zero, malformado ou acima de `1000000.00`. |
 | `BID_BELOW_MINIMUM` | 409 | Abaixo do lance inicial ou do lance atual mais o incremento. |
 | `INSUFFICIENT_BALANCE` | 409 | O disponível não cobre o valor. |
 | `ALREADY_LEADER` | 409 | O licitante já lidera o lote. |
@@ -200,8 +204,10 @@ As três rotas usam a carteira do usuário da sessão. Carteira ausente é `404`
 `POST /private/wallet/deposits` aceita `{ "amount": "100.00" }` e responde
 `201` com os três saldos já atualizados. Só `BIDDER` deposita (`403`
 `NOT_BIDDER`). Valor ausente, zero, malformado ou acima de `1000000.00` é
-`422` `INVALID_MONEY`. Se a soma estourar `numeric(18,2)`, a resposta é `422`
-`AMOUNT_OUT_OF_RANGE`. O comprometido não muda.
+`422` `INVALID_MONEY` e não altera o saldo. Depósitos dentro desse teto podem
+somar mais de `1000000.00`. Se a soma estourar `numeric(18,2)`
+(`9999999999999999.99`), a resposta é `422` `AMOUNT_OUT_OF_RANGE` e o saldo
+permanece. O comprometido não muda.
 
 `GET /private/wallet/movements` pagina o extrato, do mais novo para o mais
 antigo. `page` começa em 1 e vai até 1000; `limit` vai de 1 a 50 e o padrão é

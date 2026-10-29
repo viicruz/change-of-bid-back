@@ -152,7 +152,7 @@ PostgreSQL só usa esses valores na primeira criação do volume. Rode
 
 ## Documentação
 
-- [Domínio](docs/dominio.md) - papéis, estados do lote, saldo, lance, liquidação e cancelamento
+- [Domínio](docs/dominio.md) - papéis, estados do lote, saldo, limite monetário, lance, liquidação e cancelamento
 - [Modelo de dados](docs/modelo-de-dados.md) - tabelas, invariantes e transações
 - [API](docs/api.md) - comportamento das rotas; o formato dos corpos está em `/openapi`
 - [Deploy e operações de banco](docs/deploy.md)

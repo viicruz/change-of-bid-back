@@ -19,6 +19,32 @@ soma das reservas dos lotes em que o licitante lidera. **Saldo disponível** é
 **Comprovante** é o registro do arremate liquidado. **Auditoria** é a consulta
 pública do histórico de lances aceitos e do resultado da verificação.
 
+## Valores monetários
+
+A moeda é BRL. A aplicação só aceita string decimal maior que zero, com no
+máximo duas casas. `10`, `10.0` e `10.00` viram `10.00`. Zero, negativo, mais
+de duas casas, zero à esquerda e valor acima do teto respondem `INVALID_MONEY`
+e não gravam linha.
+
+Cada valor gravado tem teto de `1000000.00`, inclusive. O mesmo número está em
+`normalizeMoney` (`src/schemas/money.ts`) e nos `CHECK`s do banco:
+
+| Valor | Coluna |
+| --- | --- |
+| Lance inicial | `lot.opening_bid` |
+| Incremento mínimo | `lot.min_increment` |
+| Lance aceito | `bid.amount` |
+| Movimento de carteira | `wallet_movement.amount` |
+| Comprovante | `receipt.final_amount` |
+
+`1000000.00` entra. `1000000.01` não.
+
+O saldo da carteira não usa esse teto. Vários depósitos, cada um até
+`1000000.00`, podem somar mais. `total_balance` e `committed_balance` são
+`numeric(18,2)`: o maior saldo gravável é `9999999999999999.99`. Um depósito
+que estouraria essa coluna responde `AMOUNT_OUT_OF_RANGE` e deixa o saldo
+como estava.
+
 ## Papéis
 
 Há dois papéis, gravados em `user.role` e conferidos no servidor:
@@ -124,7 +150,8 @@ carteiras são travadas dentro da transação do lance.
 | `SETTLEMENT_CREDIT` | `total += amount`. O leiloeiro recebe o lance vencedor. Não há comissão.       |
 
 
-Depósito negativo, zero ou acima do teto não altera saldo. Leiloeiro não
+Depósito que não passa na regra de
+[valores monetários](#valores-monetários) não altera saldo. Leiloeiro não
 deposita. O extrato é append-only: cada mudança de saldo grava uma linha na
 mesma transação.
 
