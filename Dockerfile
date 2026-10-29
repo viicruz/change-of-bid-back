@@ -17,7 +17,7 @@ WORKDIR /app
 COPY package.json ./
 
 RUN npm install --omit=dev \
-  && npm install --no-save drizzle-kit@1.0.0-rc.5 \
+  && npm install --no-save drizzle-kit@1.0.0-rc.5 tsx@4.23.15 \
   && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
