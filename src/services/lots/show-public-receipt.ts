@@ -9,6 +9,7 @@ import { loadShownLotItems, publicCardSnapshot } from "./lot-read";
 import { db } from "../../db/index";
 import { lot, receipt } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
+import type { ShownLotItem } from "./lot-read-types";
 
 const showPublicReceiptErrorCodes = ["RECEIPT_NOT_FOUND"] as const;
 
@@ -25,15 +26,7 @@ export class ShowPublicReceiptError extends Error {
   }
 }
 
-export type ShownPublicReceiptItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-  cardSnapshot: Record<string, unknown>;
-};
+export type ShownPublicReceiptItem = ShownLotItem;
 
 export type ShownPublicReceipt = {
   receipt: {

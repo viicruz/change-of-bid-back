@@ -28,6 +28,7 @@ describe("listPublicLotsResponseSchema", () => {
           currentBid: null,
           bidCount: 0,
           sold: false,
+          totalItems: 1,
           winnerId: "user-1",
           auctioneerId: "user-2",
           email: "hidden@example.com",
@@ -61,6 +62,7 @@ describe("listPublicLotsResponseSchema", () => {
           currentBid: null,
           bidCount: 0,
           sold: false,
+          totalItems: 1,
           items: [
             {
               id: itemId,
@@ -104,6 +106,7 @@ describe("listPublicLotsResponseSchema", () => {
           currentBid: null,
           bidCount: 0,
           sold: false,
+          totalItems: items.length,
           items,
         },
       ],

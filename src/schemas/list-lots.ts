@@ -37,6 +37,7 @@ export const listAuctioneerLotsQuerySchema = z.object({
 const publicLotSchema = lotSummarySchema.extend({
   status: publicLotStatusSchema,
   sold: z.boolean(),
+  totalItems: z.number().int().nonnegative(),
   items: z.array(listedLotItemSchema).max(publicLotListingItemLimit),
 });
 

@@ -24,22 +24,22 @@ const antiSnipeMs = 2 * 60 * 1000;
 describe("planSeedLots", () => {
   const plans = planSeedLots(now);
 
-  it("assigns ten decks to each visible status in fixture order", () => {
-    expect(plans).toHaveLength(40);
+  it("assigns eight decks to each visible status in fixture order", () => {
+    expect(plans).toHaveLength(32);
     expect(plans.map((plan) => plan.index)).toEqual(
-      Array.from({ length: 40 }, (_, index) => index),
+      Array.from({ length: 32 }, (_, index) => index),
     );
     expect(plans.map((plan) => plan.status)).toEqual([
-      ...Array<SeedLotStatus>(10).fill("scheduled"),
-      ...Array<SeedLotStatus>(10).fill("live"),
-      ...Array<SeedLotStatus>(10).fill("ended"),
-      ...Array<SeedLotStatus>(10).fill("canceled"),
+      ...Array<SeedLotStatus>(8).fill("scheduled"),
+      ...Array<SeedLotStatus>(8).fill("live"),
+      ...Array<SeedLotStatus>(8).fill("ended"),
+      ...Array<SeedLotStatus>(8).fill("canceled"),
     ]);
   });
 
   it("ramps the opening bid from 25.00 to 100.00", () => {
     expect(plans[0]?.openingBid).toBe("25.00");
-    expect(plans[39]?.openingBid).toBe("100.00");
+    expect(plans[31]?.openingBid).toBe("100.00");
 
     for (const plan of plans) {
       expect(plan.minIncrement).toBe(seedMinIncrement);
@@ -58,6 +58,12 @@ describe("planSeedLots", () => {
 
       expect(compareMoney(current.openingBid, previous.openingBid)).toBe(1);
     }
+  });
+
+  it("keeps between five and ten cards in each lot", () => {
+    expect(plans.map((plan) => plan.cardCount)).toEqual(
+      Array.from({ length: 32 }, (_, index) => 5 + (index % 6)),
+    );
   });
 
   it("schedules pending lots in the future for three days without bids", () => {

@@ -10,6 +10,7 @@ import { db } from "../../db/index";
 import { bid, lot, lotParticipant, receipt } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 import { lotListColumns, requireLotStatus } from "./lot-read";
+import type { ListedLotItem } from "./lot-read-types";
 import { loadListedLotItems, lotListingOrder } from "./lot-listing";
 
 const listBidderParticipationsErrorCodes = ["NOT_BIDDER"] as const;
@@ -32,14 +33,7 @@ export type ListBidderParticipationsInput = {
   role: string;
 };
 
-export type BidderParticipationItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-};
+export type BidderParticipationItem = ListedLotItem;
 
 export type BidderParticipation = {
   id: string;

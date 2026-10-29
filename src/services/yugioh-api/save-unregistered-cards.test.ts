@@ -106,22 +106,47 @@ const decodeTalker = {
 
 function createCatalog(existingIds: number[] = []) {
   const catalog: CardCatalog = {
-    findExistingIds: vi.fn(async (ids: number[]) => {
-      return ids.filter((id) => existingIds.includes(id));
+    findExistingCards: vi.fn(async (ids: number[]) => {
+      return ids.filter((id) => existingIds.includes(id)).map((id) => ({
+        id, imagePath: `/card-images/${id}.jpg`, raw: id === tornadoDragon.id ? tornadoDragon : decodeTalker,
+      }));
     }),
     insertCards: vi.fn(async () => undefined),
+    updateImagePath: vi.fn(async () => undefined),
   };
 
   return catalog;
 }
 
 describe("saveUnregisteredCards", () => {
+  it.each(["https://images.ygoprodeck.com/images/cards/6983839.jpg", null])(
+    "repairs a registered legacy path (%s) without inserting or refreshing the row", async (imagePath) => {
+      const catalog = createCatalog();
+      const raw = { ...tornadoDragon, name: "Frozen catalog name" };
+      catalog.findExistingCards = vi.fn(async () => [{ id: tornadoDragon.id, raw, imagePath }]);
+      const paths = await saveUnregisteredCards([tornadoDragon], catalog, download);
+      expect(paths.get(tornadoDragon.id)).toBe("/card-images/6983839.jpg");
+      expect(catalog.updateImagePath).toHaveBeenCalledExactlyOnceWith(tornadoDragon.id, "/card-images/6983839.jpg");
+      expect(catalog.insertCards).not.toHaveBeenCalled();
+      expect(raw.name).toBe("Frozen catalog name");
+    },
+  );
+
+  it("returns no local availability when repairing a missing file fails", async () => {
+    const catalog = createCatalog([tornadoDragon.id]);
+    download.mockRejectedValueOnce(new Error("offline"));
+    const paths = await saveUnregisteredCards([tornadoDragon], catalog, download);
+    expect(paths.has(tornadoDragon.id)).toBe(false);
+    expect(catalog.updateImagePath).not.toHaveBeenCalled();
+    expect(download).toHaveBeenCalledOnce();
+  });
+
   it("does not query the database when the search returns no cards", async () => {
     const catalog = createCatalog();
 
     await saveUnregisteredCards([], catalog, download);
 
-    expect(catalog.findExistingIds).not.toHaveBeenCalled();
+    expect(catalog.findExistingCards).not.toHaveBeenCalled();
     expect(catalog.insertCards).not.toHaveBeenCalled();
   });
 
@@ -130,12 +155,12 @@ describe("saveUnregisteredCards", () => {
 
     await saveUnregisteredCards([tornadoDragon, decodeTalker], catalog, download);
 
-    expect(catalog.findExistingIds).toHaveBeenCalledWith([
+    expect(catalog.findExistingCards).toHaveBeenCalledWith([
       tornadoDragon.id,
       decodeTalker.id,
     ]);
     expect(catalog.insertCards).toHaveBeenCalledTimes(1);
-    expect(download).toHaveBeenCalledExactlyOnceWith(decodeTalker.card_images[0].image_url);
+    expect(download).toHaveBeenCalledTimes(2);
     expect(catalog.insertCards).toHaveBeenCalledWith([
       expect.objectContaining({
         id: decodeTalker.id,
@@ -145,12 +170,15 @@ describe("saveUnregisteredCards", () => {
     ]);
   });
 
-  it("leaves cards that are already registered unchanged", async () => {
+  it("reuses valid local images of registered cards without changing metadata", async () => {
+    await mkdir(cardImageStorage.assets, { recursive: true });
+    await writeFile(join(cardImageStorage.assets, "6983839.jpg"), imageBytes);
+    await writeFile(join(cardImageStorage.assets, "1861629.jpg"), imageBytes);
     const catalog = createCatalog([tornadoDragon.id, decodeTalker.id]);
 
     await saveUnregisteredCards([tornadoDragon, decodeTalker], catalog, download);
 
-    expect(catalog.findExistingIds).toHaveBeenCalledOnce();
+    expect(catalog.findExistingCards).toHaveBeenCalledOnce();
     expect(catalog.insertCards).not.toHaveBeenCalled();
     expect(download).not.toHaveBeenCalled();
   });
@@ -161,7 +189,7 @@ describe("saveUnregisteredCards", () => {
 
     await saveUnregisteredCards([tornadoDragon, renamed], catalog, download);
 
-    expect(catalog.findExistingIds).toHaveBeenCalledWith([tornadoDragon.id]);
+    expect(catalog.findExistingCards).toHaveBeenCalledWith([tornadoDragon.id]);
     expect(catalog.insertCards).toHaveBeenCalledWith([
       expect.objectContaining({
         id: tornadoDragon.id,
@@ -220,6 +248,24 @@ describe("saveUnregisteredCards", () => {
     expect(download).toHaveBeenCalledTimes(2);
   });
 
+  it("skips an untrusted image URL before downloading and continues with the next card", async () => {
+    const catalog = createCatalog();
+    const untrusted = {
+      ...tornadoDragon,
+      card_images: [{
+        ...tornadoDragon.card_images[0],
+        image_url: "https://127.0.0.1/card.jpg",
+      }],
+    };
+
+    await saveUnregisteredCards([untrusted, decodeTalker], catalog, download);
+
+    expect(download).toHaveBeenCalledExactlyOnceWith(decodeTalker.card_images[0].image_url);
+    expect(catalog.insertCards).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ id: decodeTalker.id, imagePath: "/card-images/1861629.jpg" }),
+    ]);
+  });
+
   it.each([undefined, null, []])("does not download or insert a card without images (%s)", async (cardImages) => {
     const catalog = createCatalog();
 
@@ -252,7 +298,9 @@ describe("saveUnregisteredCards", () => {
     ["webp", "image/webp"],
   ])("stores a %s image using the card id and URL extension", async (extension, contentType) => {
     const catalog = createCatalog();
-    download.mockResolvedValueOnce(new Response(imageBytes, {
+    download.mockResolvedValueOnce(new Response(extension === "png"
+      ? Buffer.from("89504e470d0a1a0a0000000049454e44ae426082", "hex")
+      : extension === "webp" ? Buffer.from("524946460c000000574542505650384c00000000", "hex") : imageBytes, {
       headers: { "content-type": contentType },
     }));
     const entry = {
@@ -311,9 +359,7 @@ describe("saveUnregisteredCards", () => {
     download.mockImplementationOnce(() => firstDownload.promise);
 
     const saving = saveUnregisteredCards([tornadoDragon, decodeTalker], catalog, download);
-    await Promise.resolve();
-
-    expect(download).toHaveBeenCalledExactlyOnceWith(tornadoDragon.card_images[0].image_url);
+    await vi.waitFor(() => expect(download).toHaveBeenCalledExactlyOnceWith(tornadoDragon.card_images[0].image_url));
     firstDownload.resolve(new Response(imageBytes, { headers: { "content-type": "image/jpeg" } }));
     await saving;
 

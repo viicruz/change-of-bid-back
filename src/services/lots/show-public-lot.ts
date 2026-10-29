@@ -7,6 +7,7 @@ import type { ShowPublicLotStatus } from "../../schemas/show-lot";
 //* Local imports
 import { lotParticipant } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
+import type { ShownLotBid, ShownLotItem } from "./lot-read-types";
 import {
   findShownLot,
   loadShownLotItems,
@@ -29,22 +30,9 @@ export class ShowPublicLotError extends Error {
   }
 }
 
-export type ShownPublicLotItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-  cardSnapshot: Record<string, unknown>;
-};
+export type ShownPublicLotItem = ShownLotItem;
 
-export type ShownPublicLotBid = {
-  sequence: number;
-  amount: string;
-  createdAt: Date;
-  participantNo: number;
-};
+export type ShownPublicLotBid = ShownLotBid;
 
 export type ShownPublicLot = {
   serverNow: Date;

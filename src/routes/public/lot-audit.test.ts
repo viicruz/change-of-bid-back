@@ -8,11 +8,10 @@ import { db } from "../../db/index";
 import { bid, lot, lotParticipant } from "../../db/schema";
 import { env } from "../../env";
 
-//* Services imports
 import {
   createPublicLotAuditFixtures,
   expectTextOmitsPrivateAuditData,
-} from "../../services/lots/public-lot-audit-fixtures";
+} from "../../test/public-lot-audit-fixtures";
 
 const {
   hoursFromNow,
@@ -189,11 +188,13 @@ describe("GET /public/lots/:id/audit", () => {
       }
 
       await db.update(bid).set({ amount: "99.00" }).where(eq(bid.lotId, lotId));
+      const stored = await readStoredSecrets(lotId);
 
       const response = await app.handle(
         request(`/public/lots/${lotId}/audit`),
       );
-      const body = (await response.json()) as {
+      const raw = await response.text();
+      const body = JSON.parse(raw) as {
         code?: string;
         audit?: {
           lotId?: string;
@@ -220,6 +221,12 @@ describe("GET /public/lots/:id/audit", () => {
             participantNo: placed.participantNo,
           },
         ],
+      });
+      expectTextOmitsPrivateAuditData(raw, {
+        accounts: [auctioneer, bidder],
+        rows: stored.rows,
+        headHash: stored.headHash,
+        hashSecret: env.BID_HASH_SECRET,
       });
     });
   });

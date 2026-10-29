@@ -4,16 +4,19 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.build.json && esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/index.js --packages=external --sourcemap",
+    "build": "tsc -p tsconfig.build.json && esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/index.js --packages=external --sourcemap && esbuild src/db/backfill-card-images.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/backfill-card-images.js --packages=external --sourcemap",
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:fresh": "tsx src/db/fresh.ts",
     "db:seed": "tsx src/db/seed.ts",
     "fallow": "fallow",
-    "fallow:audit": "fallow audit"
+    "fallow:coverage": "sh docs/fallow/measure-coverage.sh",
+    "fallow:audit": "fallow audit",
+    "images:backfill": "tsx src/db/backfill-card-images.ts"
   },
   "dependencies": {
     "@better-auth/core": "^1.7.14",
@@ -33,12 +36,13 @@
   "devDependencies": {
     "@types/node": "^22.19.0",
     "@types/pg": "^8.23.1",
+    "@vitest/coverage-v8": "5.0.5",
     "drizzle-kit": "1.0.0-rc.5",
     "esbuild": "^0.28.2",
-    "fallow": "^3.35.0",
+    "fallow": "3.36.0",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vitest": "^5.0.5"
+    "vitest": "5.0.5"
   },
   "allowScripts": {
     "esbuild@0.28.2": true

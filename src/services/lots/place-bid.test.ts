@@ -16,9 +16,12 @@ import {
   walletMovement,
 } from "../../db/schema";
 import { env } from "../../env";
+import { insertBid } from "../../models/bid";
+import { markLotLeadingBid } from "../../models/lot";
 import { canonicalBidTimestamp, chainBidHash, genesisBidHash } from "./bid-hash";
 import { cancelLot } from "./cancel-lot";
 import { placeBid, PlaceBidError } from "./place-bid";
+import { joinPublicLotRoom } from "./public-lot-live";
 
 const now = new Date("2026-10-26T15:00:00.000Z");
 const createdUserIds: string[] = [];
@@ -1035,6 +1038,97 @@ describe("placeBid", () => {
         currentBidId: second.id,
       });
       expect(headHash).toBe(bids[1]?.hash);
+    });
+  });
+
+  describe("when accepting the bid fails inside the transaction", () => {
+    it("rolls back a bid whose stored timestamp differs from its hashed instant", async () => {
+      const bidderId = await insertUser("BIDDER");
+      const walletId = await insertWallet(bidderId, "100.00");
+      const { lotId } = await liveLot({ endsAt: minutesFromNow(1) });
+      const beforeLot = await readLot(lotId);
+
+      await expect(
+        placeBid(
+          { lotId, userId: bidderId, role: "BIDDER", amount: "10.00" },
+          {
+            now: () => now,
+            insertBid: (executor, values) => insertBid(executor, {
+              ...values,
+              createdAt: new Date(values.createdAt.getTime() + 1),
+            }),
+          },
+        ),
+      ).rejects.toThrow("Persisted bid timestamp does not match the hashed instant");
+
+      expect(await readLot(lotId)).toEqual(beforeLot);
+      expect(await readBids(lotId)).toEqual([]);
+      expect(await readMovements(lotId)).toEqual([]);
+      expect(
+        await db
+          .select()
+          .from(lotParticipant)
+          .where(eq(lotParticipant.lotId, lotId)),
+      ).toEqual([]);
+      expect(await readWallet(walletId)).toEqual({
+        totalBalance: "100.00",
+        committedBalance: "0.00",
+      });
+    });
+
+    it("restores both reserves, the chain and schedule, and sends no event after a final write fails", async () => {
+      const leaderId = await insertUser("BIDDER");
+      const bidderId = await insertUser("BIDDER");
+      const leaderWalletId = await insertWallet(leaderId, "100.00");
+      const bidderWalletId = await insertWallet(bidderId, "100.00");
+      const { lotId, endsAt } = await liveLot();
+      await placeFor(leaderId, lotId, "10.00");
+      const beforeLot = await readLot(lotId);
+      const beforeBids = await readBids(lotId);
+      const beforeMovements = await readMovements(lotId);
+      const beforeParticipants = await db
+        .select()
+        .from(lotParticipant)
+        .where(eq(lotParticipant.lotId, lotId));
+      const messages: string[] = [];
+      const leave = await joinPublicLotRoom(lotId, (payload) => messages.push(payload));
+      const failure = new Error("Final lot write failed");
+
+      try {
+        await expect(
+          placeBid(
+            { lotId, userId: bidderId, role: "BIDDER", amount: "10.50" },
+            {
+              now: () => minutesFromNow(-1, endsAt),
+              markLotLeadingBid: async (executor, id, values) => {
+                await markLotLeadingBid(executor, id, values);
+                throw failure;
+              },
+            },
+          ),
+        ).rejects.toBe(failure);
+
+        expect(messages).toHaveLength(1); // Only the subscription snapshot.
+        expect(await readLot(lotId)).toEqual(beforeLot);
+        expect(await readBids(lotId)).toEqual(beforeBids);
+        expect(await readMovements(lotId)).toEqual(beforeMovements);
+        expect(
+          await db
+            .select()
+            .from(lotParticipant)
+            .where(eq(lotParticipant.lotId, lotId)),
+        ).toEqual(beforeParticipants);
+        expect(await readWallet(leaderWalletId)).toEqual({
+          totalBalance: "100.00",
+          committedBalance: "10.00",
+        });
+        expect(await readWallet(bidderWalletId)).toEqual({
+          totalBalance: "100.00",
+          committedBalance: "0.00",
+        });
+      } finally {
+        leave();
+      }
     });
   });
 

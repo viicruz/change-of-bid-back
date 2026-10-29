@@ -93,6 +93,15 @@ async function registerUser(role?: string): Promise<RegisteredUser> {
   };
 }
 
+function defaultLiveLotSchedule() {
+  const startsAt = new Date(Date.now() - 60_000);
+
+  return {
+    startsAt,
+    endsAt: new Date(startsAt.getTime() + 24 * 60 * 60 * 1000),
+  };
+}
+
 async function insertLiveLot(
   auctioneerId: string,
   schedule?: {
@@ -101,8 +110,7 @@ async function insertLiveLot(
     status?: "ACTIVE" | "ENDED" | "CANCELED";
   },
 ) {
-  const startsAt = schedule?.startsAt ?? new Date(Date.now() - 60_000);
-  const endsAt = schedule?.endsAt ?? new Date(startsAt.getTime() + 24 * 60 * 60 * 1000);
+  const { startsAt, endsAt } = schedule ?? defaultLiveLotSchedule();
   const status = schedule?.status ?? "ACTIVE";
   const rows = await db
     .insert(lot)

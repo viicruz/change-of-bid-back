@@ -5,7 +5,8 @@ import { and, eq, inArray } from "drizzle-orm";
 import { loadDeckFixtures, type DeckLot, type DeckLotCard } from "./deck-fixtures";
 import { db } from "./index";
 import { planSeedLots, type SeedLotPlan } from "./seed-lot-plan";
-import { lot, user } from "./schema";
+import { findSeedUserByEmail } from "./seed-user-lookup";
+import { lot } from "./schema";
 
 //* Models imports
 import { findCardsByIds } from "../models/card";
@@ -16,6 +17,7 @@ import { insertLotItems } from "../models/lot-item";
 import type { Card } from "../schemas/ygo-pro-deck";
 
 //* Services imports
+import { ensureCardImage } from "../services/yugioh-api/ensure-card-image";
 import { saveUnregisteredCards } from "../services/yugioh-api/save-unregistered-cards";
 import {
   YGOProDeckApiClient,
@@ -25,6 +27,7 @@ import {
 const cardPageSize = 32;
 
 type CatalogCard = Awaited<ReturnType<typeof findCardsByIds>>[number];
+type CardSearchClient = Pick<YGOProDeckApiClient, "searchCards">;
 
 export type SeededLot = {
   id: string;
@@ -32,22 +35,66 @@ export type SeededLot = {
   plan: SeedLotPlan;
 };
 
-export async function seedLots(auctioneerEmail: string, now = new Date()) {
+export async function seedLots(
+  auctioneerEmail: string,
+  now = new Date(),
+  client?: CardSearchClient,
+) {
   const auctioneerId = await findAuctioneerId(auctioneerEmail);
-  const decks = await loadDeckFixtures();
-  const plans = planSeedLots(now);
+  const pending = await findPendingSeedLots(auctioneerId, now);
 
-  if (decks.length !== plans.length) {
-    throw new Error(
-      `Expected ${plans.length} deck fixtures and found ${decks.length}`,
+  if (pending.length === 0) {
+    return [];
+  }
+
+  const cardsById = await ensureCatalogCards(
+    uniquePasscodes(pending.map((entry) => entry.deck)),
+    client,
+  );
+  // Validate every pending deck before starting the first lot transaction.
+  const pendingLots = pending.map(({ deck, plan }) =>
+    prepareSeedLot(deck, plan, cardsById),
+  );
+  // The seed also publishes lots directly. Confirm images before the first
+  // transaction so legacy catalog paths cannot introduce new hotlinks.
+  for (const pendingLot of pendingLots) {
+    for (const item of pendingLot.items) {
+      item.imagePath = await ensureCardImage({
+        cardId: item.cardId, imagePath: item.imagePath, snapshot: item.cardSnapshot,
+      });
+    }
+  }
+  const seededLots: SeededLot[] = [];
+
+  for (const pendingLot of pendingLots) {
+    const created = await createSeedLot(auctioneerId, pendingLot);
+
+    seededLots.push(created);
+    console.log(
+      `created ${created.plan.status} lot ${created.title} (${created.id})`,
     );
   }
 
+  return seededLots;
+}
+
+async function findPendingSeedLots(auctioneerId: string, now: Date) {
+  const fixtures = await loadDeckFixtures();
+  const plans = planSeedLots(now);
+
+  if (fixtures.length < plans.length) {
+    throw new Error(
+      `Expected at least ${plans.length} deck fixtures and found ${fixtures.length}`,
+    );
+  }
+
+  const decks = fixtures.slice(0, plans.length);
   const existingTitles = await findExistingLotTitles(
     auctioneerId,
     decks.map((deck) => deck.name),
   );
-  const pending = decks.flatMap((deck, index) => {
+
+  return decks.flatMap((deck, index) => {
     const plan = plans[index];
 
     if (!plan) {
@@ -59,21 +106,21 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
       return [];
     }
 
-    return [{ deck, plan }];
+    // Lots keep only the first fixture entries so each one stays small.
+    return [{ deck: { ...deck, cards: deck.cards.slice(0, plan.cardCount) }, plan }];
   });
+}
 
-  if (pending.length === 0) {
-    return [];
-  }
-
-  const cardsById = await ensureCatalogCards(
-    uniquePasscodes(pending.map((entry) => entry.deck)),
-  );
-  const pendingLots = pending.map((entry) => ({
-    deck: entry.deck,
-    plan: entry.plan,
-    items: entry.deck.cards.map((card) => {
-      const stored = requireCatalogCard(entry.deck, card, cardsById);
+function prepareSeedLot(
+  deck: DeckLot,
+  plan: SeedLotPlan,
+  cardsById: Map<number, CatalogCard>,
+) {
+  return {
+    deck,
+    plan,
+    items: deck.cards.map((card) => {
+      const stored = requireCatalogCard(deck, card, cardsById);
 
       return {
         position: card.position,
@@ -84,53 +131,41 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
         imagePath: stored.imagePath,
       };
     }),
-  }));
-  const seededLots: SeededLot[] = [];
+  };
+}
 
-  for (const pendingLot of pendingLots) {
-    const created = await db.transaction(async (tx) => {
-      const createdLot = await insertLot(tx, {
-        auctioneerId,
-        title: pendingLot.deck.name,
-        description: pendingLot.deck.description,
-        openingBid: pendingLot.plan.openingBid,
-        minIncrement: pendingLot.plan.minIncrement,
-        startsAt: pendingLot.plan.insertStartsAt,
-        originalEndsAt: pendingLot.plan.insertEndsAt,
-        endsAt: pendingLot.plan.insertEndsAt,
-      });
-
-      await insertLotItems(
-        tx,
-        pendingLot.items.map((item) => ({
-          lotId: createdLot.id,
-          ...item,
-        })),
-      );
-
-      return createdLot;
+async function createSeedLot(
+  auctioneerId: string,
+  pending: ReturnType<typeof prepareSeedLot>,
+): Promise<SeededLot> {
+  const created = await db.transaction(async (tx) => {
+    const createdLot = await insertLot(tx, {
+      auctioneerId,
+      title: pending.deck.name,
+      description: pending.deck.description,
+      openingBid: pending.plan.openingBid,
+      minIncrement: pending.plan.minIncrement,
+      startsAt: pending.plan.insertStartsAt,
+      originalEndsAt: pending.plan.insertEndsAt,
+      endsAt: pending.plan.insertEndsAt,
     });
 
-    seededLots.push({
-      id: created.id,
-      title: created.title,
-      plan: pendingLot.plan,
-    });
-    console.log(
-      `created ${pendingLot.plan.status} lot ${created.title} (${created.id})`,
+    await insertLotItems(
+      tx,
+      pending.items.map((item) => ({
+        lotId: createdLot.id,
+        ...item,
+      })),
     );
-  }
 
-  return seededLots;
+    return createdLot;
+  });
+
+  return { id: created.id, title: created.title, plan: pending.plan };
 }
 
 async function findAuctioneerId(email: string) {
-  const rows = await db
-    .select({ id: user.id })
-    .from(user)
-    .where(eq(user.email, email))
-    .limit(1);
-  const auctioneer = rows[0];
+  const auctioneer = await findSeedUserByEmail(db, email);
 
   if (!auctioneer) {
     throw new Error(`Auctioneer ${email} was not found`);
@@ -152,7 +187,7 @@ async function findExistingLotTitles(auctioneerId: string, titles: string[]) {
   return new Set(rows.map((row) => row.title));
 }
 
-async function ensureCatalogCards(passcodes: number[]) {
+async function ensureCatalogCards(passcodes: number[], client?: CardSearchClient) {
   const stored = await findCardsByIds(db, passcodes);
   const cardsById = new Map(stored.map((card) => [card.id, card]));
   const missingIds = passcodes.filter((passcode) => !cardsById.has(passcode));
@@ -161,7 +196,7 @@ async function ensureCatalogCards(passcodes: number[]) {
     return cardsById;
   }
 
-  const fetched = await fetchCardsByPasscodes(missingIds);
+  const fetched = await fetchCardsByPasscodes(missingIds, client);
 
   await saveUnregisteredCards(fetched);
 
@@ -174,8 +209,10 @@ async function ensureCatalogCards(passcodes: number[]) {
   return cardsById;
 }
 
-async function fetchCardsByPasscodes(passcodes: number[]) {
-  const client = new YGOProDeckApiClient();
+async function fetchCardsByPasscodes(
+  passcodes: number[],
+  client: CardSearchClient = new YGOProDeckApiClient(),
+) {
   const cards: Card[] = [];
 
   for (let start = 0; start < passcodes.length; start += cardPageSize) {
@@ -189,7 +226,7 @@ async function fetchCardsByPasscodes(passcodes: number[]) {
 }
 
 async function fetchPasscodeChunk(
-  client: YGOProDeckApiClient,
+  client: CardSearchClient,
   passcodes: number[],
 ) {
   const cards: Card[] = [];

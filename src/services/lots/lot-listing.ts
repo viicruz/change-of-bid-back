@@ -9,6 +9,7 @@ import {
   isScheduled,
 } from "./effective-lot-status";
 import { lotItemColumns } from "./lot-read";
+import type { ListedLotItem } from "./lot-read-types";
 
 export function lotListingOrder(now: Date) {
   return [
@@ -72,21 +73,12 @@ function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (character) => `\\${character}`);
 }
 
-type ListedItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-};
-
 export async function loadListedLotItems(
   executor: DatabaseExecutor,
   lots: readonly { id: string }[],
   limitPerLot?: number,
 ) {
-  const itemsByLotId = new Map<string, ListedItem[]>();
+  const itemsByLotId = new Map<string, ListedLotItem[]>();
   if (lots.length === 0) return itemsByLotId;
 
   const lotIds = lots.map((row) => row.id);

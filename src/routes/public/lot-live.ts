@@ -6,6 +6,7 @@ import { showPublicLotParamsSchema } from "../../schemas/show-lot";
 
 //* Local imports
 import { env } from "../../env";
+import { PublicLotLiveLifecycle } from "./lot-live-lifecycle";
 
 //* Services imports
 import { joinPublicLotRoom } from "../../services/lots/public-lot-live";
@@ -14,27 +15,7 @@ import {
   ShowPublicLotError,
 } from "../../services/lots/show-public-lot";
 
-const roomLeaves = new WeakMap<object, () => void>();
-const closedSockets = new WeakSet<object>();
-
-type LiveRoomPeer = {
-  context?: {
-    message?: (peer: unknown, body: string) => unknown;
-  };
-};
-
-// @elysiajs/node treats any text frame whose body contains "ping" as a
-// heartbeat and handles it before the route. Drop every client frame on the
-// socket hook so the room stays one-way.
-function ignoreClientFrames(peer: object) {
-  const context = (peer as LiveRoomPeer).context;
-
-  if (context === undefined) {
-    throw new Error("Live room socket has no message hook");
-  }
-
-  context.message = () => undefined;
-}
+const liveLifecycle = new PublicLotLiveLifecycle(joinPublicLotRoom);
 
 function allowsLiveOrigin(origin: string | null) {
   return origin === null || origin === env.PAGE_ORIGIN;
@@ -69,44 +50,10 @@ export function publicLotLiveRoutes(app: Elysia) {
       }
     },
     async open(ws) {
-      const raw = ws.raw;
-
-      ignoreClientFrames(raw);
-
-      const lotId = ws.data.params.id;
-
-      try {
-        const leave = await joinPublicLotRoom(lotId, (payload) => {
-          ws.send(payload);
-        });
-
-        if (closedSockets.has(raw)) {
-          leave();
-          return;
-        }
-
-        roomLeaves.set(raw, leave);
-      } catch (error) {
-        try {
-          ws.close(1011, "The live lot snapshot failed");
-        } catch {
-          // The socket is already gone.
-        }
-
-        throw error;
-      }
+      return liveLifecycle.open(ws, ws.data.params.id);
     },
     close(ws) {
-      closedSockets.add(ws.raw);
-
-      const leave = roomLeaves.get(ws.raw);
-
-      if (leave === undefined) {
-        return;
-      }
-
-      leave();
-      roomLeaves.delete(ws.raw);
+      liveLifecycle.close(ws);
     },
   });
 }

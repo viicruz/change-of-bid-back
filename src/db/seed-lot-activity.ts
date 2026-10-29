@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 
 //* Local imports
 import { db } from "./index";
+import type { DatabaseExecutor } from "../models/executor";
 import { env } from "../env";
 import type { SeededLot } from "./seed-lots";
 import {
@@ -12,7 +13,8 @@ import {
   seedDepositAmounts,
   type SeedBidder,
 } from "./seed-lot-plan";
-import { bid, lot, user, wallet, walletMovement } from "./schema";
+import { findSeedUserByEmail } from "./seed-user-lookup";
+import { bid, lot, wallet, walletMovement } from "./schema";
 
 //* Schemas imports
 import { normalizeMoney } from "../schemas/money";
@@ -28,12 +30,15 @@ import { placeBid, type AcceptedBid } from "../services/lots/place-bid";
 import { settleDueLots } from "../services/lots/settle-due-lots";
 import { deposit } from "../services/wallet/deposit";
 
-export async function seedLotActivity(input: {
-  auctioneerEmail: string;
-  bidderEmails: Record<SeedBidder, string>;
-  lots: SeededLot[];
-  now?: Date;
-}) {
+export async function seedLotActivity(
+  input: {
+    auctioneerEmail: string;
+    bidderEmails: Record<SeedBidder, string>;
+    lots: SeededLot[];
+    now?: Date;
+  },
+  dependencies: { settleDueLots?: typeof settleDueLots } = {},
+) {
   const now = input.now ?? new Date();
   const bidderIds: Record<SeedBidder, string> = {
     bidder: await findUserId(input.bidderEmails.bidder),
@@ -48,7 +53,11 @@ export async function seedLotActivity(input: {
   }
 
   await closeEndedLots(input.lots);
-  await settleEndedLots(input.lots, now);
+  await settleEndedLots(
+    input.lots,
+    now,
+    dependencies.settleDueLots ?? settleDueLots,
+  );
   await cancelSeededLots(input.auctioneerEmail, input.lots);
 }
 
@@ -162,29 +171,7 @@ async function retimeBids(
           hash,
         })
         .where(eq(bid.id, placedBid.id));
-      await tx
-        .update(walletMovement)
-        .set({ createdAt })
-        .where(
-          and(
-            eq(walletMovement.bidId, placedBid.id),
-            eq(walletMovement.type, "HOLD"),
-          ),
-        );
-
-      const previous = placed[index - 1];
-
-      if (previous) {
-        await tx
-          .update(walletMovement)
-          .set({ createdAt })
-          .where(
-            and(
-              eq(walletMovement.bidId, previous.id),
-              eq(walletMovement.type, "RELEASE"),
-            ),
-          );
-      }
+      await retimeBidMovements(tx, placedBid.id, placed[index - 1]?.id, createdAt);
 
       previousHash = hash;
     }
@@ -194,6 +181,32 @@ async function retimeBids(
       .set({ headHash: previousHash })
       .where(eq(lot.id, lotId));
   });
+}
+
+async function retimeBidMovements(
+  tx: Pick<DatabaseExecutor, "update">,
+  bidId: string,
+  previousBidId: string | undefined,
+  createdAt: Date,
+) {
+  await tx
+    .update(walletMovement)
+    .set({ createdAt })
+    .where(
+      and(eq(walletMovement.bidId, bidId), eq(walletMovement.type, "HOLD")),
+    );
+
+  if (previousBidId !== undefined) {
+    await tx
+      .update(walletMovement)
+      .set({ createdAt })
+      .where(
+        and(
+          eq(walletMovement.bidId, previousBidId),
+          eq(walletMovement.type, "RELEASE"),
+        ),
+      );
+  }
 }
 
 async function closeEndedLots(lots: SeededLot[]) {
@@ -213,7 +226,11 @@ async function closeEndedLots(lots: SeededLot[]) {
   }
 }
 
-async function settleEndedLots(lots: SeededLot[], now: Date) {
+async function settleEndedLots(
+  lots: SeededLot[],
+  now: Date,
+  settle: typeof settleDueLots,
+) {
   const ended = lots.filter((seeded) => seeded.plan.status === "ended");
 
   if (ended.length === 0) {
@@ -221,7 +238,7 @@ async function settleEndedLots(lots: SeededLot[], now: Date) {
   }
 
   const titles = new Map(ended.map((seeded) => [seeded.id, seeded.title]));
-  const results = await settleDueLots({
+  const results = await settle({
     now: () => now,
     listDueLotIds: async () => ended.map((seeded) => seeded.id),
   });
@@ -265,12 +282,7 @@ async function cancelSeededLots(auctioneerEmail: string, lots: SeededLot[]) {
 }
 
 async function findUserId(email: string) {
-  const rows = await db
-    .select({ id: user.id })
-    .from(user)
-    .where(eq(user.email, email))
-    .limit(1);
-  const found = rows[0];
+  const found = await findSeedUserByEmail(db, email);
 
   if (!found) {
     throw new Error(`User ${email} was not found`);
