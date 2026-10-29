@@ -72,11 +72,21 @@ export function createDependencies(cards: CatalogCard[]) {
       return cards.filter((entry) => ids.includes(entry.id));
     }),
     insertLot: vi.fn(async (_executor, values) => {
+      const {
+        description = null,
+        currentBidId = null,
+        winnerId = null,
+        headHash = null,
+        endedAt = null,
+        settledAt = null,
+        canceledAt = null,
+      } = values;
+
       return {
         id: "lot-1",
         auctioneerId: values.auctioneerId,
         title: values.title,
-        description: values.description ?? null,
+        description,
         openingBid: values.openingBid,
         minIncrement: values.minIncrement,
         startsAt: values.startsAt,
@@ -84,13 +94,13 @@ export function createDependencies(cards: CatalogCard[]) {
         endsAt: values.endsAt,
         extensionCount: values.extensionCount ?? 0,
         status: values.status ?? "ACTIVE",
-        currentBidId: values.currentBidId ?? null,
-        winnerId: values.winnerId ?? null,
+        currentBidId,
+        winnerId,
         bidCount: values.bidCount ?? 0,
-        headHash: values.headHash ?? null,
-        endedAt: values.endedAt ?? null,
-        settledAt: values.settledAt ?? null,
-        canceledAt: values.canceledAt ?? null,
+        headHash,
+        endedAt,
+        settledAt,
+        canceledAt,
         createdAt: now,
         updatedAt: now,
       } satisfies InsertedLot;

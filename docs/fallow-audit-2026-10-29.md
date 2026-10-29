@@ -181,6 +181,25 @@ Validação:
 - Saúde de produção: saída **0**, nenhum finding. Inventário completo: saída **1**, somente H01/H02 estimados, preservados conforme C01.
 - `fallow architecture` e `fallow audit --base HEAD`, com `--format json --quiet --explain`: saída **0**, sem ciclos nem novos findings no diff.
 
+### Execução do C03 — 29/10/2026
+
+Implementação preparada sobre `0ac8a77`, sem criar commit Git. A mudança fica restrita aos defaults dos builders de testes:
+
+- Em `src/services/lots/__tests__/create-lot/fixtures.ts`, os campos anuláveis recebem `null` por desestruturação quando estão ausentes/`undefined`; valores explícitos, inclusive `null`, string vazia e datas, são preservados. `extensionCount`, `status` e `bidCount` mantêm `??`, com os mesmos fallbacks anteriores. A lista de campos retornados, os IDs e os timestamps fixos não mudam.
+- Em `src/routes/private/place-bid.test.ts`, `defaultLiveLotSchedule` concentra a agenda usada quando nenhum schedule é informado. O início continua um minuto no passado e o fim continua exatamente 24 horas depois desse início. Agendas explícitas mantêm as datas obrigatórias do contrato do helper; o default de status e os cálculos de `endedAt`/`canceledAt` permanecem iguais.
+
+Nenhum cenário ou teste foi adicionado, removido ou alterado; não foram criados testes de helpers para reduzir CRAP estimado. Não houve alteração de código de produção, limiares, exclusões de cobertura ou supressões.
+
+Validação:
+
+- `fallow guard` nos dois arquivos, com `--format json --quiet --explain`: saída **0**, sem regras de fronteiras configuradas.
+- `npm run typecheck`: saída **0**.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 598 testes aprovados**, incluindo create-lot e a rota place-bid, em PostgreSQL 17 descartável. Statements **90,35%**, branches **84,80%**, funções **90,02%**, linhas **90,17%**, iguais ao C02. Relatórios temporários em `/tmp/change-of-bid-fallow-coverage.vJhMw7/`.
+- Saúde de produção e inventário completo com a cobertura recém-gerada: saída **0** em ambos, nenhum finding de saúde. H01/H02 deixam de ultrapassar o limiar estimado; isso não representa nova cobertura medida dos helpers, que continuam excluídos da instrumentação.
+- O inventário consultivo de tamanho passa a incluir `createDependencies` com **62 linhas** devido aos defaults explícitos. Esse sinal não reprova o gate; não foi feita outra extração apenas para reduzir a contagem de linhas.
+- `fallow architecture` e `fallow audit --base HEAD`, com `--format json --quiet --explain`: saída **0**, sem ciclos nem novos findings no diff.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.
