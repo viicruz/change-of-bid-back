@@ -8,6 +8,7 @@ import type { ShowAuctioneerLotStatus } from "../../schemas/show-auctioneer-lot"
 //* Local imports
 import { wallet, walletMovement } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
+import type { ShownLotBid, ShownLotItem } from "./lot-read-types";
 import {
   findShownLot,
   loadShownLotItems,
@@ -41,22 +42,9 @@ export type ShowAuctioneerLotInput = {
   role: string;
 };
 
-export type ShownAuctioneerLotItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-  cardSnapshot: Record<string, unknown>;
-};
+export type ShownAuctioneerLotItem = ShownLotItem;
 
-export type ShownAuctioneerLotBid = {
-  sequence: number;
-  amount: string;
-  createdAt: Date;
-  participantNo: number;
-};
+export type ShownAuctioneerLotBid = ShownLotBid;
 
 export type ShownAuctioneerLot = {
   serverNow: Date;

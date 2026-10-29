@@ -13,20 +13,14 @@ import { db } from "../../db/index";
 import { bid, lot } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 import { lotListColumns } from "./lot-read";
+import type { ListedLotItem } from "./lot-read-types";
 import {
   loadListedLotItems,
   lotListingOrder,
   matchesLotSearch,
 } from "./lot-listing";
 
-export type PublicLotItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-};
+export type PublicLotItem = ListedLotItem;
 
 export type PublicLot = {
   id: string;

@@ -289,6 +289,59 @@ Validação:
   sem ciclos nem findings no diff; veredito do audit **pass**.
 - `git diff --check`: saída **0**.
 
+### Execução do C06 — 29/10/2026
+
+Implementação preparada sobre `0ff7535`, sem criar commit Git. O módulo
+`src/services/lots/lot-read-types.ts` concentra somente três tipos:
+`ListedLotItem`, `ShownLotItem` (o item de listagem acrescido de `cardSnapshot`)
+e `ShownLotBid`. Não possui imports nem código de execução.
+
+Os oito nomes de tipos de item/lance já exportados pelas três listagens e
+pelas leituras de lote público, lote do leiloeiro e recibo continuam nos
+mesmos módulos como aliases. O mapa interno de `loadListedLotItems` também
+usa `ListedLotItem`, substituindo sua cópia local. Todos os imports do novo
+módulo são `import type`.
+
+Os DTOs completos permanecem separados, incluindo seus tipos de status,
+`receivedAmount`, `totalReceived`, `viewerParticipantNo`, `participantNo`,
+`won` e `shareToken`. As projeções SQL, a seleção explícita dos campos de
+lances e o filtro de `card_images` não mudam. Nenhum teste ou schema foi
+alterado, adicionado ou removido.
+
+Validação:
+
+- `fallow guard` nos caminhos envolvidos, com `--format json --quiet --explain`:
+  saída **0**, sem regras de fronteiras configuradas.
+- `npm run typecheck` e `npm run build`: saída **0** em ambos. O novo módulo
+  de tipos não aparece nas fontes do sourcemap do bundle.
+- Comparação temporária pela API do TypeScript antes/depois: os campos e
+  tipos dos **16 contratos exportados** de itens, lances e respostas são
+  idênticos; o JavaScript transpilado dos **7 arquivos alterados** também é
+  idêntico, desconsiderando comentários.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 601 testes aprovados**
+  em PostgreSQL 17 descartável, incluindo schemas, serviços e rotas de
+  leituras públicas/privadas. Statements **90,16%**, branches **84,91%**,
+  funções **89,75%**, linhas **90,00%**, iguais ao C05. Relatórios em
+  `/tmp/change-of-bid-fallow-coverage.ouyrFY/`.
+- O mapa de cobertura passa de **70 para 71 arquivos** somente pela entrada
+  vazia do módulo de tipos: zero statements, branches ou funções. Comparação
+  com o mapa do C05 confirmou contagens cobertas/não cobertas idênticas nos
+  outros 70 arquivos, sem mudança dos denominadores dessas métricas.
+- Saúde de produção e inventário completo com a cobertura recém-gerada:
+  saída **0** em ambos, nenhum finding de saúde.
+- `fallow dupes --mode semantic`, com os flags JSON/explain: saída **0**,
+  **77 grupos / 40 famílias / 163 instâncias** consultivos. Os fingerprints
+  originais de D13, D17, D27 e D53 não aparecem mais. D48 permanece no trecho
+  dos DTOs completos; seus campos específicos foram mantidos explícitos,
+  sem unificar respostas públicas e privadas para reduzir o detector.
+- `fallow dead-code --type-aware`, com os mesmos flags: saída **0**, somente
+  o aviso T01 já registrado; nenhum arquivo, export ou tipo sem uso.
+- `fallow architecture` e `fallow audit --base HEAD --coverage` com o caminho
+  absoluto desta cobertura e os flags JSON/explain: saída **0**, sem ciclos
+  nem findings no diff; veredito do audit **pass**. Relatórios e comparações
+  temporários em `/tmp/change-of-bid-c06-m4cQt5/`.
+- `git diff --check`: saída **0**.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.

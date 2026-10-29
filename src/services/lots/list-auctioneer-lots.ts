@@ -13,6 +13,7 @@ import { db } from "../../db/index";
 import { bid, lot, wallet, walletMovement } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 import { lotListColumns, requireLotStatus } from "./lot-read";
+import type { ListedLotItem } from "./lot-read-types";
 import {
   loadListedLotItems,
   lotListingOrder,
@@ -39,14 +40,7 @@ export type ListAuctioneerLotsInput = ListAuctioneerLotsQuery & {
   role: string;
 };
 
-export type AuctioneerLotItem = {
-  id: string;
-  position: number;
-  cardId: number;
-  quantity: number;
-  cardName: string;
-  imagePath: string;
-};
+export type AuctioneerLotItem = ListedLotItem;
 
 export type AuctioneerLot = {
   id: string;
