@@ -25,3 +25,12 @@ export function isScheduled(now: Date) {
 export function isLive(now: Date) {
   return sql`(${lot.status} = 'ACTIVE' AND ${lot.startsAt} <= ${now} AND ${lot.endsAt} > ${now})`;
 }
+
+export function effectiveLotStatus(now: Date) {
+  return sql<string | null>`CASE
+    WHEN ${isCanceled()} THEN 'CANCELED'
+    WHEN ${isEnded(now)} THEN 'ENDED'
+    WHEN ${isScheduled(now)} THEN 'SCHEDULED'
+    WHEN ${isLive(now)} THEN 'LIVE'
+  END`.as("effective_status");
+}

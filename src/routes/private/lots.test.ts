@@ -119,10 +119,10 @@ async function insertCatalogCard(name: string, imagePath: string | null) {
   return id;
 }
 
-const minimumLotDurationMs = 24 * 60 * 60 * 1000;
+const minimumLotDurationMs = 1 * 60 * 1000;
 
 function createLotPayload(cardIds: number[]) {
-  const startsAt = new Date(Date.now() - 60_000);
+  const startsAt = new Date(Date.now() - minimumLotDurationMs / 2);
 
   return {
     title: "Blue-Eyes lot",
@@ -332,9 +332,9 @@ describe("POST /private/lots", () => {
     expect(response.status).toBe(422);
   });
 
-  it("rejects a lot that lasts less than 24 hours", async () => {
+  it("rejects a lot that lasts less than 1 minute", async () => {
     const account = await registerAuctioneer();
-    const startsAt = new Date(Date.now() - 60_000);
+    const startsAt = new Date();
     const response = await postLot(account.token, {
       ...createLotPayload([1]),
       startsAt: startsAt.toISOString(),

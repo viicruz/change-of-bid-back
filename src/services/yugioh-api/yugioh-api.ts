@@ -8,12 +8,7 @@ import {
   type NumericFilter,
 } from "../../schemas/ygo-pro-deck";
 
-export type {
-  CardSearchQuery,
-  CardSearchQueryInput,
-  ComparisonOperator,
-  NumericFilter,
-} from "../../schemas/ygo-pro-deck";
+export type { CardSearchQueryInput } from "../../schemas/ygo-pro-deck";
 
 const CARD_INFO_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 const MAX_REQUESTS_PER_SECOND = 16;

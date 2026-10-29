@@ -1,12 +1,13 @@
 //* Libraries imports
-import { asc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 //* Schemas imports
 import { formatListedMoney } from "../../schemas/money";
 
 //* Local imports
+import { loadShownLotItems, publicCardSnapshot } from "./lot-read";
 import { db } from "../../db/index";
-import { lot, lotItem, receipt } from "../../db/schema";
+import { lot, receipt } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
 
 const showPublicReceiptErrorCodes = ["RECEIPT_NOT_FOUND"] as const;
@@ -58,7 +59,7 @@ export async function showPublicReceipt(
     );
   }
 
-  const items = await loadItems(db, row.lotId);
+  const items = await loadShownLotItems(db, row.lotId);
 
   return {
     receipt: {
@@ -76,12 +77,6 @@ export async function showPublicReceipt(
   };
 }
 
-function publicCardSnapshot(snapshot: Record<string, unknown>) {
-  return Object.fromEntries(
-    Object.entries(snapshot).filter(([key]) => key !== "card_images"),
-  );
-}
-
 async function findReceipt(executor: DatabaseExecutor, shareToken: string) {
   const rows = await executor
     .select({
@@ -97,22 +92,6 @@ async function findReceipt(executor: DatabaseExecutor, shareToken: string) {
     .where(eq(receipt.shareToken, shareToken));
 
   return rows[0] ?? null;
-}
-
-async function loadItems(executor: DatabaseExecutor, lotId: string) {
-  return executor
-    .select({
-      id: lotItem.id,
-      position: lotItem.position,
-      cardId: lotItem.cardId,
-      quantity: lotItem.quantity,
-      cardName: lotItem.cardName,
-      imagePath: lotItem.imagePath,
-      cardSnapshot: lotItem.cardSnapshot,
-    })
-    .from(lotItem)
-    .where(eq(lotItem.lotId, lotId))
-    .orderBy(asc(lotItem.position));
 }
 
 function listedReceiptAmount(value: string): string {

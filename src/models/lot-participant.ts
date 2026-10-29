@@ -30,17 +30,7 @@ export async function findOrCreateLotParticipant(
   lotId: string,
   userId: string,
 ) {
-  const existing = await executor
-    .select({
-      id: lotParticipant.id,
-      participantNo: lotParticipant.participantNo,
-    })
-    .from(lotParticipant)
-    .where(
-      and(eq(lotParticipant.lotId, lotId), eq(lotParticipant.userId, userId)),
-    )
-    .limit(1);
-  const found = existing[0];
+  const found = await findLotParticipantByUserId(executor, lotId, userId);
 
   if (found) {
     return found;

@@ -6,7 +6,7 @@ const DEFAULT_CARD_SEARCH_OFFSET = 0
 
 const binaryFlagSchema = z.union([z.literal(0), z.literal(1)])
 
-export const cardSetSchema = z.object({
+const cardSetSchema = z.object({
   set_name: z.string(),
   set_code: z.string(),
   set_rarity: z.string(),
@@ -14,14 +14,14 @@ export const cardSetSchema = z.object({
   set_price: z.string(),
 })
 
-export const cardImageSchema = z.object({
+const cardImageSchema = z.object({
   id: z.coerce.number().int(),
   image_url: z.string(),
   image_url_small: z.string(),
   image_url_cropped: z.string().optional(),
 })
 
-export const cardPriceSchema = z.object({
+const cardPriceSchema = z.object({
   cardmarket_price: z.string(),
   tcgplayer_price: z.string(),
   ebay_price: z.string(),
@@ -29,13 +29,13 @@ export const cardPriceSchema = z.object({
   coolstuffinc_price: z.string(),
 })
 
-export const banlistInfoSchema = z.object({
+const banlistInfoSchema = z.object({
   ban_tcg: z.string().optional(),
   ban_ocg: z.string().optional(),
   ban_goat: z.string().optional(),
 })
 
-export const miscInfoSchema = z.object({
+const miscInfoSchema = z.object({
   beta_name: z.string().optional(),
   beta_id: z.coerce.number().optional(),
   staple: z.string().optional(),
@@ -56,7 +56,7 @@ export const miscInfoSchema = z.object({
   genesys_ocg_points: z.coerce.number().optional(),
 })
 
-export const cardSchema = z.object({
+const cardSchema = z.object({
   id: z.coerce.number().int(),
   name: z.string(),
   type: z.string().nullable(),
@@ -83,7 +83,7 @@ export const cardSchema = z.object({
   misc_info: z.array(miscInfoSchema).optional().nullable(),
 })
 
-export const cardInfoMetaSchema = z.object({
+const cardInfoMetaSchema = z.object({
   generated: z.string().optional().nullable(),
   current_rows: z.coerce.number(),
   total_rows: z.coerce.number(),
@@ -94,16 +94,12 @@ export const cardInfoMetaSchema = z.object({
   next_page_offset: z.coerce.number().optional(),
 })
 
-export const cardInfoSuccessSchema = z.object({
+const cardInfoSuccessSchema = z.object({
   data: z.array(cardSchema),
   meta: cardInfoMetaSchema.optional(),
 })
 
-export const cardInfoPageSchema = cardInfoSuccessSchema.extend({
-  meta: cardInfoMetaSchema,
-})
-
-export const cardInfoErrorSchema = z.object({
+const cardInfoErrorSchema = z.object({
   error: z.string(),
 })
 
@@ -119,9 +115,9 @@ const numberOrListSchema = z.union([
   z.array(z.coerce.number()).readonly(),
 ])
 
-export const comparisonOperatorSchema = z.enum(["lt", "lte", "gt", "gte"])
+const comparisonOperatorSchema = z.enum(["lt", "lte", "gt", "gte"])
 
-export const numericFilterSchema = z.union([
+const numericFilterSchema = z.union([
   z.coerce.number(),
   z.object({
     operator: comparisonOperatorSchema,
@@ -171,18 +167,8 @@ export const cardSearchQuerySchema = z.object({
   "name and id cannot be used together",
 )
 
-export type CardSet = z.infer<typeof cardSetSchema>
-export type CardImage = z.infer<typeof cardImageSchema>
-export type CardPrice = z.infer<typeof cardPriceSchema>
-export type BanlistInfo = z.infer<typeof banlistInfoSchema>
-export type MiscInfo = z.infer<typeof miscInfoSchema>
 export type Card = z.infer<typeof cardSchema>
-export type CardInfoMeta = z.infer<typeof cardInfoMetaSchema>
 export type CardInfoSuccess = z.infer<typeof cardInfoSuccessSchema>
-export type CardInfoPage = z.infer<typeof cardInfoPageSchema>
-export type CardInfoError = z.infer<typeof cardInfoErrorSchema>
-export type CardInfoResponse = z.infer<typeof cardInfoResponseSchema>
-export type ComparisonOperator = z.infer<typeof comparisonOperatorSchema>
 export type NumericFilter = z.infer<typeof numericFilterSchema>
 export type CardSearchQuery = z.infer<typeof cardSearchQuerySchema>
 export type CardSearchQueryInput = z.input<typeof cardSearchQuerySchema>

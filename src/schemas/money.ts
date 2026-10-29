@@ -2,9 +2,11 @@
 import { z } from "zod";
 
 const MONEY_PATTERN = /^(?:0|[1-9]\d{0,15})(?:\.\d{1,2})?$/;
+const MONEY_CURRENCY_CODE = "BRL";
+const MAX_MONEY_AMOUNT = "1000000.00";
 
 export const moneyValidationMessage =
-  "Money values must be greater than zero and have at most 2 decimal places.";
+  `Money values must be greater than zero, have at most 2 decimal places, and not exceed ${MONEY_CURRENCY_CODE} ${MAX_MONEY_AMOUNT}.`;
 
 export function normalizeMoney(value: string): string | null {
   const trimmed = value.trim();
@@ -16,7 +18,7 @@ export function normalizeMoney(value: string): string | null {
   const [whole, fraction = ""] = trimmed.split(".");
   const normalized = `${whole}.${fraction.padEnd(2, "0")}`;
 
-  if (normalized === "0.00") {
+  if (normalized === "0.00" || exceedsBusinessLimit(normalized)) {
     return null;
   }
 
@@ -59,6 +61,15 @@ function toCents(value: string): bigint {
   const [whole, fraction] = value.split(".");
 
   return BigInt(whole) * 100n + BigInt(fraction);
+}
+
+function exceedsBusinessLimit(value: string): boolean {
+  const [whole, fraction = "00"] = value.split(".");
+  const maximumWhole = Number(MAX_MONEY_AMOUNT.split(".")[0]);
+  return (
+    Number(whole) > maximumWhole ||
+    (whole === `${maximumWhole}` && fraction !== "00")
+  );
 }
 
 export function compareMoney(left: string, right: string): -1 | 0 | 1 {

@@ -18,7 +18,7 @@ const createLotErrorCodes = [
   "CARD_WITHOUT_IMAGE",
 ] as const;
 
-const minimumLotDurationMs = 24 * 60 * 60 * 1000;
+const minimumLotDurationMs = 1 * 60 * 1000;
 
 export type CreateLotErrorCode = (typeof createLotErrorCodes)[number];
 
@@ -51,6 +51,12 @@ export type CreateLotInput = {
 };
 
 type StoredLot = Awaited<ReturnType<typeof insertLot>>;
+
+type CatalogCard = Awaited<ReturnType<typeof findCardsByIds>>[number];
+
+type LotItemRow = Parameters<typeof insertLotItems>[1][number];
+
+type StoredLotItem = Awaited<ReturnType<typeof insertLotItems>>[number];
 
 export type CreatedLotItem = {
   id: string;
@@ -108,33 +114,11 @@ export async function createLot(
   }
 
   return dependencies.runInTransaction(async (executor) => {
-    const requestedIds = uniqueIds(input.cardIds);
-    const cards = await dependencies.findCardsByIds(executor, requestedIds);
-    const cardsById = new Map(cards.map((entry) => [entry.id, entry]));
-    const missingIds = requestedIds.filter((id) => !cardsById.has(id));
-
-    if (missingIds.length > 0) {
-      throw new CreateLotError(
-        "UNKNOWN_CARDS",
-        "One or more cards are not in the catalog.",
-        missingIds,
-      );
-    }
-
-    const cardsWithoutImage = requestedIds.filter((id) => {
-      const entry = cardsById.get(id);
-
-      return entry === undefined || !hasImage(entry.imagePath);
-    });
-
-    if (cardsWithoutImage.length > 0) {
-      throw new CreateLotError(
-        "CARD_WITHOUT_IMAGE",
-        "One or more cards do not have an image.",
-        cardsWithoutImage,
-      );
-    }
-
+    const cardsById = await findLotCards(
+      executor,
+      dependencies,
+      input.cardIds,
+    );
     const createdLot = await dependencies.insertLot(executor, {
       auctioneerId: input.auctioneerId,
       title: input.title,
@@ -145,63 +129,113 @@ export async function createLot(
       originalEndsAt: input.endsAt,
       endsAt: input.endsAt,
     });
+    const itemRows = buildItemRows(createdLot.id, input.cardIds, cardsById);
+    const createdItems = await dependencies.insertLotItems(executor, itemRows);
 
-    const itemRows = input.cardIds.map((cardId, index) => {
-      const entry = cardsById.get(cardId);
+    return toCreatedLot(createdLot, itemRows, createdItems);
+  });
+}
 
-      if (entry === undefined || !hasImage(entry.imagePath)) {
-        throw new CreateLotError(
-          "CARD_WITHOUT_IMAGE",
-          "One or more cards do not have an image.",
-          [cardId],
-        );
+async function findLotCards(
+  executor: DatabaseExecutor,
+  dependencies: CreateLotDependencies,
+  cardIds: readonly number[],
+): Promise<Map<number, CatalogCard>> {
+  const requestedIds = uniqueIds(cardIds);
+  const cards = await dependencies.findCardsByIds(executor, requestedIds);
+  const cardsById = new Map(cards.map((entry) => [entry.id, entry]));
+  const missingIds = requestedIds.filter((id) => !cardsById.has(id));
+
+  if (missingIds.length > 0) {
+    throw new CreateLotError(
+      "UNKNOWN_CARDS",
+      "One or more cards are not in the catalog.",
+      missingIds,
+    );
+  }
+
+  const cardsWithoutImage = requestedIds.filter((id) => {
+    const entry = cardsById.get(id);
+
+    return entry === undefined || !hasImage(entry.imagePath);
+  });
+
+  if (cardsWithoutImage.length > 0) {
+    throw new CreateLotError(
+      "CARD_WITHOUT_IMAGE",
+      "One or more cards do not have an image.",
+      cardsWithoutImage,
+    );
+  }
+
+  return cardsById;
+}
+
+function buildItemRows(
+  lotId: string,
+  cardIds: readonly number[],
+  cardsById: ReadonlyMap<number, CatalogCard>,
+): LotItemRow[] {
+  return cardIds.map((cardId, index) => {
+    const entry = cardsById.get(cardId);
+
+    if (entry === undefined || !hasImage(entry.imagePath)) {
+      throw new CreateLotError(
+        "CARD_WITHOUT_IMAGE",
+        "One or more cards do not have an image.",
+        [cardId],
+      );
+    }
+
+    return {
+      lotId,
+      position: index + 1,
+      cardId: entry.id,
+      quantity: 1,
+      cardName: entry.name,
+      cardSnapshot: entry.raw,
+      imagePath: entry.imagePath,
+    };
+  });
+}
+
+function toCreatedLot(
+  createdLot: StoredLot,
+  itemRows: readonly LotItemRow[],
+  createdItems: readonly StoredLotItem[],
+): CreatedLot {
+  const itemsByPosition = new Map(
+    createdItems.map((item) => [item.position, item]),
+  );
+
+  return {
+    id: createdLot.id,
+    auctioneerId: createdLot.auctioneerId,
+    title: createdLot.title,
+    description: createdLot.description,
+    openingBid: createdLot.openingBid,
+    minIncrement: createdLot.minIncrement,
+    startsAt: createdLot.startsAt,
+    originalEndsAt: createdLot.originalEndsAt,
+    endsAt: createdLot.endsAt,
+    status: createdLot.status,
+    items: itemRows.map((item) => {
+      const created = itemsByPosition.get(item.position);
+
+      if (created === undefined) {
+        throw new Error("Insert lot items did not return every position");
       }
 
       return {
-        lotId: createdLot.id,
-        position: index + 1,
-        cardId: entry.id,
-        quantity: 1,
-        cardName: entry.name,
-        cardSnapshot: entry.raw,
-        imagePath: entry.imagePath,
+        id: created.id,
+        position: created.position,
+        cardId: created.cardId,
+        quantity: created.quantity,
+        cardName: created.cardName,
+        imagePath: created.imagePath,
       };
-    });
-
-    const createdItems = await dependencies.insertLotItems(executor, itemRows);
-    const itemsByPosition = new Map(
-      createdItems.map((item) => [item.position, item]),
-    );
-
-    return {
-      id: createdLot.id,
-      auctioneerId: createdLot.auctioneerId,
-      title: createdLot.title,
-      description: createdLot.description,
-      openingBid: createdLot.openingBid,
-      minIncrement: createdLot.minIncrement,
-      startsAt: createdLot.startsAt,
-      originalEndsAt: createdLot.originalEndsAt,
-      endsAt: createdLot.endsAt,
-      status: createdLot.status,
-      items: itemRows.map((item) => {
-        const created = itemsByPosition.get(item.position);
-
-        if (created === undefined) {
-          throw new Error("Insert lot items did not return every position");
-        }
-
-        return {
-          id: created.id,
-          position: created.position,
-          cardId: created.cardId,
-          quantity: created.quantity,
-          cardName: created.cardName,
-          imagePath: created.imagePath,
-        };
-      }),
-    };
-  });
+    }),
+  };
 }
 
 function createDefaultDependencies(): CreateLotDependencies {
@@ -239,7 +273,7 @@ function assertSchedule(startsAt: Date, endsAt: Date, now: Date): void {
   ) {
     throw new CreateLotError(
       "INVALID_SCHEDULE",
-      "The lot must last at least 24 hours, and the end must be in the future.",
+      "The lot must last at least 1 minute, and the end must be in the future.",
     );
   }
 }

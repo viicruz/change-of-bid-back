@@ -1,19 +1,16 @@
 //* Libraries imports
-import { asc, eq, inArray, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 //* Schemas imports
+import { formatListedMoney as formatMoney } from "../../schemas/money";
 import type { BidderParticipationStatus } from "../../schemas/list-bidder-participations";
 
 //* Local imports
 import { db } from "../../db/index";
-import { bid, lot, lotItem, lotParticipant, receipt } from "../../db/schema";
+import { bid, lot, lotParticipant, receipt } from "../../db/schema";
 import type { DatabaseExecutor } from "../../models/executor";
-import {
-  isCanceled,
-  isEnded,
-  isLive,
-  isScheduled,
-} from "./effective-lot-status";
+import { lotListColumns, requireLotStatus } from "./lot-read";
+import { loadListedLotItems, lotListingOrder } from "./lot-listing";
 
 const listBidderParticipationsErrorCodes = ["NOT_BIDDER"] as const;
 
@@ -84,23 +81,8 @@ export async function listBidderParticipations(
   const now = dependencies.now();
   const rows = await dependencies.executor
     .select({
-      id: lot.id,
-      title: lot.title,
-      description: lot.description,
-      openingBid: lot.openingBid,
-      minIncrement: lot.minIncrement,
-      startsAt: lot.startsAt,
-      endsAt: lot.endsAt,
-      status: sql<string | null>`CASE
-        WHEN ${isCanceled()} THEN 'CANCELED'
-        WHEN ${isEnded(now)} THEN 'ENDED'
-        WHEN ${isScheduled(now)} THEN 'SCHEDULED'
-        WHEN ${isLive(now)} THEN 'LIVE'
-      END`.as("effective_status"),
-      currentBid: bid.amount,
-      bidCount: lot.bidCount,
+      ...lotListColumns(now),
       participantNo: lotParticipant.participantNo,
-      winnerId: lot.winnerId,
       shareToken: receipt.shareToken,
     })
     .from(lotParticipant)
@@ -108,24 +90,9 @@ export async function listBidderParticipations(
     .leftJoin(bid, eq(bid.id, lot.currentBidId))
     .leftJoin(receipt, eq(receipt.lotId, lot.id))
     .where(eq(lotParticipant.userId, input.userId))
-    .orderBy(
-      sql`CASE
-        WHEN ${isLive(now)} THEN 0
-        WHEN ${isScheduled(now)} THEN 1
-        WHEN ${isEnded(now)} THEN 2
-        ELSE 3
-      END`,
-      sql`CASE WHEN ${isEnded(now)} THEN ${lot.endsAt} END DESC`,
-      sql`CASE WHEN ${isScheduled(now)} THEN ${lot.startsAt} END ASC`,
-      sql`CASE WHEN ${isLive(now)} THEN ${lot.endsAt} END ASC`,
-      sql`CASE WHEN ${isCanceled()} THEN ${lot.canceledAt} END DESC`,
-      asc(lot.id),
-    );
+    .orderBy(...lotListingOrder(now));
 
-  const itemsByLotId = await loadItems(
-    dependencies.executor,
-    rows.map((row) => row.id),
-  );
+  const itemsByLotId = await loadListedLotItems(dependencies.executor, rows);
 
   return {
     lots: rows.map((row) => {
@@ -139,7 +106,7 @@ export async function listBidderParticipations(
         minIncrement: formatListedMoney(row.minIncrement),
         startsAt: row.startsAt,
         endsAt: row.endsAt,
-        status: requireStatus(row.status),
+        status: requireLotStatus(row.status, "Participation listing"),
         currentBid:
           row.currentBid === null ? null : formatListedMoney(row.currentBid),
         bidCount: row.bidCount,
@@ -159,57 +126,6 @@ function createDefaultDependencies(): ListBidderParticipationsDependencies {
   };
 }
 
-async function loadItems(executor: DatabaseExecutor, lotIds: string[]) {
-  const itemsByLotId = new Map<string, BidderParticipationItem[]>();
-
-  if (lotIds.length === 0) {
-    return itemsByLotId;
-  }
-
-  const items = await executor
-    .select({
-      id: lotItem.id,
-      lotId: lotItem.lotId,
-      position: lotItem.position,
-      cardId: lotItem.cardId,
-      quantity: lotItem.quantity,
-      cardName: lotItem.cardName,
-      imagePath: lotItem.imagePath,
-    })
-    .from(lotItem)
-    .where(inArray(lotItem.lotId, lotIds))
-    .orderBy(asc(lotItem.lotId), asc(lotItem.position));
-
-  for (const item of items) {
-    const grouped = itemsByLotId.get(item.lotId) ?? [];
-
-    grouped.push({
-      id: item.id,
-      position: item.position,
-      cardId: item.cardId,
-      quantity: item.quantity,
-      cardName: item.cardName,
-      imagePath: item.imagePath,
-    });
-    itemsByLotId.set(item.lotId, grouped);
-  }
-
-  return itemsByLotId;
-}
-
-function requireStatus(status: string | null): BidderParticipationStatus {
-  if (
-    status === "SCHEDULED" ||
-    status === "LIVE" ||
-    status === "ENDED" ||
-    status === "CANCELED"
-  ) {
-    return status;
-  }
-
-  throw new Error("Participation listing returned an unexpected status");
-}
-
 function shareTokenForBidder(won: boolean, shareToken: string | null) {
   if (!won) {
     return null;
@@ -225,17 +141,9 @@ function shareTokenForBidder(won: boolean, shareToken: string | null) {
 }
 
 function formatListedMoney(value: string): string {
-  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
-
-  if (match === null) {
+  const amount = formatMoney(value);
+  if (amount === null) {
     throw new Error("Participation listing returned an unexpected amount");
   }
-
-  const fraction = match[3] ?? "";
-
-  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
-    throw new Error("Participation listing returned an unexpected amount");
-  }
-
-  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
+  return amount;
 }

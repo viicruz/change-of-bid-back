@@ -18,7 +18,7 @@ export const deckFixtureSchema = z.object({
   side: z.array(deckCardSchema),
 });
 
-export type DeckFixture = z.infer<typeof deckFixtureSchema>;
+type DeckFixture = z.infer<typeof deckFixtureSchema>;
 
 export type DeckLotCard = {
   name: string;

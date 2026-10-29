@@ -25,5 +25,3 @@ export const createLotBodySchema = z.object({
   endsAt: z.iso.datetime({ offset: true }),
   cardIds: z.array(z.number().int().positive()).min(1),
 });
-
-export type CreateLotBody = z.infer<typeof createLotBodySchema>;

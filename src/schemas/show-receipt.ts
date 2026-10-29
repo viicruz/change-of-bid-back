@@ -1,5 +1,6 @@
 //* Libraries imports
 import { z } from "zod";
+import { shownLotItemSchema } from "./lot-read";
 
 // 32 bytes in base64url, without padding.
 const SHARE_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
@@ -10,16 +11,6 @@ export const showPublicReceiptParamsSchema = z.object({
   shareToken: shareTokenSchema,
 });
 
-const shownPublicReceiptItemSchema = z.object({
-  id: z.uuid(),
-  position: z.number().int(),
-  cardId: z.number().int(),
-  quantity: z.number().int(),
-  cardName: z.string(),
-  imagePath: z.string(),
-  cardSnapshot: z.record(z.string(), z.unknown()),
-});
-
 const shownPublicReceiptSchema = z.object({
   lotId: z.uuid(),
   title: z.string(),
@@ -27,7 +18,7 @@ const shownPublicReceiptSchema = z.object({
   endedAt: z.date(),
   finalAmount: z.string(),
   winnerParticipantNo: z.number().int(),
-  items: z.array(shownPublicReceiptItemSchema),
+  items: z.array(shownLotItemSchema),
 });
 
 export const showPublicReceiptResponseSchema = z.object({

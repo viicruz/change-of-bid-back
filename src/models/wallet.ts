@@ -1,5 +1,8 @@
 //* Libraries imports
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
+
+//* Schemas imports
+import { formatListedMoney as formatMoney } from "../schemas/money";
 
 //* Local imports
 import { wallet, walletMovement } from "../db/schema";
@@ -93,26 +96,7 @@ export async function listWalletMovementsByWalletId(
   };
 }
 
-function formatWalletMoney(value: string): string {
-  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
-
-  if (match === null) {
-    throw new Error("Wallet query returned an unexpected amount");
-  }
-
-  const fraction = match[3] ?? "";
-
-  if (fraction.length > 2 && /[1-9]/.test(fraction.slice(2))) {
-    throw new Error("Wallet query returned an unexpected amount");
-  }
-
-  return `${match[1]}${match[2]}.${fraction.padEnd(2, "0").slice(0, 2)}`;
-}
-
-export async function createWallet(
-  executor: DatabaseExecutor,
-  userId: string,
-) {
+export async function createWallet(executor: DatabaseExecutor, userId: string) {
   const inserted = await executor
     .insert(wallet)
     .values({ userId })
@@ -175,23 +159,13 @@ export async function insertReleaseMovement(
     bidId: string;
   },
 ) {
-  const rows = await executor
-    .insert(walletMovement)
-    .values({
-      walletId: values.walletId,
-      type: "RELEASE",
-      amount: values.amount,
-      lotId: values.lotId,
-      bidId: values.bidId,
-    })
-    .returning({ id: walletMovement.id });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Insert wallet movement did not return a row");
-  }
-
-  return row;
+  return insertWalletMovement(executor, {
+    walletId: values.walletId,
+    type: "RELEASE",
+    amount: values.amount,
+    lotId: values.lotId,
+    bidId: values.bidId,
+  });
 }
 
 export async function insertDepositMovement(
@@ -201,23 +175,13 @@ export async function insertDepositMovement(
     amount: string;
   },
 ) {
-  const rows = await executor
-    .insert(walletMovement)
-    .values({
-      walletId: values.walletId,
-      type: "DEPOSIT",
-      amount: values.amount,
-      lotId: null,
-      bidId: null,
-    })
-    .returning({ id: walletMovement.id });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Insert wallet movement did not return a row");
-  }
-
-  return row;
+  return insertWalletMovement(executor, {
+    walletId: values.walletId,
+    type: "DEPOSIT",
+    amount: values.amount,
+    lotId: null,
+    bidId: null,
+  });
 }
 
 export async function increaseTotalBalance(
@@ -225,24 +189,9 @@ export async function increaseTotalBalance(
   walletId: string,
   amount: string,
 ) {
-  const rows = await executor
-    .update(wallet)
-    .set({
-      totalBalance: sql`${wallet.totalBalance} + ${amount}::numeric(18,2)`,
-    })
-    .where(eq(wallet.id, walletId))
-    .returning({
-      id: wallet.id,
-      totalBalance: wallet.totalBalance,
-      committedBalance: wallet.committedBalance,
-    });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Wallet balance update did not return a row");
-  }
-
-  return row;
+  return updateWalletBalances(executor, walletId, {
+    totalBalance: sql`${wallet.totalBalance} + ${amount}::numeric(18,2)`,
+  });
 }
 
 export async function lockWalletsByUserIds(
@@ -324,23 +273,13 @@ export async function insertHoldMovement(
     bidId: string;
   },
 ) {
-  const rows = await executor
-    .insert(walletMovement)
-    .values({
-      walletId: values.walletId,
-      type: "HOLD",
-      amount: values.amount,
-      lotId: values.lotId,
-      bidId: values.bidId,
-    })
-    .returning({ id: walletMovement.id });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Insert wallet movement did not return a row");
-  }
-
-  return row;
+  return insertWalletMovement(executor, {
+    walletId: values.walletId,
+    type: "HOLD",
+    amount: values.amount,
+    lotId: values.lotId,
+    bidId: values.bidId,
+  });
 }
 
 export async function increaseCommittedBalance(
@@ -348,24 +287,9 @@ export async function increaseCommittedBalance(
   walletId: string,
   amount: string,
 ) {
-  const rows = await executor
-    .update(wallet)
-    .set({
-      committedBalance: sql`${wallet.committedBalance} + ${amount}::numeric(18,2)`,
-    })
-    .where(eq(wallet.id, walletId))
-    .returning({
-      id: wallet.id,
-      totalBalance: wallet.totalBalance,
-      committedBalance: wallet.committedBalance,
-    });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Wallet balance update did not return a row");
-  }
-
-  return row;
+  return updateWalletBalances(executor, walletId, {
+    committedBalance: sql`${wallet.committedBalance} + ${amount}::numeric(18,2)`,
+  });
 }
 
 export async function decreaseCommittedBalance(
@@ -373,24 +297,9 @@ export async function decreaseCommittedBalance(
   walletId: string,
   amount: string,
 ) {
-  const rows = await executor
-    .update(wallet)
-    .set({
-      committedBalance: sql`${wallet.committedBalance} - ${amount}::numeric(18,2)`,
-    })
-    .where(eq(wallet.id, walletId))
-    .returning({
-      id: wallet.id,
-      totalBalance: wallet.totalBalance,
-      committedBalance: wallet.committedBalance,
-    });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Wallet balance update did not return a row");
-  }
-
-  return row;
+  return updateWalletBalances(executor, walletId, {
+    committedBalance: sql`${wallet.committedBalance} - ${amount}::numeric(18,2)`,
+  });
 }
 
 // Settlement spends the reserve in one statement: committed and total both
@@ -401,25 +310,10 @@ export async function decreaseTotalAndCommittedBalance(
   walletId: string,
   amount: string,
 ) {
-  const rows = await executor
-    .update(wallet)
-    .set({
-      totalBalance: sql`${wallet.totalBalance} - ${amount}::numeric(18,2)`,
-      committedBalance: sql`${wallet.committedBalance} - ${amount}::numeric(18,2)`,
-    })
-    .where(eq(wallet.id, walletId))
-    .returning({
-      id: wallet.id,
-      totalBalance: wallet.totalBalance,
-      committedBalance: wallet.committedBalance,
-    });
-  const row = rows[0];
-
-  if (!row) {
-    throw new Error("Wallet balance update did not return a row");
-  }
-
-  return row;
+  return updateWalletBalances(executor, walletId, {
+    totalBalance: sql`${wallet.totalBalance} - ${amount}::numeric(18,2)`,
+    committedBalance: sql`${wallet.committedBalance} - ${amount}::numeric(18,2)`,
+  });
 }
 
 // A winning bid still has its HOLD and no RELEASE. Another lot's reserve must
@@ -469,21 +363,55 @@ export async function insertSettlementMovement(
     lotId: string;
   },
 ) {
+  return insertWalletMovement(executor, {
+    walletId: values.walletId,
+    type: values.type,
+    amount: values.amount,
+    lotId: values.lotId,
+    bidId: null,
+  });
+}
+
+function formatWalletMoney(value: string): string {
+  const amount = formatMoney(value);
+  if (amount === null) {
+    throw new Error("Wallet query returned an unexpected amount");
+  }
+  return amount;
+}
+
+async function insertWalletMovement(
+  executor: DatabaseExecutor,
+  values: typeof walletMovement.$inferInsert,
+) {
   const rows = await executor
     .insert(walletMovement)
-    .values({
-      walletId: values.walletId,
-      type: values.type,
-      amount: values.amount,
-      lotId: values.lotId,
-      bidId: null,
-    })
+    .values(values)
     .returning({ id: walletMovement.id });
   const row = rows[0];
-
   if (!row) {
     throw new Error("Insert wallet movement did not return a row");
   }
+  return row;
+}
 
+async function updateWalletBalances(
+  executor: DatabaseExecutor,
+  walletId: string,
+  changes: { totalBalance?: SQL; committedBalance?: SQL },
+) {
+  const rows = await executor
+    .update(wallet)
+    .set(changes)
+    .where(eq(wallet.id, walletId))
+    .returning({
+      id: wallet.id,
+      totalBalance: wallet.totalBalance,
+      committedBalance: wallet.committedBalance,
+    });
+  const row = rows[0];
+  if (!row) {
+    throw new Error("Wallet balance update did not return a row");
+  }
   return row;
 }

@@ -1,0 +1,187 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "456d0e1b-3761-407c-aedb-4a418e6e2c2f",
+  "prevIds": [
+    "a152964b-5a5d-4187-8d56-15f5e681c34b"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "bid"
+      ],
+      "writes": [
+        "s|ck|public.bid.bid_amount_limit_check",
+        "n|ck|public.bid.bid_amount_limit_check",
+        "e|ck|public.bid.bid_amount_limit_check",
+        "n|con|public.bid.bid_amount_limit_check"
+      ],
+      "reads": [
+        "n|tbl|public.bid",
+        "n|sch|public",
+        "n|col|public.bid.amount"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot"
+      ],
+      "writes": [
+        "s|ck|public.lot.lot_opening_bid_limit_check",
+        "n|ck|public.lot.lot_opening_bid_limit_check",
+        "e|ck|public.lot.lot_opening_bid_limit_check",
+        "n|con|public.lot.lot_opening_bid_limit_check"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot.opening_bid"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "lot"
+      ],
+      "writes": [
+        "s|ck|public.lot.lot_min_increment_limit_check",
+        "n|ck|public.lot.lot_min_increment_limit_check",
+        "e|ck|public.lot.lot_min_increment_limit_check",
+        "n|con|public.lot.lot_min_increment_limit_check"
+      ],
+      "reads": [
+        "n|tbl|public.lot",
+        "n|sch|public",
+        "n|col|public.lot.min_increment"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "receipt"
+      ],
+      "writes": [
+        "s|ck|public.receipt.receipt_final_amount_positive_check",
+        "n|ck|public.receipt.receipt_final_amount_positive_check",
+        "e|ck|public.receipt.receipt_final_amount_positive_check",
+        "n|con|public.receipt.receipt_final_amount_positive_check"
+      ],
+      "reads": [
+        "n|tbl|public.receipt",
+        "n|sch|public",
+        "n|col|public.receipt.final_amount"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "receipt"
+      ],
+      "writes": [
+        "s|ck|public.receipt.receipt_final_amount_limit_check",
+        "n|ck|public.receipt.receipt_final_amount_limit_check",
+        "e|ck|public.receipt.receipt_final_amount_limit_check",
+        "n|con|public.receipt.receipt_final_amount_limit_check"
+      ],
+      "reads": [
+        "n|tbl|public.receipt",
+        "n|sch|public",
+        "n|col|public.receipt.final_amount"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "wallet_movement"
+      ],
+      "writes": [
+        "s|ck|public.wallet_movement.wallet_movement_amount_limit_check",
+        "n|ck|public.wallet_movement.wallet_movement_amount_limit_check",
+        "e|ck|public.wallet_movement.wallet_movement_amount_limit_check",
+        "n|con|public.wallet_movement.wallet_movement_amount_limit_check"
+      ],
+      "reads": [
+        "n|tbl|public.wallet_movement",
+        "n|sch|public",
+        "n|col|public.wallet_movement.amount"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "bid",
+        "name": "bid_amount_limit_check",
+        "value": "\"amount\" <= 1000000.00",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_opening_bid_limit_check",
+        "value": "\"opening_bid\" <= 1000000.00",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "lot",
+        "name": "lot_min_increment_limit_check",
+        "value": "\"min_increment\" <= 1000000.00",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_final_amount_positive_check",
+        "value": "\"final_amount\" > 0",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "receipt",
+        "name": "receipt_final_amount_limit_check",
+        "value": "\"final_amount\" <= 1000000.00",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "wallet_movement",
+        "name": "wallet_movement_amount_limit_check",
+        "value": "\"amount\" <= 1000000.00",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

@@ -188,8 +188,16 @@ export const lot = pgTable(
       sql`${table.openingBid} > 0`,
     ),
     check(
+      "lot_opening_bid_limit_check",
+      sql`${table.openingBid} <= 1000000.00`,
+    ),
+    check(
       "lot_min_increment_positive_check",
       sql`${table.minIncrement} > 0`,
+    ),
+    check(
+      "lot_min_increment_limit_check",
+      sql`${table.minIncrement} <= 1000000.00`,
     ),
     check(
       "lot_schedule_check",
@@ -288,6 +296,7 @@ export const bid = pgTable(
   (table) => [
     unique("bid_lot_id_sequence_unique").on(table.lotId, table.sequence),
     check("bid_amount_positive_check", sql`${table.amount} > 0`),
+    check("bid_amount_limit_check", sql`${table.amount} <= 1000000.00`),
     index("bid_bidder_id_idx").on(table.bidderId),
   ],
 );
@@ -307,6 +316,10 @@ export const walletMovement = pgTable(
   },
   (table) => [
     check("wallet_movement_amount_positive_check", sql`${table.amount} > 0`),
+    check(
+      "wallet_movement_amount_limit_check",
+      sql`${table.amount} <= 1000000.00`,
+    ),
     check(
       "wallet_movement_lot_id_check",
       sql`(${table.type} = 'DEPOSIT' AND ${table.lotId} IS NULL) OR (${table.type} <> 'DEPOSIT' AND ${table.lotId} IS NOT NULL)`,
@@ -328,25 +341,35 @@ export const walletMovement = pgTable(
   ],
 );
 
-export const receipt = pgTable("receipt", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  lotId: uuid("lot_id")
-    .notNull()
-    .unique()
-    .references(() => lot.id),
-  winningBidId: uuid("winning_bid_id")
-    .notNull()
-    .unique()
-    .references(() => bid.id),
-  winnerId: text("winner_id")
-    .notNull()
-    .references(() => user.id),
-  winnerParticipantNo: integer("winner_participant_no").notNull(),
-  finalAmount: money("final_amount").notNull(),
-  endedAt: timestamptz("ended_at").notNull(),
-  shareToken: text("share_token").notNull().unique(),
-  ...createdAt(),
-});
+export const receipt = pgTable(
+  "receipt",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    lotId: uuid("lot_id")
+      .notNull()
+      .unique()
+      .references(() => lot.id),
+    winningBidId: uuid("winning_bid_id")
+      .notNull()
+      .unique()
+      .references(() => bid.id),
+    winnerId: text("winner_id")
+      .notNull()
+      .references(() => user.id),
+    winnerParticipantNo: integer("winner_participant_no").notNull(),
+    finalAmount: money("final_amount").notNull(),
+    endedAt: timestamptz("ended_at").notNull(),
+    shareToken: text("share_token").notNull().unique(),
+    ...createdAt(),
+  },
+  (table) => [
+    check("receipt_final_amount_positive_check", sql`${table.finalAmount} > 0`),
+    check(
+      "receipt_final_amount_limit_check",
+      sql`${table.finalAmount} <= 1000000.00`,
+    ),
+  ],
+);
 
 //* Relations
 export const relations = defineRelationsPart(

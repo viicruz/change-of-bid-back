@@ -45,6 +45,11 @@ export type CanceledLot = {
   canceledAt: Date;
 };
 
+type CancellationResult = {
+  changed: boolean;
+  lot: CanceledLot;
+};
+
 export type CancelLotDependencies = {
   now: () => Date;
   runInTransaction: <Result>(
@@ -74,64 +79,82 @@ export async function cancelLot(
     );
   }
 
-  const result = await resolved.runInTransaction(async (executor) => {
-    const locked = await resolved.lockLotForUpdate(executor, input.lotId);
-
-    if (locked === null) {
-      throw new CancelLotError("LOT_NOT_FOUND", "Lot was not found.");
-    }
-
-    if (locked.auctioneerId !== input.auctioneerId) {
-      throw new CancelLotError(
-        "LOT_NOT_OWNED",
-        "Only the owner can cancel this lot.",
-      );
-    }
-
-    if (locked.status === "CANCELED") {
-      if (locked.canceledAt === null) {
-        throw new Error("Canceled lot is missing canceledAt");
-      }
-
-      return {
-        changed: false,
-        lot: {
-          id: locked.id,
-          status: locked.status,
-          canceledAt: locked.canceledAt,
-        },
-      };
-    }
-
-    const now = resolved.now();
-
-    if (locked.status === "ENDED" || locked.endsAt.getTime() <= now.getTime()) {
-      throw new CancelLotError(
-        "LOT_NOT_CANCELABLE",
-        "Only a scheduled or live lot can be canceled.",
-      );
-    }
-
-    if (locked.currentBidId !== null) {
-      await releaseLeaderReserve(
-        executor,
-        resolved,
-        locked.id,
-        locked.currentBidId,
-      );
-    }
-
-    return {
-      changed: true,
-      lot: await resolved.markLotCanceled(executor, locked.id, now),
-    };
-  });
+  const result = await resolved.runInTransaction((executor) =>
+    cancelLockedLot(executor, resolved, input),
+  );
 
   if (result.changed) {
     await publishPublicLot(result.lot.id);
   }
 
   return result.lot;
+}
+
+async function cancelLockedLot(
+  executor: DatabaseExecutor,
+  dependencies: CancelLotDependencies,
+  input: CancelLotInput,
+): Promise<CancellationResult> {
+  const locked = await lockOwnedLot(executor, dependencies, input);
+
+  if (locked.status === "CANCELED") {
+    if (locked.canceledAt === null) {
+      throw new Error("Canceled lot is missing canceledAt");
+    }
+
+    return {
+      changed: false,
+      lot: {
+        id: locked.id,
+        status: locked.status,
+        canceledAt: locked.canceledAt,
+      },
+    };
+  }
+
+  const now = dependencies.now();
+
+  if (locked.status === "ENDED" || locked.endsAt.getTime() <= now.getTime()) {
+    throw new CancelLotError(
+      "LOT_NOT_CANCELABLE",
+      "Only a scheduled or live lot can be canceled.",
+    );
+  }
+
+  if (locked.currentBidId !== null) {
+    await releaseLeaderReserve(
+      executor,
+      dependencies,
+      locked.id,
+      locked.currentBidId,
+    );
+  }
+
+  return {
+    changed: true,
+    lot: await dependencies.markLotCanceled(executor, locked.id, now),
+  };
+}
+
+async function lockOwnedLot(
+  executor: DatabaseExecutor,
+  dependencies: CancelLotDependencies,
+  input: CancelLotInput,
+) {
+  const locked = await dependencies.lockLotForUpdate(executor, input.lotId);
+
+  if (locked === null) {
+    throw new CancelLotError("LOT_NOT_FOUND", "Lot was not found.");
+  }
+
+  if (locked.auctioneerId !== input.auctioneerId) {
+    throw new CancelLotError(
+      "LOT_NOT_OWNED",
+      "Only the owner can cancel this lot.",
+    );
+  }
+
+  return locked;
 }
 
 async function releaseLeaderReserve(
