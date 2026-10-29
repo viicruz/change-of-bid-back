@@ -1,6 +1,8 @@
 # Escopo e reprodução das análises Fallow
 
-Decisões do C03 da [auditoria de 28/10/2026](fallow-audit-2026-10-28.md).
+Medição atualizada no C01 da auditoria de 29/10/2026. As decisões de
+arquitetura, tipos e segurança abaixo foram registradas no C03 da auditoria
+de 28/10/2026.
 Ferramentas validadas: Fallow e companion type-aware **3.36.0**, TypeScript
 **5.9.3**, Vitest e provider `@vitest/coverage-v8` **5.0.5**, Elysia **1.4.30**.
 Fallow, Vitest e seu provider estão fixados no `package.json` para estabilizar
@@ -77,66 +79,92 @@ riscos. Os call sites não resolvidos continuam sendo uma limitação do scanner
 
 ## Cobertura real em banco descartável
 
-`npm run test:coverage` produz `coverage/coverage-final.json` (Istanbul), LCOV e
-resumo de texto pelo provider V8. Inclui todos os `src/**/*.ts`, inclusive os
-arquivos de produção não executados; exclui testes, helpers `__tests__` e setup.
-`coverage/` já é ignorado pelo Git. Não foram definidos limiares novos.
-
-Para reproduzir a suíte completa, executar a partir da raiz, em um shell
-separado, com Docker disponível:
+A partir da raiz, depois de `npm install`, com Docker disponível:
 
 ```sh
-set -eu
-container=$(docker run --detach --rm \
-  --publish 127.0.0.1::5432 \
-  --env POSTGRES_USER=c03_test --env POSTGRES_PASSWORD=c03_test \
-  --env POSTGRES_DB=change_of_bid_c03_test \
-  --tmpfs /var/lib/postgresql/data postgres:17)
-trap 'docker stop "$container" >/dev/null' EXIT
-port=$(docker port "$container" 5432/tcp)
-port=${port##*:}
-export DATABASE_URL="postgresql://c03_test:c03_test@127.0.0.1:$port/change_of_bid_c03_test"
-export BETTER_AUTH_SECRET=c03-test-auth-secret-with-at-least-32-characters
-export BID_HASH_SECRET=c03-test-bid-hash-secret-at-least-32-characters
-export BETTER_AUTH_URL=http://localhost:3000
-export PAGE_ORIGIN=http://localhost:5173
-attempt=0
-until docker exec "$container" pg_isready -U c03_test -d change_of_bid_c03_test; do
-  attempt=$((attempt + 1))
-  [ "$attempt" -lt 30 ] || exit 1
-  sleep 1
-done
-npm run db:migrate
-npm run test:coverage
-node_modules/.bin/fallow health --complexity --file-scores --score \
-  --coverage coverage/coverage-final.json --report-only \
-  --format json --quiet --explain > coverage/fallow-health.json
+npm run fallow:coverage
 ```
 
-Os valores acima são exclusivos do banco descartável. A URL exportada prevalece
-sobre `.env`; não se usa `db:fresh` nem se acessa o PostgreSQL de desenvolvimento.
-O shell remove a instância e os dados em memória ao sair.
+O comando executa `docs/fallow/measure-coverage.sh`: cria um PostgreSQL 17
+novo, com porta local aleatória e dados em tmpfs, aplica as migrações e roda a
+suíte completa com cobertura V8. Usa `--no-file-parallelism`: os arquivos
+compartilham o banco e a liquidação busca lotes globalmente, podendo encontrar
+fixtures ainda incompletas de outra suíte quando há execução paralela. Testes
+de concorrência dentro de cada arquivo continuam executando seus cenários.
+As variáveis exportadas no processo do script apontam para esse banco e
+prevalecem sobre `.env`; não se usa `db:fresh`.
+O container e seus dados são removidos ao terminar, inclusive em caso de falha.
 
-Resultado medido em 28/10/2026: **36 arquivos, 468 testes aprovados**, linhas
-**77,29%**, branches **72,55%**, funções **78,84%**, statements **77,18%**.
-Fallow importou **68/68 arquivos** do mapa, associando **395/1.592 funções**
-do seu universo estático. São denominadores diferentes: o Fallow também
-conta callbacks de teste e helpers excluídos da instrumentação.
+Cada execução cria um diretório exclusivo em `${TMPDIR:-/tmp}`, informa seu
+caminho e preserva os relatórios para inspeção:
 
-A saída informa `coverage_model: istanbul` e
-`coverage_source_consistency: mixed`. Funções sem correspondência continuam
-com estimativas; conferir `coverage_source` em cada finding. Por exemplo,
-`settleLockedLot` executou 21 vezes e H03 deixou de aparecer como CRAP alto;
-H01/H02 continuam excedendo complexidade. Os três scripts de seed não
-executados têm CRAP medido de 72/56/42. C10–C12 continuam pertinentes.
+| Arquivo relativo ao diretório informado | Conteúdo |
+| --- | --- |
+| `coverage/coverage-final.json` | Cobertura Istanbul recém-gerada; também há LCOV e resumo de texto no terminal. |
+| `health-production.json` | `health --production --complexity`, gate do código de produção. |
+| `health-inventory.json` | `health --complexity --complexity-breakdown --hotspots --ownership --targets --coverage-gaps --file-scores --score`, inventário completo, incluindo testes/helpers. |
+| `status.txt` | Códigos reais de saída de cada análise de saúde. Só é gerado depois das duas análises. |
 
-O comando acima é consultivo (`--report-only`). Sem essa opção, a medição
-terminou com código **1**, por **10 findings existentes**, incluindo estimativas
-em testes/helpers. Não habilitar um gate de cobertura sobre esse conjunto
-misto sem definir seu universo. Não foram elevados limiares nem alteradas
-severidades de complexidade. `health.coverage` não foi fixado na configuração:
-o relatório deve ser gerado para o código atual e fornecido explicitamente
-com `--coverage`, evitando reutilização silenciosa de um arquivo antigo.
+Ambas as análises usam `--coverage` com o caminho absoluto do arquivo gerado
+**na mesma execução**, além de `--format json --quiet --explain`. Os erros e
+avisos continuam em stderr, separados do JSON. Migração ou suíte reprovada
+interrompe o script antes de analisar cobertura; não há fallback para o arquivo
+antigo em `coverage/`. `health.coverage` continua sem caminho fixo na configuração.
+
+O script retorna falha se o gate de produção falhar ou se qualquer análise
+tiver erro de ferramenta/configuração. No inventário completo, **0** e **1**
+são análises concluídas: **1** indica findings e fica registrado em `status.txt`,
+sem reprovar o comando composto. Por isso, saída 0 de `fallow:coverage` significa
+que a suíte e o gate de produção passaram; é preciso ler o inventário para
+avaliar testes/helpers. Não se usa `--report-only`, não se elevam limiares e
+não se suprimem findings.
+
+### Escopo e interpretação
+
+A instrumentação inclui `src/**/*.ts`, inclusive arquivos de produção não
+executados, e exclui `src/**/*.test.ts`, `src/**/__tests__/**` e `src/test/**`.
+O Fallow completo também conta callbacks de testes e helpers excluídos dessa
+instrumentação: conferir `coverage_source` por finding. `estimated` não é
+cobertura medida de 0%; `coverage_source_consistency: uniform` não transforma
+estimativas em medições. Os denominadores dos dois universos são diferentes.
+
+Referência medida em **29/10/2026**, após C01: **44 arquivos / 597 testes
+aprovados**; statements **90,29%**, branches **84,80%**, funções **90,02%**,
+linhas **90,11%**. Fallow associou **70/70 arquivos** e **409/1.890 funções**
+no inventário completo; no recorte de produção, **409/411 funções**.
+
+- Produção: saída **0**, nenhum finding de saúde.
+- Inventário: saída **1**, somente H01/H02, CRAP estimado de **37,1** e **31,6**
+  nos helpers `insertLot` (`src/services/lots/__tests__/create-lot/fixtures.ts`)
+  e `insertLiveLot` (`src/routes/private/place-bid.test.ts`). Nenhuma função
+  excede os limites ciclomático **20** ou cognitivo **15**.
+- H03 (`settleEndedLots`, `src/db/seed-lot-activity.ts`) não reaparece com
+  cobertura atual. O alerta anterior vinha do relatório antigo; não há
+  correção pendente nessa função por esse alerta.
+
+Os números são uma referência datada, não um limiar novo. Para comparar uma
+mudança, executar novamente o comando e usar os relatórios da nova rodada.
+
+### Exports usados pelos testes
+
+`dead-code --production` exclui consumidores de testes e, portanto, não pode
+ser usado isoladamente para autorizar remoções. Os achados P02–P08 da auditoria
+de 29/10/2026 têm os consumidores abaixo e devem ser preservados:
+
+| Export / módulo | Consumidor de teste e motivo |
+| --- | --- |
+| `deckFixtureSchema`, `src/db/deck-fixtures.ts` | `src/db/deck-fixtures.test.ts`: validação das fixtures. |
+| `seedMinIncrement`, `src/db/seed-lot-plan.ts` | `src/db/seed-lot-plan.test.ts`: plano e cálculo do seed. |
+| `MAX_MOVEMENT_PAGE`, `src/schemas/wallet.ts` | `src/routes/private/wallet.test.ts`: contrato do limite de paginação. |
+| `LotSettlementError`, `src/services/lots/settle-due-lots.ts` | `src/services/lots/settle-due-lots.test.ts`: identidade da classe e `lotId`. |
+| `runShowPublicLotRead`, `src/services/lots/show-public-lot.ts` | `src/services/lots/show-public-lot.test.ts`: executor de leitura. |
+| `RequestRateGate`, `src/services/yugioh-api/yugioh-api.ts` | `src/services/yugioh-api/yugioh-api.test.ts`: controle do rate limit. |
+| `WalletMovementRecord`, `src/schemas/wallet.ts` | `src/routes/private/wallet.test.ts`: tipo de movimento. |
+
+P01 (`public-lot-audit-fixtures.ts`) também tem consumidores em testes;
+sua mudança de localização pertence ao C04. O gate de **saúde** de produção
+não substitui a análise completa de código morto, typecheck ou revisão dos
+consumidores antes de excluir um símbolo.
 
 ## Verificações de rotina
 
