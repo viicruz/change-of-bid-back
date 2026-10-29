@@ -8,7 +8,7 @@ A chave, `BID_HASH_SECRET`, fica no back-end, fora do banco. Isso dificulta que 
 
 ## 1. Requisitos que orientam a solução
 
-Os [Requisitos do projeto](https://app.notion.com/p/Requisitos-do-projeto-40433102e159806bb6fcdc2d3dffcd0e) definem o comportamento esperado. O [Banco de dados V2](https://app.notion.com/p/Banco-de-dados-V2-40433102e15980a69d9af2a3e7b19dba), na seção de integridade, escolhe explicitamente HMAC-SHA256 encadeado, gênese por lote, serialização canônica e âncora no lote.
+O [domínio](dominio.md) define o comportamento esperado. O [modelo de dados](modelo-de-dados.md) escolhe HMAC-SHA256 encadeado, gênese por lote, serialização canônica e âncora no lote.
 
 | Requisito | Relação com o HMAC e a auditoria |
 | --- | --- |
@@ -19,7 +19,7 @@ Os [Requisitos do projeto](https://app.notion.com/p/Requisitos-do-projeto-404331
 | RNF-04 — Dinheiro e tempo | Normalizar valores monetários e datas para que geração e verificação processem a mesma representação. |
 | RNF-06 — Testes | Demonstrar os casos de integridade e a ausência de dados privados nas respostas. |
 
-No [Tracking dos requisitos](https://app.notion.com/p/Tracking-dos-requisitos-40633102e159805aae31c14a4afd181b), RF-14, RN-11 e RN-12 estão marcados como feitos no back-end. O tracking do front-end registra RF-14 como feito e RN-12 como parcial porque a verificação ocorre no servidor. Isso confirma a divisão de responsabilidades, mas não amplia as garantias criptográficas do código. RNF-03, RNF-04 e RNF-06 possuem pendências mais amplas no tracking; este documento não declara esses requisitos integralmente concluídos.
+RF-14, RN-11 e RN-12 estão cobertos por este back-end: a consulta é pública e a verificação criptográfica fica no servidor. RNF-03, RNF-04 e RNF-06 têm escopo maior do que a cadeia de lances; este documento não os declara integralmente concluídos.
 
 ## 2. O que é HMAC e o que significa validar
 
