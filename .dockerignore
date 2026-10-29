@@ -8,3 +8,4 @@ src/**/*.test.ts
 src/test
 *.md
 docker-compose.yml
+storage/card-images

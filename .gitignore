@@ -15,7 +15,8 @@
 # production
 /build
 /dist
-/storage/card-images/
+/storage/card-images/*
+!/storage/card-images/.gitkeep
 
 # misc
 .DS_Store

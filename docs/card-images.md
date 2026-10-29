@@ -110,8 +110,9 @@ Este trabalho não executou o comando sobre os dados existentes.
 Docker atual, o destino absoluto é **`/app/storage/card-images`**. Réplicas que
 atendem os mesmos lotes precisam enxergar os mesmos arquivos. Faça backup dos
 arquivos junto com o banco; restaurar apenas PostgreSQL deixa caminhos sem
-conteúdo. A configuração completa de volumes no Docker Compose fica para outra
-entrega.
+conteúdo. No Docker Compose local, o serviço `backend` monta a pasta
+`./storage/card-images` do repositório nesse destino, compartilhando os arquivos
+com `npm run dev` e `npm run db:seed`.
 
 Lotes legados precisam do backfill para remover seus caminhos remotos. Sem a
 referência preservada nem cópia local válida, não é possível recuperar sua arte
