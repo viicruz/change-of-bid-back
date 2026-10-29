@@ -6,6 +6,8 @@ const openingBidEnd = 100;
 const dayMs = 24 * 60 * 60 * 1000;
 const scheduledDurationDays = 3;
 const lotsPerStatus = 8;
+const minCardsPerLot = 5;
+const maxCardsPerLot = 10;
 
 export const seedMinIncrement = "5.00";
 
@@ -37,6 +39,7 @@ export type SeedLotPlan = {
   status: SeedLotStatus;
   openingBid: string;
   minIncrement: string;
+  cardCount: number;
   insertStartsAt: Date;
   insertEndsAt: Date;
   startsAt: Date;
@@ -93,6 +96,7 @@ export function planSeedLots(now: Date): SeedLotPlan[] {
       status,
       openingBid: openingBidFor(index, seedDeckCount),
       minIncrement: seedMinIncrement,
+      cardCount: cardCountFor(index),
       insertStartsAt: insertWindow.startsAt,
       insertEndsAt: insertWindow.endsAt,
       startsAt: finalWindow.startsAt,
@@ -200,6 +204,10 @@ function openWindow(now: Date, offset: number) {
     startsAt: new Date(now.getTime() - dayMs),
     endsAt: new Date(now.getTime() + (2 + offset) * dayMs),
   };
+}
+
+function cardCountFor(index: number) {
+  return minCardsPerLot + (index % (maxCardsPerLot - minCardsPerLot + 1));
 }
 
 function openingBidFor(index: number, count: number) {

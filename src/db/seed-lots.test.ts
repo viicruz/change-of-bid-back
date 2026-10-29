@@ -240,6 +240,22 @@ describe("seedLots orchestration", () => {
     ]);
   });
 
+  it("keeps only the first planned cards of each deck and skips the rest in the catalog", async () => {
+    existingTitles.delete("Deck 5");
+    decks[0] = deck("Deck 0", Array.from({ length: 12 }, (_, index) => index + 1));
+    decks[5] = deck("Deck 5", Array.from({ length: 12 }, (_, index) => index + 1));
+    for (let id = 1; id <= 12; id += 1) catalog.set(id, catalogCard(id));
+
+    await runSeed();
+
+    expect(plans[0].cardCount).toBe(5);
+    expect(plans[5].cardCount).toBe(10);
+    expect(mocks.findCardsByIds).toHaveBeenCalledExactlyOnceWith(
+      expect.anything(), Array.from({ length: 10 }, (_, index) => index + 1),
+    );
+    expect(mocks.insertLotItems.mock.calls.map(([, items]) => items.length)).toEqual([5, 10]);
+  });
+
   it("rejects an unknown auctioneer before loading fixtures", async () => {
     mocks.findAuctioneer.mockResolvedValueOnce([]);
 
@@ -402,10 +418,15 @@ describe("seedLots catalog pagination", () => {
   });
 
   it("splits unique missing passcodes into chunks of 32 and resets each offset", async () => {
+    // Each lot holds at most ten cards, so spread 66 unique ids across pending decks.
     const ids = Array.from({ length: 66 }, (_, index) => index + 1);
-    decks[0] = deck("Deck 0", [...ids, 3, 1]);
-    existingTitles.delete("Deck 1");
-    decks[1] = deck("Deck 1", [66, 1]);
+    let next = 0;
+    for (let index = 0; next < ids.length; index += 1) {
+      const count = plans[index].cardCount;
+      existingTitles.delete(`Deck ${index}`);
+      decks[index] = deck(`Deck ${index}`, [...ids.slice(next, next + count - 1), 1]);
+      next += count - 1;
+    }
     catalog.set(2, catalogCard(2));
     const missingIds = ids.filter((id) => id !== 2);
     searchCards
@@ -418,11 +439,10 @@ describe("seedLots catalog pagination", () => {
     expect(searchCards.mock.calls).toEqual([
       [{ id: missingIds.slice(0, 32), num: 32, offset: 0 }],
       [{ id: missingIds.slice(32, 64), num: 32, offset: 0 }],
-      [{ id: [66], num: 32, offset: 0 }],
+      [{ id: missingIds.slice(64), num: 32, offset: 0 }],
     ]);
     expect(mocks.saveUnregisteredCards).toHaveBeenCalledExactlyOnceWith(missingIds.map(apiCard));
     expect(mocks.findCardsByIds).toHaveBeenNthCalledWith(2, expect.anything(), missingIds);
-    expect(mocks.insertLotItems).toHaveBeenCalledTimes(2);
   });
 
   it("uses the real default client with a simulated transport when no client is supplied", async () => {

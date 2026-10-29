@@ -60,6 +60,12 @@ describe("planSeedLots", () => {
     }
   });
 
+  it("keeps between five and ten cards in each lot", () => {
+    expect(plans.map((plan) => plan.cardCount)).toEqual(
+      Array.from({ length: 32 }, (_, index) => 5 + (index % 6)),
+    );
+  });
+
   it("schedules pending lots in the future for three days without bids", () => {
     const scheduled = plans.filter((plan) => plan.status === "scheduled");
 

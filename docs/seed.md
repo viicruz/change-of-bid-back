@@ -45,6 +45,8 @@ The remaining fixtures stay available but do not create lots or trigger card dow
 
 Each file has a name, a description, and `main`, `extra`, and `side` cards. Cards become lot items in that section order. Quantity is kept from the fixture. Passcodes are the catalog card ids.
 
+Each lot keeps only the first 5 to 10 entries of its deck. The plan sets `cardCount` to `5 + (index % 6)`, so the 32 lots cycle through 5, 6, 7, 8, 9, and 10 items. The remaining fixture entries are ignored and are not looked up in the catalog.
+
 Missing cards are fetched from YGOProDeck and stored before the lots are inserted. A card without an image stops the seed.
 
 ## How a lot is classified

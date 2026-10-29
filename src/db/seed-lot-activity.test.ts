@@ -61,6 +61,7 @@ function seededLot(status: SeedLotStatus, id = "seeded-lot"): SeededLot {
       status,
       openingBid: "25.00",
       minIncrement: "5.00",
+      cardCount: 5,
       insertStartsAt: new Date("2026-10-28T11:00:00.000Z"),
       insertEndsAt: new Date("2026-10-29T15:00:00.000Z"),
       startsAt: new Date(`${day}T11:00:00.000Z`),

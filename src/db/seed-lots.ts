@@ -106,7 +106,8 @@ async function findPendingSeedLots(auctioneerId: string, now: Date) {
       return [];
     }
 
-    return [{ deck, plan }];
+    // Lots keep only the first fixture entries so each one stays small.
+    return [{ deck: { ...deck, cards: deck.cards.slice(0, plan.cardCount) }, plan }];
   });
 }
 
