@@ -167,6 +167,20 @@ C01–C02 são os primeiros passos recomendados. C03–C06 são melhorias pequen
 
 Para cada commit que tocar código: `fallow guard <arquivos>` antes, testes da superfície afetada e `npm run typecheck`; `fallow architecture` e `fallow audit --base HEAD` na revisão do diff ainda não commitado. Usar sempre os flags JSON/explain acima. Para comparações entre commits, fixar a referência base real do lote. `audit --base HEAD` sozinho não audita o backlog inteiro. Reexecutar o detector específico para confirmar a redução prometida; os commits opcionais não têm meta artificial de zerar todos os sinais consultivos.
 
+### Execução do C02 — 29/10/2026
+
+Implementação preparada sobre `3bf9313f026cae917f6504560d324db1701059da`, sem criar commit Git. `src/index.test.ts` substitui `./bootstrap`, reinicia o cache de módulos e importa o índice real. Uma Promise controlada mantém o startup pendente: o teste verifica uma única chamada sem argumentos, que o import continua pendente e que só termina depois da resolução. Mocks de proteção falham se app, pool ou scheduler reais forem carregados; nenhum desses recursos é iniciado pelo smoke test. `src/index.ts` permanece inalterado.
+
+Validação:
+
+- `npm test -- src/index.test.ts src/bootstrap.test.ts`: **2 arquivos / 10 testes aprovados**, saída **0**.
+- Remoção temporária do `await` em `src/index.ts`: o novo teste falhou na asserção de import pendente, saída **1**. Arquivo restaurado antes da suíte completa.
+- `npm run typecheck`: saída **0**.
+- `npm run fallow:coverage`: saída **0**, **45 arquivos / 598 testes aprovados** em PostgreSQL 17 descartável. Statements **90,35%**, branches **84,80%**, funções **90,02%**, linhas **90,17%**. Relatórios temporários em `/tmp/change-of-bid-fallow-coverage.9O8lxX/`.
+- Inventário com essa cobertura atual: **61/61 arquivos runtime alcançados por testes**, **100%** de alcance estático, **0 arquivos / 0 exports sem caminho de teste**. G01 resolvido; esse percentual não representa cobertura de linhas.
+- Saúde de produção: saída **0**, nenhum finding. Inventário completo: saída **1**, somente H01/H02 estimados, preservados conforme C01.
+- `fallow architecture` e `fallow audit --base HEAD`, com `--format json --quiet --explain`: saída **0**, sem ciclos nem novos findings no diff.
+
 ## Apêndice D — Todos os grupos semânticos
 
 As decisões resumidas usam estas categorias: **DECL** (declarações Drizzle distintas), **ERRO** (classes/códigos de erro distintos), **ROTA** (contratos/handlers distintos), **SCHEMA** (validação distinta), **SQL** (operações diferentes), **DTO** (avaliar somente campos idênticos), **SEED** (reuso localizado), **OUTRO** (forma semelhante, preservar). Os números D são estáveis apenas neste documento; o fingerprint identifica a rodada.
