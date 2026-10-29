@@ -94,7 +94,7 @@ function registerDurationRejectionCases() {
     expect(dependencies.insertLot).not.toHaveBeenCalled();
   });
 
-  it("does not insert a lot when the duration is shorter than 24 hours", async () => {
+  it("does not insert a lot when the duration is shorter than 1 minute", async () => {
     const dependencies = createDependencies([tornadoDragon]);
     const startsAt = now;
     const endsAt = new Date(startsAt.getTime() + minimumLotDurationMs - 1);
@@ -117,7 +117,7 @@ function registerDurationRejectionCases() {
 }
 
 function registerPastEndRejectionCases() {
-  it("does not insert a lot when the end is in the past even if it lasts longer than 24 hours", async () => {
+  it("does not insert a lot when the end is in the past even if it lasts longer than 1 minute", async () => {
     const dependencies = createDependencies([tornadoDragon]);
     const endsAt = new Date(now.getTime() - 60_000);
     const startsAt = new Date(endsAt.getTime() - minimumLotDurationMs - 60_000);

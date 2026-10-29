@@ -19,7 +19,7 @@ const createLotErrorCodes = [
   "CARD_WITHOUT_IMAGE",
 ] as const;
 
-const minimumLotDurationMs = 24 * 60 * 60 * 1000;
+const minimumLotDurationMs = 1 * 60 * 1000;
 
 export type CreateLotErrorCode = (typeof createLotErrorCodes)[number];
 
@@ -283,7 +283,7 @@ function assertSchedule(startsAt: Date, endsAt: Date, now: Date): void {
   ) {
     throw new CreateLotError(
       "INVALID_SCHEDULE",
-      "The lot must last at least 24 hours, and the end must be in the future.",
+      "The lot must last at least 1 minute, and the end must be in the future.",
     );
   }
 }

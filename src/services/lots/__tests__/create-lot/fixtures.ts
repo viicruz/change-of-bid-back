@@ -9,7 +9,7 @@ import type {
 } from "../../create-lot";
 
 export const now = new Date("2026-10-26T12:00:00.000Z");
-export const minimumLotDurationMs = 24 * 60 * 60 * 1000;
+export const minimumLotDurationMs = 1 * 60 * 1000;
 
 type CatalogCard = Awaited<
   ReturnType<CreateLotDependencies["findCardsByIds"]>
