@@ -25,6 +25,7 @@ import {
 const cardPageSize = 32;
 
 type CatalogCard = Awaited<ReturnType<typeof findCardsByIds>>[number];
+type CardSearchClient = Pick<YGOProDeckApiClient, "searchCards">;
 
 export type SeededLot = {
   id: string;
@@ -32,7 +33,11 @@ export type SeededLot = {
   plan: SeedLotPlan;
 };
 
-export async function seedLots(auctioneerEmail: string, now = new Date()) {
+export async function seedLots(
+  auctioneerEmail: string,
+  now = new Date(),
+  client?: CardSearchClient,
+) {
   const auctioneerId = await findAuctioneerId(auctioneerEmail);
   const decks = await loadDeckFixtures();
   const plans = planSeedLots(now);
@@ -68,6 +73,7 @@ export async function seedLots(auctioneerEmail: string, now = new Date()) {
 
   const cardsById = await ensureCatalogCards(
     uniquePasscodes(pending.map((entry) => entry.deck)),
+    client,
   );
   const pendingLots = pending.map((entry) => ({
     deck: entry.deck,
@@ -152,7 +158,7 @@ async function findExistingLotTitles(auctioneerId: string, titles: string[]) {
   return new Set(rows.map((row) => row.title));
 }
 
-async function ensureCatalogCards(passcodes: number[]) {
+async function ensureCatalogCards(passcodes: number[], client?: CardSearchClient) {
   const stored = await findCardsByIds(db, passcodes);
   const cardsById = new Map(stored.map((card) => [card.id, card]));
   const missingIds = passcodes.filter((passcode) => !cardsById.has(passcode));
@@ -161,7 +167,7 @@ async function ensureCatalogCards(passcodes: number[]) {
     return cardsById;
   }
 
-  const fetched = await fetchCardsByPasscodes(missingIds);
+  const fetched = await fetchCardsByPasscodes(missingIds, client);
 
   await saveUnregisteredCards(fetched);
 
@@ -174,8 +180,10 @@ async function ensureCatalogCards(passcodes: number[]) {
   return cardsById;
 }
 
-async function fetchCardsByPasscodes(passcodes: number[]) {
-  const client = new YGOProDeckApiClient();
+async function fetchCardsByPasscodes(
+  passcodes: number[],
+  client: CardSearchClient = new YGOProDeckApiClient(),
+) {
   const cards: Card[] = [];
 
   for (let start = 0; start < passcodes.length; start += cardPageSize) {
@@ -189,7 +197,7 @@ async function fetchCardsByPasscodes(passcodes: number[]) {
 }
 
 async function fetchPasscodeChunk(
-  client: YGOProDeckApiClient,
+  client: CardSearchClient,
   passcodes: number[],
 ) {
   const cards: Card[] = [];
