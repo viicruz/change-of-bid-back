@@ -67,28 +67,31 @@ docker compose ps -a
 O `migrate` deve aparecer como `Exited (0)` e o `backend` como `Up`. A API fica em
 <http://localhost:3001> e a documentação OpenAPI em <http://localhost:3001/openapi>.
 
-### 3. Popule o banco com dados de demonstração (opcional)
+### 3. Popule o banco com dados de demonstração
 
-O seed roda no seu computador e acessa o PostgreSQL do Docker pela porta exposta
-(`DATABASE_URL` do `.env`):
+Esse seed já roda no ambiente de produção. Lotes, lances, recibos e a validação
+por HMAC já estão adicionados lá. Para repetir o mesmo conjunto localmente, o
+comando acessa o PostgreSQL do Docker pela porta exposta (`DATABASE_URL` do
+`.env`):
 
 ```bash
 npm install
 npm run db:seed
 ```
 
-Ele cria usuários, 32 lotes, depósitos e lances. Todas as contas usam a senha
-`123123123`:
+Ele cria as contas abaixo e adiciona lotes, lances, recibos e a cadeia HMAC dos
+lances (`previousHash`, `hash` e `headHash`, com `BID_HASH_SECRET`). Todas as
+contas usam a senha `123123123`:
 
-| E-mail | Papel |
-| --- | --- |
-| `bidder@bidder.bidder` | `BIDDER` |
-| `bidder2@bidder.bidder` | `BIDDER` |
-| `auctioneer@auctioneer.auctioneer` | `AUCTIONEER` |
+| E-mail | Papel | Senha |
+| --- | --- | --- |
+| `bidder@bidder.bidder` | `BIDDER` | `123123123` |
+| `bidder2@bidder.bidder` | `BIDDER` | `123123123` |
+| `auctioneer@auctioneer.auctioneer` | `AUCTIONEER` | `123123123` |
 
 As imagens das cartas são baixadas para `storage/card-images`. Essa pasta é montada
 no container do back-end, então ele serve as mesmas imagens. Detalhes em
-[Seed](docs/seed.md).
+[Seed](docs/seed.md) e [Validação por HMAC](docs/validacao-hmac.md).
 
 ### Alternativa: back-end fora do Docker, com reload automático
 
